@@ -2,6 +2,7 @@
 #define lcthw_List_h
 
 #include <stdlib.h>
+typedef int (*List_compare)(const void *a, const void *b);
 
 struct ListNode;
 
@@ -34,12 +35,9 @@ void *List_shift(List *list);
 
 void *List_remove(List *list, ListNode *node);
 
+int List_eqa(List *a, List *b, List_compare cmp);
+
 #define LIST_FOREACH(L, S, M, V) ListNode *_node = NULL;\
     ListNode *V = NULL;\
-    for(V = _node = L->S; _node != NULL; V = _node = _node->M) { \
-        free(cur->value); \
-        if(cur->prev) { \
-            free(cur->prev); \
-        } \
-    }
+    for(V = _node = L->S; _node != NULL; V = _node = _node->M)
 #endif

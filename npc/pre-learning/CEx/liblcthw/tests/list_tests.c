@@ -2,6 +2,7 @@
 #include <lcthw/list.h>
 #include <lcthw/list.c>
 #include <assert.h>
+#include <string.h>
 
 static List *list = NULL;
 char *test1 = "test1 data";
@@ -96,17 +97,38 @@ char *test_shift()
 }
 
 
+char *test_eqa() {
+    List *l1 = List_create();
+    List *l2 = List_create();
+    mu_assert(l1!=NULL && l2!=NULL, "Failed to create list.");
+
+    List_push(l1, test1);
+    List_push(l1, test2);
+    List_push(l1, test3);
+    List_push(l2, test1);
+    List_push(l2, test2);
+    List_push(l2, test3);
+    mu_assert(List_eqa(l1, l2, (List_compare)strcmp), "Wrong to eqa.");
+
+    List_destroy(l1);
+    List_destroy(l2);
+    return NULL;
+}
+
+
 char *test_copy() {
-    list = List_create();
+    List *l1 = List_create();
     List *list_copy = List_create();
-    mu_assert(list != NULL, "Failed to create list.");
+    mu_assert(l1 != NULL, "Failed to create list.");
 
-    List_push(list, test1);
-    List_push(list, test2);
-    List_push(list, test3);
+    List_push(l1, test1);
+    List_push(l1, test2);
+    List_push(l1, test3);
 
-    list_copy = List_copy(list);
-    mu_assert(List_eqa(list, list_copy) == 1, "Wrong to copy");
+    list_copy = List_copy(l1);
+    mu_assert(List_eqa(l1, list_copy, (List_compare)strcmp), "Wrong to copy.");
+    List_destroy(list_copy);
+    List_destroy(l1);
     return NULL;
 }
 
@@ -121,6 +143,7 @@ char *all_tests() {
     mu_run_test(test_remove);
     mu_run_test(test_shift);
     mu_run_test(test_destroy);
+    mu_run_test(test_eqa);
     mu_run_test(test_copy);
 
     return NULL;

@@ -1,5 +1,6 @@
 #include <lcthw/list.h>
 #include <lcthw/dbg.h>
+#include <lcthw/list_algos.h>
 
 List *List_create()
 {
@@ -8,25 +9,22 @@ List *List_create()
 
 void List_destroy(List *list)
 {
-    check(list != NULL, "Failed to destory list");
-    LIST_FOREACH(list, first, next, cur)
+    LIST_FOREACH(list, first, next, cur) {
+        if(cur->prev) {
+            free(cur->prev);
+        }
+    }
 
     free(list->last);
     free(list);
-
-error:
-
 }
-
 
 void List_clear(List *list)
 {
-    check(list != NULL, "Failed to clear list");
-    LIST_FOREACH(list, first, next, cur)
-
-error:
+    LIST_FOREACH(list, first, next, cur) {
+        free(cur->value);
+    }
 }
-
 
 void List_clear_destroy(List *list)
 {
@@ -34,16 +32,13 @@ void List_clear_destroy(List *list)
     List_destroy(list);
 }
 
-
 void List_push(List *list, void *value)
 {
     ListNode *node = calloc(1, sizeof(ListNode));
     check_mem(node);
 
-    check(value != NULL, "Failed to push list, value is NULL");
     node->value = value;
 
-    check(list != NULL, "Failed to push list");
     if(list->last == NULL) {
         list->first = node;
         list->last = node;
@@ -56,15 +51,13 @@ void List_push(List *list, void *value)
     list->count++;
 
 error:
+    return;
 }
 
 void *List_pop(List *list)
 {
-    check(list != NULL, "Failed to pop list");
     ListNode *node = list->last;
     return node != NULL ? List_remove(list, node) : NULL;
-
-error:
 }
 
 void List_unshift(List *list, void *value)
@@ -72,10 +65,8 @@ void List_unshift(List *list, void *value)
     ListNode *node = calloc(1, sizeof(ListNode));
     check_mem(node);
 
-    check(value != NULL, "Failed to unshift list, value is NULL");
     node->value = value;
 
-    check(list != NULL, "Failed to unshift list");
     if(list->first == NULL) {
         list->first = node;
         list->last = node;
@@ -88,15 +79,13 @@ void List_unshift(List *list, void *value)
     list->count++;
 
 error:
+    return;
 }
 
 void *List_shift(List *list)
 {
-    check(list != NULL, "Failed to shift list");
     ListNode *node = list->first;
     return node != NULL ? List_remove(list, node) : NULL;
-
-error:
 }
 
 void *List_remove(List *list, ListNode *node)
@@ -133,24 +122,25 @@ error:
 }
 
 List* List_copy(List *list) {
-    List *result_list;
+    List *result_list = List_create();
     check(list != NULL, "Failed to copy list, list is NULL");
     ListNode *node = list->first;
-    result_list = List_create();
+    node = list->first;
+    check_mem(result_list);
 
-    for (size_t i = 0; i < list->count; i++)
+    for (int i = 0; i < list->count; i++)
     {
-        List_unshift(result_list, node->value);
+        List_push(result_list, &(node->value));
         node = node->next;
     }
 
     return result_list;
     
 error:
-    return;
+    return NULL;
 }
 
-int List_eqa(List *a, List *b) {
+int List_eqa(List *a, List *b, List_compare cmp) {
     check(a != NULL, "Failed to eqa, a is NULL");
     check(b != NULL, "Failed to eqa, b is NULL");
     ListNode *nodea = calloc(1, sizeof(ListNode));
@@ -160,7 +150,7 @@ int List_eqa(List *a, List *b) {
 
     nodea = a->first;
     nodeb = b->first;
-    if (nodea == nodeb == NULL)
+    if (nodea == NULL && nodeb == NULL)
     {
         return 1;
     }
@@ -173,9 +163,9 @@ int List_eqa(List *a, List *b) {
         return 0;
     }
     else {
-        for (size_t i = 0; i < a->count; i++)
+        for (int i = 0; i < a->count; i++)
         {
-            if (nodea->value != nodeb->value)
+            if (cmp(nodea->value, nodeb->value))
             {
                 return 0;
             }
@@ -184,6 +174,9 @@ int List_eqa(List *a, List *b) {
         }
         return 1;
     }
+
+    free(nodea);
+    free(nodeb);
 error:
     return 0;
 }
