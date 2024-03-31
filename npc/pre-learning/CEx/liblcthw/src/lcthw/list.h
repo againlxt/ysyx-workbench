@@ -37,6 +37,8 @@ void *List_remove(List *list, ListNode *node);
 
 int List_eqa(List *a, List *b, List_compare cmp);
 
+void List_print_str(List *list);
+
 #define LIST_FOREACH(L, S, M, V) ListNode *_node = NULL;\
     ListNode *V = NULL;\
     for(V = _node = L->S; _node != NULL; V = _node = _node->M)

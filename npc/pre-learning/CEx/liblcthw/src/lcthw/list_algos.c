@@ -85,3 +85,27 @@ List *List_merge_sort(List *list, List_compare cmp)
 
     return List_merge(sort_left, sort_right, cmp);
 }
+
+void List_insert_sorted(List *list, ListNode *node, List_compare cmp)
+{
+    ListNode *now = calloc(1, sizeof(ListNode));
+    now = list->first;
+    for (int i = 0; i < list->count; i++)
+    {
+        if (cmp(node->value, now->value))
+        {
+            now = now->next;
+        }
+        else if (now->next == NULL)
+        {
+            List_push(list, node->value);
+        }
+        else {
+            node->next = now;
+            node->prev = now->prev;
+            now->prev->next = node;
+            node->next->prev = node;
+        }
+    }
+}
+

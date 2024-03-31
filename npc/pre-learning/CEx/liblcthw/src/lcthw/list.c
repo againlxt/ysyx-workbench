@@ -130,7 +130,7 @@ List* List_copy(List *list) {
 
     for (int i = 0; i < list->count; i++)
     {
-        List_push(result_list, &(node->value));
+        List_push(result_list, node->value);
         node = node->next;
     }
 
@@ -179,4 +179,14 @@ int List_eqa(List *a, List *b, List_compare cmp) {
     free(nodeb);
 error:
     return 0;
+}
+
+void List_print_str(List *list) {
+    ListNode *node = list->first;
+    printf("Print begin!!!\n");
+    for (int i = 0; i < list->count; i++)
+    {
+        printf("%s\n", (char *)node->value);
+        node = node->next;
+    }
 }

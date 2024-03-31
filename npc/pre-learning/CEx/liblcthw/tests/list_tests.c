@@ -119,7 +119,7 @@ char *test_eqa() {
 char *test_copy() {
     List *l1 = List_create();
     List *list_copy = List_create();
-    mu_assert(l1 != NULL, "Failed to create list.");
+    mu_assert(l1 != NULL && list_copy != NULL, "Failed to create list.");
 
     List_push(l1, test1);
     List_push(l1, test2);

@@ -10,7 +10,7 @@
 char *values[] = {"XXXX", "1234", "abcd", "xjvef", "NDSS"};
 #define NUM_VALUES  5
 #define REPEAT      1
-#define NUMBER_SIZE 100
+#define NUMBER_SIZE 1000000
 
 int intcmp(const void *a, const void *b) {
     // 将void指针转换为int指针，并解引用获取其值
@@ -42,7 +42,7 @@ List *create_words()
 List *create_numbers()
 {
     srand((unsigned)time(NULL));
-    int size = rand();
+    int size = rand()%1000000;
     List *numbers = List_create();
 
     for (int i = 0; i < size; i++)
@@ -148,7 +148,7 @@ char *all_tests()
 
     mu_run_test(test_bubble_sort);
     mu_run_test(test_merge_sort);
-    // mu_run_test(test_performences);
+    mu_run_test(test_performences);
 
     return NULL;
 }
