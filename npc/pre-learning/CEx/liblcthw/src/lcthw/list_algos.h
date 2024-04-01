@@ -11,4 +11,8 @@ List *List_merge_sort(List *list, List_compare cmp);
 
 void List_insert_sorted(List *list, ListNode *node, List_compare cmp);
 
+void merge_sort(int arr[], int len);
+
+int min(int x, int y);
+
 #endif
