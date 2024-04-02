@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <lcthw/bstrlib.h>
 #include <lcthw/dbg.h>
 #include <lcthw/ringbuffer.h>
 
