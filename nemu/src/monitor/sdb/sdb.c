@@ -17,7 +17,7 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
-#include "sdb.h"
+#include "sdb.h" 
 
 static int is_batch_mode = false;
 
@@ -53,6 +53,36 @@ static int cmd_q(char *args) {
   return -1;
 }
 
+static int cmd_si(char *args) {
+  args = strtok(NULL, " ");
+  uint64_t n;
+  if (args == NULL) n = 1;
+  else n = (uint64_t) strtoull(args, NULL, 10);
+  
+  cpu_exec(n);
+  return 0;
+}
+
+static int cmd_info(char *args) {
+  args = strtok(NULL, " ");
+  if (args == NULL) {
+    printf("Please enter subcmd.(r or w)\n");
+    return 0;
+  }
+  else {
+    if (strcmp(args, "r") == 0) {
+      isa_reg_display();
+    }
+    else if (strcmp(args, "w") == 0) {
+      printf("Subcmd w have not developed.\n");
+    }
+    else {
+      printf("Subcmd wrong, please enter r or w.\n");
+    }
+  }
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -65,6 +95,9 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
 
   /* TODO: Add more commands */
+  { "si", "Followed by parameter n, Execute n times", cmd_si},
+  { "info", "Print program status, followed with parameter. If parameter \
+  is r, printing register status. If parameter is w, print monitoring point information", cmd_info},
 
 };
 
@@ -114,7 +147,7 @@ void sdb_mainloop() {
      * which may need further parsing
      */
     char *args = cmd + strlen(cmd) + 1;
-    if (args >= str_end) {
+    if (args >= str_end) { 
       args = NULL;
     }
 
