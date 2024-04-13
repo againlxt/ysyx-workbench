@@ -17,12 +17,24 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <memory/paddr.h>
+#include <math.h>
 #include "sdb.h" 
 
 static int is_batch_mode = false;
 
 void init_regex();
 void init_wp_pool();
+
+int str2int(char *str) {
+  int result = 0;
+  int len = strlen(str);
+  for (int i = 0; i < len; i++)
+  {
+    result = (*(str + i) - 48) * pow(10, len - i - 1) + result;
+  }
+  return result;
+}
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
@@ -46,7 +58,6 @@ static int cmd_c(char *args) {
   cpu_exec(-1);
   return 0;
 }
-
 
 static int cmd_q(char *args) {
   nemu_state.state = NEMU_QUIT;
@@ -83,6 +94,21 @@ static int cmd_info(char *args) {
   return 0;
 }
 
+static int cmd_x(char *args) {
+  int n = str2int(strtok(NULL, " "));
+  args = strtok(NULL, " ");
+  args = args + 2;
+  paddr_t addr = (paddr_t) strtoll(args, NULL, 16);
+  for (int i = 0; i < n; i++)
+  {
+    paddr_t value = paddr_read(addr + 4*i, 4);
+
+    printf("%x\n", value);
+  }
+  
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -98,6 +124,8 @@ static struct {
   { "si", "Followed by parameter n, Execute n times", cmd_si},
   { "info", "Print program status, followed with parameter. If parameter \
   is r, printing register status. If parameter is w, print monitoring point information", cmd_info},
+  { "x", "Find the value of the expression EXPR and use the result as the starting memory \
+  Address, output N consecutive 4 bytes in hexadecimal form", cmd_x},
 
 };
 
