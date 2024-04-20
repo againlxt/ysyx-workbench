@@ -15,4 +15,11 @@
 
 NAME = gen-expr
 SRCS = gen-expr.c
+FILE_NAME = input
+CFLAGS = -Wall -g2 -O0
+NUMBER ?= 100
+run:
+	rm -f $(NAME) $(FILE_NAME)
+	gcc $(CFLAGS) -o $(NAME) $(SRCS) -lm
+	./$(NAME) $(NUMBER) > $(FILE_NAME)
 include $(NEMU_HOME)/scripts/build.mk

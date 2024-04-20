@@ -22,7 +22,7 @@
 #include <math.h>
 
 // Maximum number of digits
-#define MAX_NUMBER 2
+#define MAX_NUMBER 1
 
 // this should be enough
 static char buf[65536] = {};
@@ -33,7 +33,7 @@ static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
 "  unsigned result = %s; "
-"  printf(\"%%u\", result); "
+"  printf(\"%%d\", result); "
 "  return 0; "
 "}";
 
@@ -74,16 +74,25 @@ static void gen_num() {
 }
 
 static void gen(char *str) {
-  strcat(buf, str);
+  if (strcmp(str, "(")==0) {
+    char *str1 = calloc(1, sizeof(buf));
+    strcpy(str1, str);
+    strcat(str1, buf);
+    strcpy(buf, str1);
+    free(str1);
+  }
+  else if (strcmp(str, ")")==0) {
+    strcat(buf, str);
+  }
   gen_len += strlen(str);
 }
 
 static void gen_rand_op() {
   switch (choose(4)) {
-  case 0: gen("+"); break;
-  case 1: gen("-"); break;
-  case 2: gen("*"); break;
-  case 3: gen("/"); break;
+  case 0: strcat(buf, "+"); break;
+  case 1: strcat(buf, "-"); break;
+  case 2: strcat(buf, "*"); break;
+  case 3: strcat(buf, "/"); break;
   default: break;
   }
 }
@@ -94,13 +103,9 @@ static void gen_rand_expr() {
     return;
   }
   while (1) {
-    switch (choose(3)) {
-    case 0: 
-    if(gen_len!=0) if ('0'<=buf[gen_len-1] && buf[gen_len-1]<='9') {break;}
-    gen_num(); break;
-    case 1: 
-    if(gen_len!=0) if ('0'<=buf[gen_len-1] && buf[gen_len-1]<='9') {gen_rand_op();}
-    gen("("); gen_rand_expr(); gen(")"); break;
+    switch (choose(5)) {
+    case 0: gen_num(); break;
+    case 1: gen("("); gen_rand_expr(); gen(")"); break;
     default: gen_rand_expr(); gen_rand_op(); gen_rand_expr(); break;
     }
     if (gen_len >= buf_len) {
