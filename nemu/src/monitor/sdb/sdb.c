@@ -99,13 +99,26 @@ static int cmd_x(char *args) {
   args = strtok(NULL, " ");
   args = args + 2;
   paddr_t addr = (paddr_t) strtoll(args, NULL, 16);
-  for (int i = 0; i < n; i++)
-  {
+  for (int i = 0; i < n; i++) {
     paddr_t value = paddr_read(addr + 4*i, 4);
 
-    printf("%x\n", value);
+    printf("%#x:\t%#X\n", addr + 4*i, value);
   }
   
+  return 0;
+}
+
+static int cmd_test(char *args) {
+  char *cmd;
+  cmd = strtok(NULL, " ");
+  if (strcmp(cmd, "expr") == 0) {
+    bool *success = calloc(1, sizeof(bool));
+    *success = true;
+    printf("%d\n", expr((args+5),success));
+  }
+  else {
+
+  }
   return 0;
 }
 
@@ -126,6 +139,9 @@ static struct {
   is r, printing register status. If parameter is w, print monitoring point information", cmd_info},
   { "x", "Find the value of the expression EXPR and use the result as the starting memory \
   Address, output N consecutive 4 bytes in hexadecimal form", cmd_x},
+
+  // test
+  { "test", "test the current cmd", cmd_test},
 
 };
 

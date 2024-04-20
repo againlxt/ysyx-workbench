@@ -19,9 +19,15 @@
 #include <time.h>
 #include <assert.h>
 #include <string.h>
+#include <math.h>
+
+// Maximum number of digits
+#define MAX_NUMBER 2
 
 // this should be enough
 static char buf[65536] = {};
+static uint32_t buf_len = 0;
+static uint32_t gen_len = 0;
 static char code_buf[65536 + 128] = {}; // a little larger than `buf`
 static char *code_format =
 "#include <stdio.h>\n"
@@ -31,19 +37,88 @@ static char *code_format =
 "  return 0; "
 "}";
 
-static void gen_rand_expr() {
+static uint32_t choose(uint32_t n) {
+  return (uint32_t) rand()%n;
+}
+
+/*
+
+*/
+
+static void init_gen() {
   buf[0] = '\0';
+  // 最短长度为30，且给buf留有一定空间，防止溢出
+  buf_len = choose(5) + 5;
+  gen_len = 0;
+}
+
+void uint2str(uint32_t num, char* str) {
+  uint32_t strlen = 0, temp = num;
+
+  while (temp != 0) {
+    temp = temp / 10;
+    strlen ++;
+  }
+  for (uint32_t i = 0; i < strlen; i++) {
+    *(str+i) = num / pow(10, strlen-i-1) + '0';
+    num = num - (*(str+i)-'0') * pow(10, strlen-i-1);
+  }
+}
+
+static void gen_num() {
+  uint32_t num = choose(pow(10, MAX_NUMBER));
+  char str[MAX_NUMBER+1] = {};
+  uint2str(num, str);
+  strcat(buf, str);
+  gen_len += strlen(str); 
+}
+
+static void gen(char *str) {
+  strcat(buf, str);
+  gen_len += strlen(str);
+}
+
+static void gen_rand_op() {
+  switch (choose(4)) {
+  case 0: gen("+"); break;
+  case 1: gen("-"); break;
+  case 2: gen("*"); break;
+  case 3: gen("/"); break;
+  default: break;
+  }
+}
+
+static void gen_rand_expr() {
+  if (gen_len >= buf_len) {
+    gen_num();
+    return;
+  }
+  while (1) {
+    switch (choose(3)) {
+    case 0: 
+    if(gen_len!=0) if ('0'<=buf[gen_len-1] && buf[gen_len-1]<='9') {break;}
+    gen_num(); break;
+    case 1: 
+    if(gen_len!=0) if ('0'<=buf[gen_len-1] && buf[gen_len-1]<='9') {gen_rand_op();}
+    gen("("); gen_rand_expr(); gen(")"); break;
+    default: gen_rand_expr(); gen_rand_op(); gen_rand_expr(); break;
+    }
+    if (gen_len >= buf_len) {
+      break;
+    }
+  }
 }
 
 int main(int argc, char *argv[]) {
   int seed = time(0);
   srand(seed);
-  int loop = 1;
+  int loop = 10;
   if (argc > 1) {
     sscanf(argv[1], "%d", &loop);
   }
   int i;
   for (i = 0; i < loop; i ++) {
+    init_gen();
     gen_rand_expr();
 
     sprintf(code_buf, code_format, buf);
