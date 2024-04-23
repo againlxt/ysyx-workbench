@@ -46,9 +46,9 @@ static uint32_t choose(uint32_t n) {
 */
 
 static void init_gen() {
-  buf[0] = '\0';
+  strcpy(buf, "");
   // 最短长度为30，且给buf留有一定空间，防止溢出
-  buf_len = choose(5) + 5;
+  buf_len = choose(2) + 3;
   gen_len = 0;
 }
 
@@ -67,6 +67,12 @@ void uint2str(uint32_t num, char* str) {
 
 static void gen_num() {
   uint32_t num = choose(pow(10, MAX_NUMBER));
+  if (num == 0) {
+    gen_num();
+    strcat(buf, "0");
+    return;
+  }
+  
   char str[MAX_NUMBER+1] = {};
   uint2str(num, str);
   strcat(buf, str);
@@ -103,10 +109,17 @@ static void gen_rand_expr() {
     return;
   }
   while (1) {
-    switch (choose(5)) {
-    case 0: gen_num(); break;
-    case 1: gen("("); gen_rand_expr(); gen(")"); break;
-    default: gen_rand_expr(); gen_rand_op(); gen_rand_expr(); break;
+    switch (choose(3)) {
+    case 0: 
+    gen_num(); break;
+    case 1: 
+    gen("("); 
+    gen_rand_expr(); 
+    gen(")"); break;
+    default: 
+    gen_rand_expr(); 
+    gen_rand_op(); 
+    gen_rand_expr(); break;
     }
     if (gen_len >= buf_len) {
       break;

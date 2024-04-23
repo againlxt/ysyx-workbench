@@ -16,10 +16,12 @@
 NAME = gen-expr
 SRCS = gen-expr.c
 FILE_NAME = input
+DEST = /home/lxt/ysyx-workbench/nemu/src/monitor/sdb
 CFLAGS = -Wall -g2 -O0
-NUMBER ?= 100
+NUMBER ?= 1000
 run:
 	rm -f $(NAME) $(FILE_NAME)
 	gcc $(CFLAGS) -o $(NAME) $(SRCS) -lm
 	./$(NAME) $(NUMBER) > $(FILE_NAME)
+	cp $(FILE_NAME) $(DEST)
 include $(NEMU_HOME)/scripts/build.mk

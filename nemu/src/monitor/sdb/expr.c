@@ -88,7 +88,7 @@ typedef struct token
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+static Token tokens[128] __attribute__((used)) = {};
 static int nr_token __attribute__((used)) = 0;
 
 static bool make_token(char *e)
@@ -109,8 +109,8 @@ static bool make_token(char *e)
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+        //    i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -168,7 +168,7 @@ static bool make_token(char *e)
         default:
           break;
         }
-        assert(nr_token <= 32);
+        assert(nr_token <= 128);
         break;
       }
     }
@@ -216,81 +216,73 @@ static char pop(BStack *stack) {
 Determine whether the expression is surrounded by a pair of matching parentheses,
 and also check whether the left and right parentheses of the expression match.
 */
-static bool check_brackets_legal(uint32_t begin, uint32_t end)
-{
-  BStack *stack = calloc(1, sizeof(BStack));
-  strcpy(stack->brackets, "");
-  stack->top = 0;
+static bool check_brackets_legal(uint32_t begin, uint32_t end) {
+  BStack *Bstack = calloc(1, sizeof(BStack));
+  strcpy(Bstack->brackets, "");
+  Bstack->top = 0;
   uint32_t i = begin, j = end;
-  for (; i <= j; i++)
-  {
-    if (tokens[i].type == TK_LBRACKET)
-    {
-      push(stack, tokens[i].str[0]);
+
+  for (; i <= j; i++) {
+    if (tokens[i].type == TK_LBRACKET) {
+      push(Bstack, tokens[i].str[0]);
     }
-    else if (tokens[i].type == TK_RBRACKET)
-    {
-      if (pop(stack) == '\0')
-      {
+    else if (tokens[i].type == TK_RBRACKET) {
+      if (pop(Bstack) == '\0') {
         return false;
       }
     }
   }
-  if (stack->top != 0)
-  {
+  if (Bstack->top != 0) {
     return false;
   }
   return true;
 }
 
-static bool check_parentheses(uint32_t begin, uint32_t end)
-{
-  if (tokens[begin].type == TK_LBRACKET && tokens[end].type == TK_RBRACKET)
-  {
-    for (int i = begin + 1; i < end - 1; i++)
-    {
-      if (tokens[i].type == TK_LBRACKET || tokens[i].type == TK_RBRACKET)
-      {
-        return false;
-      }
-    }
+static bool check_parentheses(uint32_t begin, uint32_t end) {
+  if (tokens[begin].type == TK_LBRACKET && tokens[end].type == TK_RBRACKET) {
     return true;
   }
-  return false;
+  else {
+    return false;
+  }
 }
 
 uint32_t findop(uint32_t begin, uint32_t end) {
   // uint32_t id[32];
   uint32_t j = 0;
-  for (uint32_t i = begin; i < end; i++) {
-    if (tokens[i].type == TK_LBRACKET)
-    {
-      while (1)
-      {
-        i++;
-        if (tokens[i].type == TK_RBRACKET)
-        {
+  uint32_t optype = 0;
+  for (uint32_t i = begin; i <= end; i++) {
+    if (tokens[i].type == TK_LBRACKET) {
+      uint32_t l = 1, r = 0;
+      while (1) {
+        i ++;
+        if (tokens[i].type == TK_LBRACKET) {
+          l ++;
+        }
+        else if (tokens[i].type == TK_RBRACKET) {
+          r ++;
+        }
+        if (l == r) {
           break;
         }
       }
     }
-    else if (tokens[i].type == TK_NUMBER)
-    {
-      continue;
-    }
-    else
-    {
-      // id[j++] = i;
-      if (tokens[j].type == TK_LBRACKET || tokens[j].type == TK_LBRACKET || tokens[j].type == TK_NUMBER) {
-        j = i;
-      }
-      else if (tokens[j].type == TK_DIV || tokens[i].type == TK_MUL) {
-        j = i;
-      }
-      else {
-        if (tokens[j].type == TK_SUB || tokens[i].type == TK_PLUS) {
+    else {
+      if (optype == TK_MUL || optype == TK_DIV) {
+        if (tokens[i].type == TK_MUL || tokens[i].type == TK_DIV || tokens[i].type == TK_PLUS || tokens[i].type == TK_SUB) {
+          optype = tokens[i].type;
           j = i;
         }
+      }
+      else if (optype == TK_PLUS || optype == TK_SUB){
+        if (tokens[i].type == TK_PLUS || tokens[i].type == TK_SUB) {
+          optype = tokens[i].type;
+          j = i;
+        }
+      }
+      else {
+        optype = tokens[i].type;
+        j = i;
       }
     }
   }
@@ -298,32 +290,24 @@ uint32_t findop(uint32_t begin, uint32_t end) {
 }
 
 static uint32_t eval(uint32_t begin, uint32_t end) {
-  if (check_brackets_legal(begin, end) == false) {
-    printf("The usage of brackets is illegal.");
-    assert(0);
-  }
+  assert(check_brackets_legal(begin, end) != false);
 
-  if (begin > end)
-  {
-    printf("The starting position is further back than the ending position");
+  if (begin > end) {
+    printf("The starting position is further back than the ending position\n");
     assert(0);
   }
-  else if (begin == end)
-  {
+  else if (begin == end) {
     return str2uint32_t(tokens[begin].str);
   }
-  else if (check_parentheses(begin, end) == true)
-  {
+  else if (check_parentheses(begin, end) == true) {
     return eval(begin + 1, end - 1);
   }
-  else
-  {
+  else {
     uint32_t op = findop(begin, end);
     uint32_t val1 = eval(begin, op - 1);
     uint32_t val2 = eval(op + 1, end);
 
-    switch (tokens[op].str[0])
-    {
+    switch (tokens[op].str[0]) {
     case '+':
       return val1 + val2;
     case '-':

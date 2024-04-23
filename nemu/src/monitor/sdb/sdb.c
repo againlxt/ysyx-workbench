@@ -26,7 +26,7 @@ static int is_batch_mode = false;
 void init_regex();
 void init_wp_pool();
 
-int str2int(char *str) {
+static int str2int(char *str) {
   int result = 0;
   int len = strlen(str);
   for (int i = 0; i < len; i++)
@@ -35,6 +35,18 @@ int str2int(char *str) {
   }
   return result;
 }
+
+static uint str2uint(char *str) {
+  uint result = 0;
+  uint len = strlen(str);
+  for (uint i = 0; i < len; i++)
+  {
+    result = (*(str + i) - 48) * pow(10, len - i - 1) + result;
+  }
+  return result;
+}
+
+
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
@@ -112,9 +124,32 @@ static int cmd_test(char *args) {
   char *cmd;
   cmd = strtok(NULL, " ");
   if (strcmp(cmd, "expr") == 0) {
-    bool *success = calloc(1, sizeof(bool));
-    *success = true;
-    printf("%d\n", expr((args+5),success));
+    FILE *file = fopen("/home/lxt/ysyx-workbench/nemu/src/monitor/sdb/input", "r");
+    assert(file != NULL);
+    char line_buf[1024];
+    int l = 0;
+    while (fgets(line_buf, sizeof(line_buf), file) != NULL) {
+      l ++;
+      uint32_t answer = str2uint(strtok(line_buf, " "));
+      char *str = strtok(NULL, " \n\t");
+      bool *success = calloc(1, sizeof(bool));
+      *success = true;
+      bool *correct = calloc(1, sizeof(bool));
+      *correct = false;
+
+      if (answer > 2147483647) {
+        free(success);
+        free(correct);
+        continue;
+      }
+      else {
+        uint32_t ans = (uint32_t) expr((str),success);
+        *correct = (ans == answer) ? true : false;
+        printf("Line%d\tAnswer:%u\t\tCorrect:%d\n", l, ans, *correct);
+      }
+      free(success);
+      free(correct);
+    }
   }
   else {
 
