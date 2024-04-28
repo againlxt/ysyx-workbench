@@ -52,7 +52,7 @@ static void init_gen() {
   gen_len = 0;
 }
 
-void uint2str(uint32_t num, char* str) {
+static void uint2str(uint32_t num, char* str) {
   uint32_t strlen = 0, temp = num;
 
   while (temp != 0) {

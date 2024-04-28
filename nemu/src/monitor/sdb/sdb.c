@@ -123,7 +123,7 @@ static int cmd_x(char *args) {
 static int cmd_test(char *args) {
   char *cmd;
   cmd = strtok(NULL, " ");
-  if (strcmp(cmd, "expr") == 0) {
+  if (strcmp(cmd, "exprtest") == 0) {
     FILE *file = fopen("/home/lxt/ysyx-workbench/nemu/src/monitor/sdb/input", "r");
     assert(file != NULL);
     char line_buf[1024];
@@ -151,8 +151,16 @@ static int cmd_test(char *args) {
       free(correct);
     }
   }
-  else {
-
+  else if(strcmp(cmd, "expr") == 0){
+    bool *success = calloc(1, sizeof(bool));
+    *success = true;
+    uint32_t val = expr(args+5, success);
+    if (*success == true) {
+      printf("result: %d\n", val);
+    }
+    else {
+      printf("Evaluate Wrong!\n");
+    }
   }
   return 0;
 }

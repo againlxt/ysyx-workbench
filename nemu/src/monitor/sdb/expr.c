@@ -24,15 +24,18 @@
 enum
 {
   TK_NOTYPE = 256,
-  TK_EQ,
+  TK_REG,
+  TK_LBRACKET,
+  TK_RBRACKET,
   TK_PLUS,
   TK_SUB,
   TK_MUL,
   TK_DIV,
-  TK_LBRACKET,
-  TK_RBRACKET,
+  TK_EQ,
+  TK_UNEQ,
+  TK_AND,
   TK_NUMBER,
-
+  TK_POINTER,
   /* TODO: Add more token types */
 
 };
@@ -48,19 +51,26 @@ static struct rule
      */
 
     {" +", TK_NOTYPE},     // spaces
+    {"\\$[\\$0-9a-zA-Z][0-9a-zA-Z]", TK_REG}, // reg
+    {"\\(", TK_LBRACKET},  // left bracket
+    {"\\)", TK_RBRACKET},  // right bracket
     {"\\+", TK_PLUS},      // plus
-    {"==", TK_EQ},         // equal
     {"-", TK_SUB},         // sub
     {"\\*", TK_MUL},       // mul
     {"/", TK_DIV},         // div
-    {"\\(", TK_LBRACKET},  // left bracket
-    {"\\)", TK_RBRACKET},  // right bracket
+    {"==", TK_EQ},         // equal
+    {"!=", TK_UNEQ},       // unequal
+    {"&&", TK_AND},        // and
     {"[0-9]+", TK_NUMBER}, // number
+    {"\\*[a-zA-Z_]\\w+"},  // pointer
 };
 
 #define NR_REGEX ARRLEN(rules)
 
 static regex_t re[NR_REGEX] = {};
+static char *code_format =
+"  unsigned result = %s; "
+"  printf(\"%%d\", result); ";
 
 /* Rules are used for many times.
  * Therefore we compile them only once before any usage.
@@ -91,6 +101,19 @@ typedef struct token
 static Token tokens[128] __attribute__((used)) = {};
 static int nr_token __attribute__((used)) = 0;
 
+static void uint2str(uint32_t num, char* str) {
+  uint32_t strlen = 0, temp = num;
+
+  while (temp != 0) {
+    temp = temp / 10;
+    strlen ++;
+  }
+  for (uint32_t i = 0; i < strlen; i++) {
+    *(str+i) = num / pow(10, strlen-i-1) + '0';
+    num = num - (*(str+i)-'0') * pow(10, strlen-i-1);
+  }
+}
+
 static bool make_token(char *e)
 {
   int position = 0;
@@ -99,8 +122,11 @@ static bool make_token(char *e)
 
   nr_token = 0;
 
+
   while (e[position] != '\0')
   {
+    uint32_t val = 0;
+    char str[128] = {};
     /* Try all rules one by one. */
     for (i = 0; i < NR_REGEX; i++)
     {
@@ -123,9 +149,30 @@ static bool make_token(char *e)
         {
         case TK_NOTYPE: /*tokens[nr_token].type = TK_NOTYPE; strcpy(tokens[nr_token].str, " ");*/
           break;
+        case TK_REG:
+          bool *success = calloc(1, sizeof(bool));
+          *success = false;
+          strncpy(str, substr_start+1, substr_len-1);
+          str[substr_len] = '\0';
+          val = (uint32_t) isa_reg_str2val(str, success);
+          uint2str(val, str);
+          if (*success == true) strcpy(tokens[nr_token].str, str);
+          else  assert(0);
+          nr_token ++;
+          break;
         case TK_EQ:
           tokens[nr_token].type = TK_EQ;
           strcpy(tokens[nr_token].str, "=");
+          nr_token++;
+          break;
+        case TK_UNEQ:
+          tokens[nr_token].type = TK_UNEQ;
+          strcpy(tokens[nr_token].str, "!");
+          nr_token++;
+          break;
+        case TK_AND:
+          tokens[nr_token].type = TK_AND;
+          strcpy(tokens[nr_token].str, "&");
           nr_token++;
           break;
         case TK_PLUS:
@@ -164,7 +211,19 @@ static bool make_token(char *e)
           tokens[nr_token].str[substr_len] = '\0';
           nr_token++;
           break;
-
+        case TK_POINTER:
+          int *test = calloc(1, sizeof(int));
+          *test = 1;
+          printf("%d", *test);
+          char code_buf[65536] = {};
+          strncpy(str, substr_start, substr_len);
+          str[substr_len] = '\0';
+          sprintf(code_buf, code_format, str);
+          tokens[nr_token].type = TK_NUMBER;
+          strncpy(tokens[nr_token].str, code_buf, strlen(code_buf));
+          tokens[nr_token].str[strlen(code_buf)] = '\0';
+          nr_token++;
+          break;
         default:
           break;
         }
@@ -268,7 +327,13 @@ uint32_t findop(uint32_t begin, uint32_t end) {
       }
     }
     else {
-      if (optype == TK_MUL || optype == TK_DIV) {
+      if (optype == TK_EQ || optype == TK_UNEQ || optype == TK_AND) {
+        if (tokens[i].type == TK_MUL || tokens[i].type == TK_DIV || tokens[i].type == TK_PLUS || tokens[i].type == TK_SUB || tokens[i].type == TK_EQ || tokens[i].type == TK_UNEQ || tokens[i].type == TK_AND) {
+          optype = tokens[i].type;
+          j = i;
+        }
+      }
+      else if (optype == TK_MUL || optype == TK_DIV) {
         if (tokens[i].type == TK_MUL || tokens[i].type == TK_DIV || tokens[i].type == TK_PLUS || tokens[i].type == TK_SUB) {
           optype = tokens[i].type;
           j = i;
@@ -318,6 +383,10 @@ static uint32_t eval(uint32_t begin, uint32_t end) {
       return val1 / val2;
     case '=':
       return val1 == val2;
+    case '!':
+      return val1 != val2;
+    case '&':
+      return val1 && val2;
     default:
       assert(0);
     }
