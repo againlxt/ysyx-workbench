@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <debug/dbg.h>
 
 typedef uint32_t paddr_t;
 
