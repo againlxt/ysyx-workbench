@@ -19,12 +19,17 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
+#include <memory/paddr.h>
 #include <math.h>
 
 enum
 {
   TK_NOTYPE = 256,
   TK_REG,
+  TK_HEX,
+  TK_NUMBER,
+  TK_NEGETIVE_NUMBER,
+  TK_POINTER,
   TK_LBRACKET,
   TK_RBRACKET,
   TK_PLUS,
@@ -34,8 +39,6 @@ enum
   TK_EQ,
   TK_UNEQ,
   TK_AND,
-  TK_NUMBER,
-  TK_POINTER,
   /* TODO: Add more token types */
 
 };
@@ -52,6 +55,8 @@ static struct rule
 
     {" +", TK_NOTYPE},     // spaces
     {"\\$[\\$0-9a-zA-Z][0-9a-zA-Z]", TK_REG}, // reg
+    {"0[xX][0-9a-fA-F]+", TK_HEX}, // hexadecimal number
+    {"[0-9]+", TK_NUMBER}, // number
     {"\\(", TK_LBRACKET},  // left bracket
     {"\\)", TK_RBRACKET},  // right bracket
     {"\\+", TK_PLUS},      // plus
@@ -61,16 +66,11 @@ static struct rule
     {"==", TK_EQ},         // equal
     {"!=", TK_UNEQ},       // unequal
     {"&&", TK_AND},        // and
-    {"[0-9]+", TK_NUMBER}, // number
-    {"\\*[a-zA-Z_]\\w+"},  // pointer
 };
 
 #define NR_REGEX ARRLEN(rules)
 
 static regex_t re[NR_REGEX] = {};
-static char *code_format =
-"  unsigned result = %s; "
-"  printf(\"%%d\", result); ";
 
 /* Rules are used for many times.
  * Therefore we compile them only once before any usage.
@@ -101,7 +101,13 @@ typedef struct token
 static Token tokens[128] __attribute__((used)) = {};
 static int nr_token __attribute__((used)) = 0;
 
+static bool check_brackets_legal(uint32_t begin, uint32_t end);
+static bool check_left_is_operator(uint32_t index);
+static uint32_t str2uint32_t_have_operator(char *operator, char *num);
+
+
 static void uint2str(uint32_t num, char* str) {
+  strcpy(str, "");
   uint32_t strlen = 0, temp = num;
 
   while (temp != 0) {
@@ -112,6 +118,7 @@ static void uint2str(uint32_t num, char* str) {
     *(str+i) = num / pow(10, strlen-i-1) + '0';
     num = num - (*(str+i)-'0') * pow(10, strlen-i-1);
   }
+  *(str+strlen) = '\0';
 }
 
 static bool make_token(char *e)
@@ -211,17 +218,12 @@ static bool make_token(char *e)
           tokens[nr_token].str[substr_len] = '\0';
           nr_token++;
           break;
-        case TK_POINTER:
-          int *test = calloc(1, sizeof(int));
-          *test = 1;
-          printf("%d", *test);
-          char code_buf[65536] = {};
-          strncpy(str, substr_start, substr_len);
-          str[substr_len] = '\0';
-          sprintf(code_buf, code_format, str);
+        case TK_HEX:
           tokens[nr_token].type = TK_NUMBER;
-          strncpy(tokens[nr_token].str, code_buf, strlen(code_buf));
-          tokens[nr_token].str[strlen(code_buf)] = '\0';
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          uint32_t val = (uint32_t) strtol(tokens[nr_token].str, NULL, 16);
+          uint2str(val, tokens[nr_token].str);
           nr_token++;
           break;
         default:
@@ -251,6 +253,21 @@ static uint32_t str2uint32_t(char *str)
     result = (*(str + i) - 48) * pow(10, len - i - 1) + result;
   }
   return result;
+}
+
+static uint32_t str2uint32_t_have_operator(char *operator, char *num) {
+  switch (*operator) {
+  case '*':
+    paddr_t addr = (paddr_t) strtol(num, NULL, 10);
+    return (uint32_t) paddr_read(addr, 4);
+    break;
+  case '-':
+    return (0 - (uint32_t) strtol(num, NULL, 10));
+  default:
+    break;
+  }
+
+  return 0;
 }
 
 typedef struct bstack
@@ -306,6 +323,12 @@ static bool check_parentheses(uint32_t begin, uint32_t end) {
   }
 }
 
+static bool check_left_is_operator(uint32_t index) {
+  if (index == 0) return false;
+  else if (tokens[index-1].type >= TK_PLUS) return true;
+  return false;
+}
+
 uint32_t findop(uint32_t begin, uint32_t end) {
   // uint32_t id[32];
   uint32_t j = 0;
@@ -327,6 +350,12 @@ uint32_t findop(uint32_t begin, uint32_t end) {
       }
     }
     else {
+      if (optype == TK_POINTER || optype == TK_NEGETIVE_NUMBER) {
+        if (tokens[i].type == TK_MUL || tokens[i].type == TK_DIV || tokens[i].type == TK_PLUS || tokens[i].type == TK_SUB || tokens[i].type == TK_EQ || tokens[i].type == TK_UNEQ || tokens[i].type == TK_AND || optype == TK_POINTER || optype == TK_NEGETIVE_NUMBER) {
+          optype = tokens[i].type;
+          j = i;
+        }
+      }
       if (optype == TK_EQ || optype == TK_UNEQ || optype == TK_AND) {
         if (tokens[i].type == TK_MUL || tokens[i].type == TK_DIV || tokens[i].type == TK_PLUS || tokens[i].type == TK_SUB || tokens[i].type == TK_EQ || tokens[i].type == TK_UNEQ || tokens[i].type == TK_AND) {
           optype = tokens[i].type;
@@ -364,6 +393,9 @@ static uint32_t eval(uint32_t begin, uint32_t end) {
   else if (begin == end) {
     return str2uint32_t(tokens[begin].str);
   }
+  else if (begin == end-1) {
+    return str2uint32_t_have_operator(tokens[begin].str, tokens[end].str);
+  }
   else if (check_parentheses(begin, end) == true) {
     return eval(begin + 1, end - 1);
   }
@@ -398,6 +430,15 @@ word_t expr(char *e, bool *success) {
   {
     *success = false;
     return 0;
+  }
+
+  for (uint32_t i = 0; i < nr_token; i ++) {
+    if (tokens[i].type == TK_MUL && (i == 0 || check_left_is_operator(i)) ) {
+      tokens[i].type = TK_POINTER;
+    }
+    if (tokens[i].type == TK_SUB && (i == 0 || check_left_is_operator(i)) ) {
+      tokens[i].type = TK_NEGETIVE_NUMBER;
+    }
   }
 
   /* TODO: Insert codes to evaluate the expression. */
