@@ -432,7 +432,6 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
 
-  for (uint32_t i = 0; i < nr_token; i ++) {
     if (tokens[i].type == TK_MUL && (i == 0 || check_left_is_operator(i)) ) {
       tokens[i].type = TK_POINTER;
     }

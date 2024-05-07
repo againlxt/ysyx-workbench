@@ -19,7 +19,7 @@
 #include <readline/history.h>
 #include <memory/paddr.h>
 #include <math.h>
-#include "sdb.h" 
+#include <sdb.h>
 
 static int is_batch_mode = false;
 
@@ -45,8 +45,6 @@ static uint str2uint(char *str) {
   }
   return result;
 }
-
-
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
@@ -97,7 +95,7 @@ static int cmd_info(char *args) {
       isa_reg_display();
     }
     else if (strcmp(args, "w") == 0) {
-      printf("Subcmd w have not developed.\n");
+      print_wp_pool();
     }
     else {
       printf("Subcmd wrong, please enter r or w.\n");
@@ -117,6 +115,19 @@ static int cmd_x(char *args) {
     printf("%#x:\t%#X\n", addr + 4*i, value);
   }
   
+  return 0;
+}
+
+static int cmd_w(char *args) {
+  char *expr = strtok(NULL, " ");
+  new_wp(expr);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  char *num = strtok(NULL, " ");
+  uint32_t n = (uint32_t) strtol(num, NULL, 10);
+  free_wp(n);
   return 0;
 }
 
@@ -182,6 +193,8 @@ static struct {
   is r, printing register status. If parameter is w, print monitoring point information", cmd_info},
   { "x", "Find the value of the expression EXPR and use the result as the starting memory \
   Address, output N consecutive 4 bytes in hexadecimal form", cmd_x},
+  { "w", "Set a watchpoint. When the value of expression EXPR changes, program execution is paused.", cmd_w},
+  { "d", "Delete the monitoring point with serial number N", cmd_d},
 
   // test
   { "test", "test the current cmd", cmd_test},
