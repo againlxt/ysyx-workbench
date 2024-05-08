@@ -62,19 +62,25 @@ static WP* find_the_previous_wp(WP *wp, WP *head) {
   return pre_wp;
 }
 
-static void wp_delete(WP *wp, WP *head) {
-  if(wp == head) {
-    head = head->next;
+static void wp_delete(WP *wp, WP *h) {
+  if(wp == h) {
+    head = wp->next;
+    WP *temp = wp;
+    while (temp != NULL) {
+      temp->NO --;
+      temp = temp->next;
+    }
     init_wp(wp, "", 0);
   }
   else {
-    WP *pre_wp = find_the_previous_wp(wp, head);
-    while (wp != NULL) {
-      wp->NO --;
-      wp = wp->next;
+    WP *pre_wp = find_the_previous_wp(wp, h);
+    WP *temp = wp;
+    pre_wp->next = wp->next;
+    while (temp != NULL) {
+      temp->NO --;
+      temp = temp->next;
     }
     init_wp(wp, "", 0);
-    pre_wp->next = wp->next;
   }
 }
 
