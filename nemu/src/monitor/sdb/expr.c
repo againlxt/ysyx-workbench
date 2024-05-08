@@ -426,11 +426,11 @@ static uint32_t eval(uint32_t begin, uint32_t end) {
 }
 
 word_t expr(char *e, bool *success) {
-  if (!make_token(e))
-  {
+  if (!make_token(e)) {
     *success = false;
     return 0;
   }
+  *success = true;
   for (int i = 0; i < nr_token; i ++) {
     if (tokens[i].type == TK_MUL && (i == 0 || check_left_is_operator(i)) ) {
       tokens[i].type = TK_POINTER;

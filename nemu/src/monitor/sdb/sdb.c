@@ -36,7 +36,7 @@ static int str2int(char *str) {
   return result;
 }
 
-static uint str2uint(char *str) {
+static uint32_t str2uint(char *str) {
   uint result = 0;
   uint len = strlen(str);
   for (uint i = 0; i < len; i++)
@@ -44,6 +44,78 @@ static uint str2uint(char *str) {
     result = (*(str + i) - 48) * pow(10, len - i - 1) + result;
   }
   return result;
+}
+
+static bool* new_bool() {
+  bool *success = calloc(1, sizeof(bool));
+  *success = false;
+  return success;
+}
+
+static bool check_success(bool *success) {
+  if(*success == false) log_err("Program execution error");
+  return *success;
+}
+
+static char* rl_gets();
+static int cmd_c(char *args);
+static int cmd_q(char *args);
+static int cmd_si(char *args);
+static int cmd_info(char *args);
+static int cmd_x(char *args);
+static int cmd_w(char *args);
+static int cmd_test(char *args);
+static int cmd_d(char *args);
+static int cmd_p(char *args);
+static int cmd_help(char *args);
+
+static struct {
+  const char *name;
+  const char *description;
+  int (*handler) (char *);
+} cmd_table [] = {
+  { "help", "Display information about all supported commands", cmd_help },
+  { "c", "Continue the execution of the program", cmd_c },
+  { "q", "Exit NEMU", cmd_q },
+
+  /* TODO: Add more commands */
+  { "si", "Followed by parameter n, Execute n times", cmd_si},
+  { "info", "Print program status, followed with parameter. If parameter \
+  is r, printing register status. If parameter is w, print monitoring point information", cmd_info},
+  { "x", "Find the value of the expression EXPR and use the result as the starting memory \
+  Address, output N consecutive 4 bytes in hexadecimal form", cmd_x},
+  { "w", "Set a watchpoint. When the value of expression EXPR changes, program execution is paused.", cmd_w},
+  { "d", "Delete the monitoring point with serial number N", cmd_d},
+  { "p", "Expression evaluation, followed with a expression", cmd_p},
+
+  // test
+  { "test", "test the current cmd", cmd_test},
+
+};
+
+#define NR_CMD ARRLEN(cmd_table)
+
+static int cmd_help(char *args) {
+  /* extract the first argument */
+  char *arg = strtok(NULL, " ");
+  int i;
+
+  if (arg == NULL) {
+    /* no argument given */
+    for (i = 0; i < NR_CMD; i ++) {
+      printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
+    }
+  }
+  else {
+    for (i = 0; i < NR_CMD; i ++) {
+      if (strcmp(arg, cmd_table[i].name) == 0) {
+        printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
+        return 0;
+      }
+    }
+    printf("Unknown command '%s'\n", arg);
+  }
+  return 0;
 }
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
@@ -105,16 +177,23 @@ static int cmd_info(char *args) {
 }
 
 static int cmd_x(char *args) {
-  int n = str2int(strtok(NULL, " "));
-  args = strtok(NULL, " ");
-  args = args + 2;
-  paddr_t addr = (paddr_t) strtoll(args, NULL, 16);
-  for (int i = 0; i < n; i++) {
-    paddr_t value = paddr_read(addr + 4*i, 4);
-
-    printf("%#x:\t%#X\n", addr + 4*i, value);
-  }
+  char cmd[128] = {};
+  strcpy(cmd, args);
+  char *num = strtok(NULL, " ");
+  int n = str2int(num);
+  char* expression = strchr(cmd, ' ');
   
+  bool* success = new_bool();
+  paddr_t addr = (paddr_t) expr(expression, success);
+  if(check_success(success)) {
+    for (int i = 0; i < n; i++) {
+      paddr_t value = paddr_read(addr + 4*i, 4);
+      printf("%#x:\t%#X\n", addr + 4*i, value);
+    }
+  }
+  else {
+    return 1;
+  }
   return 0;
 }
 
@@ -128,6 +207,19 @@ static int cmd_d(char *args) {
   char *num = strtok(NULL, " ");
   uint32_t n = (uint32_t) strtol(num, NULL, 10);
   free_wp(n);
+  return 0;
+}
+
+static int cmd_p(char *args) {
+  bool *success = new_bool();
+  word_t val = expr(args, success);
+  if(check_success(success)) {
+    printf("Expr:%s\t\tval:%d\n", args, val);
+    return 0;
+  }
+  else {
+    return 1;
+  }
   return 0;
 }
 
@@ -172,56 +264,6 @@ static int cmd_test(char *args) {
     else {
       printf("Evaluate Wrong!\n");
     }
-  }
-  return 0;
-}
-
-static int cmd_help(char *args);
-
-static struct {
-  const char *name;
-  const char *description;
-  int (*handler) (char *);
-} cmd_table [] = {
-  { "help", "Display information about all supported commands", cmd_help },
-  { "c", "Continue the execution of the program", cmd_c },
-  { "q", "Exit NEMU", cmd_q },
-
-  /* TODO: Add more commands */
-  { "si", "Followed by parameter n, Execute n times", cmd_si},
-  { "info", "Print program status, followed with parameter. If parameter \
-  is r, printing register status. If parameter is w, print monitoring point information", cmd_info},
-  { "x", "Find the value of the expression EXPR and use the result as the starting memory \
-  Address, output N consecutive 4 bytes in hexadecimal form", cmd_x},
-  { "w", "Set a watchpoint. When the value of expression EXPR changes, program execution is paused.", cmd_w},
-  { "d", "Delete the monitoring point with serial number N", cmd_d},
-
-  // test
-  { "test", "test the current cmd", cmd_test},
-
-};
-
-#define NR_CMD ARRLEN(cmd_table)
-
-static int cmd_help(char *args) {
-  /* extract the first argument */
-  char *arg = strtok(NULL, " ");
-  int i;
-
-  if (arg == NULL) {
-    /* no argument given */
-    for (i = 0; i < NR_CMD; i ++) {
-      printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
-    }
-  }
-  else {
-    for (i = 0; i < NR_CMD; i ++) {
-      if (strcmp(arg, cmd_table[i].name) == 0) {
-        printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
-        return 0;
-      }
-    }
-    printf("Unknown command '%s'\n", arg);
   }
   return 0;
 }
