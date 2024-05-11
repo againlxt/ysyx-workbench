@@ -39,9 +39,8 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #endif
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
-
-  // 
-  traverse_watchpoints();
+  
+  IFDEF(CONFIG_WATCHPOINT, traverse_watchpoints());
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {
@@ -73,6 +72,8 @@ static void exec_once(Decode *s, vaddr_t pc) {
   p[0] = '\0'; // the upstream llvm does not support loongarch32r
 #endif
 #endif
+
+
 }
 
 static void execute(uint64_t n) {

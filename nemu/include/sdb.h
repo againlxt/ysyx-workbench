@@ -17,7 +17,6 @@
 #define __SDB_H__
 
 #include <common.h>
-#include <dbg.h>
 
 typedef struct watchpoint {
   int NO;

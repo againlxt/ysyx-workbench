@@ -176,7 +176,7 @@ void traverse_watchpoints() {
     int32_t val = expr(wp->expr, success);
     if(val != wp->val) {
       nemu_state.state = NEMU_STOP;
-      init_wp(wp, wp->expr, val);
+      wp->val = val;
       printf("Watchpoint value changes: %s = %d\n", wp->expr, wp->val);
       return;
     }

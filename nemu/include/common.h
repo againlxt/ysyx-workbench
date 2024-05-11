@@ -23,6 +23,7 @@
 
 #include <generated/autoconf.h>
 #include <macro.h>
+#include <dbg.h>
 
 #ifdef CONFIG_TARGET_AM
 #include <klib.h>
