@@ -24,7 +24,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 
 # project source
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
-CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
+CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp" -not -name "sim_main.cpp")
 CSRCS += $(SRC_AUTO_BIND)
 VERCS = $(shell find $(abspath ./csrc) -name "sim_main.c")
 VCDSRCS = $(shell find $(abspath ./) -name "*.vcd")
@@ -52,7 +52,7 @@ clean:
 	rm -rf $(BUILD_DIR)
 	rm -rf ./*.vcd
 
-versim: $(VSRCS) $(CSRCS)
+versim: $(VSRCS) $(VERCS)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $(abspath ./csrc/sim_main.cpp) $(VSRCS) \
