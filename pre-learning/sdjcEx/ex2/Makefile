@@ -6,6 +6,9 @@ VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert --trace
 
+GTKWAVE = gtkwave
+GTKWAVE_CFLAGS += 
+
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(BUILD_DIR)/$(TOPNAME)
@@ -21,9 +24,10 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 
 # project source
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
-CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp" -not -name "sim_main.cpp")
+CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 CSRCS += $(SRC_AUTO_BIND)
 VERCS = $(shell find $(abspath ./csrc) -name "sim_main.c")
+VCDSRCS = $(shell find $(abspath ./) -name "*.vcd")
 
 # rules for NVBoard
 include $(NVBOARD_HOME)/scripts/nvboard.mk
@@ -54,5 +58,7 @@ versim: $(VSRCS) $(CSRCS)
 		--top-module $(TOPNAME) $(abspath ./csrc/sim_main.cpp) $(VSRCS) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 	$(BUILD_DIR)/top
+wave: 
+	$(GTKWAVE) $(GTKWAVE_CFLAGS) $(VCDSRCS)
 
 .PHONY: default all clean run
