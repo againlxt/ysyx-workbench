@@ -166,7 +166,7 @@ void print_wp_pool() {
 
 void traverse_watchpoints() {
   if(wp_pool_is_empty()) {
-    log_warn("wp_pool is empty!");
+    return;
   }
   WP *wp = head;
 
