@@ -39,7 +39,6 @@ enum
   TK_EQ,
   TK_UNEQ,
   TK_AND,
-  /* TODO: Add more token types */
 
 };
 
@@ -49,9 +48,6 @@ static struct rule
   int token_type;
 } rules[] = {
 
-    /* TODO: Add more rules.
-     * Pay attention to the precedence level of different rules.
-     */
 
     {" +", TK_NOTYPE},     // spaces
     {"\\$[\\$0-9a-zA-Z][0-9a-zA-Z]", TK_REG}, // reg
@@ -147,11 +143,6 @@ static bool make_token(char *e)
 
         position += substr_len;
 
-        /* TODO: Now a new token is recognized with rules[i]. Add codes
-         * to record the token in the array `tokens'. For certain types
-         * of tokens, some extra actions should be performed.
-         */
-
         switch (rules[i].token_type)
         {
         case TK_NOTYPE: /*tokens[nr_token].type = TK_NOTYPE; strcpy(tokens[nr_token].str, " ");*/
@@ -165,6 +156,7 @@ static bool make_token(char *e)
           uint2str(val, str);
           if (*success == true) strcpy(tokens[nr_token].str, str);
           else  assert(0);
+          free(success);
           nr_token ++;
           break;
         case TK_EQ:
@@ -309,8 +301,11 @@ static bool check_brackets_legal(uint32_t begin, uint32_t end) {
     }
   }
   if (Bstack->top != 0) {
+    free(Bstack);
     return false;
   }
+
+  free(Bstack);
   return true;
 }
 
@@ -440,6 +435,5 @@ word_t expr(char *e, bool *success) {
     }
   }
 
-  /* TODO: Insert codes to evaluate the expression. */
   return eval(0, nr_token - 1);
 }

@@ -46,12 +46,6 @@ static uint32_t str2uint(char *str) {
   return result;
 }
 
-static bool* new_bool() {
-  bool *success = calloc(1, sizeof(bool));
-  *success = false;
-  return success;
-}
-
 static bool check_success(bool *success) {
   if(*success == false) log_err("Program execution error");
   return *success;
@@ -78,7 +72,6 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
 
-  /* TODO: Add more commands */
   { "si", "Followed by parameter n, Execute n times", cmd_si},
   { "info", "Print program status, followed with parameter. If parameter \
   is r, printing register status. If parameter is w, print monitoring point information", cmd_info},
@@ -183,7 +176,8 @@ static int cmd_x(char *args) {
   int n = str2int(num);
   char* expression = strchr(cmd, ' ');
   
-  bool* success = new_bool();
+  bool* success = calloc(sizeof(bool), 1);
+  *success = false;
   paddr_t addr = (paddr_t) expr(expression, success);
   if(check_success(success)) {
     for (int i = 0; i < n; i++) {
@@ -192,8 +186,10 @@ static int cmd_x(char *args) {
     }
   }
   else {
+    free(success);
     return 1;
   }
+  free(success);
   return 0;
 }
 
@@ -211,15 +207,19 @@ static int cmd_d(char *args) {
 }
 
 static int cmd_p(char *args) {
-  bool *success = new_bool();
+  bool* success = calloc(sizeof(bool), 1);
+  *success = false;
   word_t val = expr(args, success);
   if(check_success(success)) {
     printf("Expr:%s\t\tval:%d\n", args, val);
+    free(success);
     return 0;
   }
   else {
+    free(success);
     return 1;
   }
+  free(success);
   return 0;
 }
 

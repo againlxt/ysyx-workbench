@@ -123,6 +123,7 @@ void new_wp(char *str) {
     free_ = free_->next;
     bool *success = calloc(1, sizeof(bool));
     init_wp(end, str, (int32_t) expr(str, success));
+    free(success);
   }
   else {
     end->next = free_;
@@ -131,6 +132,7 @@ void new_wp(char *str) {
     free_ = free_->next;
     bool *success = calloc(1, sizeof(bool));
     init_wp(end, str, (int32_t) expr(str, success));
+    free(success);
   }
 }
 
@@ -166,14 +168,23 @@ void print_wp_pool() {
 
 void traverse_watchpoints() {
   if(wp_pool_is_empty()) {
-    log_warn("wp_pool is empty!");
+    return;
   }
   WP *wp = head;
 
   while (!wp_is_NULL(wp)) {
     bool *success = calloc(1, sizeof(bool));
     *success = false;
-    int32_t val = expr(wp->expr, success);
+    int32_t val;
+    val = expr(wp->expr, success);
+    if(*success == true) {
+      free(success);
+    }
+    else {
+      log_err("expr wrong");
+      free(success);
+      assert(0);
+    }
     if(val != wp->val) {
       nemu_state.state = NEMU_STOP;
       wp->val = val;
