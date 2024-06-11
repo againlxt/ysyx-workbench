@@ -46,19 +46,15 @@ enum {
 } while(0)
 
 #define Jal() do { R(rd) = s->pc + 4; s->dnpc = s->pc + imm; } while(0)
-#define Jalr() do { word_t t = s -> pc; s->dnpc = (src1 + imm) &~ 1; R(rd) = t; } while(0)
+#define Jalr() do { word_t t = s->pc + 4; s->dnpc = (src1 + imm) &~ 1; R(rd) = t; } while(0)
 #define Bne() do { s->dnpc = s->pc + ((src1 != src2) ? imm : 4); } while(0)
 #define Beq() do { s->dnpc = s->pc + ((src1 == src2) ? imm : 4); } while(0)
 #define Bge() do { s->dnpc = s->pc + (((int32_t)src1 >= (int32_t)src2) ? imm : 4); } while(0);
 #define Bgeu() do { s->dnpc = s->pc + ((src1 >= src2) ? imm : 4); } while(0);
 #define Blt() do { s->dnpc = s->pc + (((int32_t)src1 < (int32_t)src2) ? imm : 4); } while(0);
 #define Bltu() do { s->dnpc = s->pc + ((src1 < src2) ? imm : 4); } while(0);
-#define Mul() do { int32_t t1 = src1; int32_t t2 = src2; R(rd) = t1 * t2; \
-  printf("src1 = %x\nsrc2 = %x\nR(rd) = %x\n", t1, t2, R(rd)); \
-} while(0)
-#define Mulh() do { uint64_t t1 = SEXT(src1, 32); uint64_t t2 = SEXT(src2, 32); long long t = t1 * t2; R(rd) = t >> 32; \
-  printf("src1 = %lx\nsrc2 = %lx\nt = %llx\nR(rd) = %x\n", t1, t2, t, R(rd)); \
-} while(0)
+#define Mul() do { int32_t t1 = src1; int32_t t2 = src2; R(rd) = t1 * t2; } while(0)
+#define Mulh() do { uint64_t t1 = SEXT(src1, 32); uint64_t t2 = SEXT(src2, 32); long long t = t1 * t2; R(rd) = t >> 32; } while(0)
 #define Div() do { int32_t t1 = src1; int32_t t2 = src2; R(rd) = t1 / t2; } while(0);
 #define Rem() do { int32_t t1 = src1; int32_t t2 = src2; R(rd) = t1 % t2; } while(0);
 
