@@ -29,9 +29,9 @@ Reg #(32, 32'h8000_0000) pc_reg (
 Reg #(1, 1'b1) pc_reg_ready (
     .clk(clk),
     .rst(!rst_n),
-    .din(1'b1),
+    .din(o_axi_ready & !(i_axi_valid & i_ren) | (!o_axi_ready)&(o_axi_valid&i_axi_ready)),
     .dout(o_axi_ready),
-    .wen(o_axi_ready & !(i_axi_valid & i_ren) | (!o_axi_ready)&(o_axi_valid&i_axi_ready))
+    .wen(1'b1)
 );
 
 assign o_axi_data_cmd = (i_ren) ? i_cmd : 32'd0;
@@ -45,12 +45,12 @@ Reg #(32, 32'd0) cmd_delay_reg0 (
     .wen(1'b1)
 ); 
 
-Reg #(1, 1'b1) cmd_reg_valid (
+Reg #(1, 1'b0) cmd_reg_valid (
     .clk(clk),
     .rst(!rst_n),
-    .din(1'b1),
+    .din((o_axi_valid & (!i_axi_ready)) | ((!o_axi_valid) & (cmd_delay0 != i_cmd))),
     .dout(o_axi_valid),
-    .wen(o_axi_valid & (!i_axi_ready) | (!o_axi_valid) & (cmd_delay0 != i_cmd))
+    .wen(1'b1)
 );
 
 endmodule

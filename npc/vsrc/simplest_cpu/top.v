@@ -5,6 +5,7 @@
 `define ysyx_23060306_func3_length 3
 `define ysyx_23060306_reg_length 5
 `define ysyx_23060306_base_reg_numbers 32
+`define ysyx_23060306_ebreak_type_number 7
 module top #(BIT_WIDTH = 32) (
     input                   sys_clk,
     input                   reset,
@@ -59,7 +60,7 @@ wire                    axi_valid_ifu2idu;
 wire                    axi_ready_ifu2idu;
 ifu #(BIT_WIDTH) ifu0  (
     .clk        (clk),
-    .rst_n      (rst),
+    .rst_n      (rst_n),
 
     // port for ROM
     .i_ren      (rom_ren),
@@ -213,4 +214,14 @@ mux #(32,5,32,1) exu_readbasereg [1:0] (
     .default_out(32'd0),
     .lut({2{read_basereg_lut}})
 );
+
+// end_simulation
+
+wire[2:0]   cmd_type_current;
+import "DPI-C" function void sim_exit();
+assign cmd_type_current = axi_data_cmdtype;
+always @(cmd_type_current) begin
+    if(cmd_type_current == `ysyx_23060306_ebreak_type_number)   sim_exit();
+end
+
 endmodule

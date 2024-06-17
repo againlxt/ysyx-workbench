@@ -137,7 +137,7 @@ always @(axi_data_cmd) begin
         32'b0000001_?????_?????_111_?????_01100_11: begin cmd_type_reg = 3'b000; end  //remu   , R, R(rd) = src1 % src2);
 
         32'b0000000_00001_00000_000_00000_11100_11: begin cmd_type_reg = 3'b111; end  //ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
-        32'b???????_?????_?????_???_?????_?????_??: begin cmd_type_reg = 3'b111; end  //inv    , N, INV(s->pc));
+        32'b???????_?????_?????_???_?????_?????_??: begin cmd_type_reg = 3'b000; end  //inv    , N, INV(s->pc));
         default: o_axi_valid_type_reg = 0;
     endcase
 end
@@ -164,11 +164,11 @@ assign imm_data_B   = {19'd0, axi_data_cmd[31], axi_data_cmd[7], axi_data_cmd[30
 assign imm_data_U   = {12'd0, axi_data_cmd[31:12]};
 assign imm_data_J   = {11'd0, axi_data_cmd[31], axi_data_cmd[19:12], axi_data_cmd[20], axi_data_cmd[30:21], 1'b0};
 // Imm data mux
-mux #(6, 3, 32, 1) imm_data_mux6to1(
+mux #(8, 3, 32, 1) imm_data_mux6to1(
     .out(o_axi_data_imm),
     .key(cmd_type_reg),
     .default_out(32'd0),
-    .lut({3'b101, imm_data_J, 3'b100, imm_data_U, 
+    .lut({ 3'b111, 32'd0, 3'b110, imm_data_I, 3'b101, imm_data_J, 3'b100, imm_data_U, 
     3'b011, imm_data_B, 3'b010, imm_data_S, 
     3'b001, imm_data_I, 3'b000, imm_data_R})
 );

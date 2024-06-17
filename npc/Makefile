@@ -3,8 +3,7 @@ NXDC_FILES = constr/top.nxdc
 INC_PATH ?=
 
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc  \
-				-O3 --x-assign fast --x-initial fast --noassert --trace
+VERILATOR_CFLAGS += -MMD --build -cc -O3 --x-initial fast --noassert --trace
 
 GTKWAVE = gtkwave
 GTKWAVE_CFLAGS += 
@@ -24,8 +23,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 
 # project source
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
-CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp" -not -name "sim_main.cpp")
-CSRCS += $(SRC_AUTO_BIND)
+CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 VERCS = $(shell find $(abspath ./csrc) -name "sim_main.c")
 VCDSRCS = $(shell find $(abspath ./) -name "*.vcd")
 
@@ -55,8 +53,9 @@ clean:
 sim: $(VSRCS) $(VERCS)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@rm -rf $(OBJ_DIR)
+	@rm -rf ./*.vcd
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
-		--top-module $(TOPNAME) $(abspath ./csrc/sim_main.cpp) $(VSRCS) \
+		--top-module $(TOPNAME) $(abspath ./csrc/sim_main.cpp) $(VSRCS) $(CSRCS) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 	$(BUILD_DIR)/top
 wave: 

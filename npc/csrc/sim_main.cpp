@@ -1,5 +1,7 @@
 #include "verilated.h"
 #include <verilated_vcd_c.h>
+#include <svdpi.h>
+#include <iostream>
 #include "Vtop.h"
 
 VerilatedContext* contextp = NULL;
@@ -18,7 +20,7 @@ static unsigned int rom[128] = {
     0x00228913,
     0x00328913,
     0x00428913,
-    0x00100043
+    0x00100073
 };
 
 void step_and_dump_wave(){
@@ -32,16 +34,36 @@ void sim_init(){
     top = new Vtop{contextp};
     contextp->traceEverOn(true);
     top->trace(tfp, 0);
-    tfp->open("dump.vcd");
+    tfp->open("simplest_cpu.vcd");
 }
 
+extern "C" void sim_exit();
 void sim_exit(){
   	step_and_dump_wave();
   	tfp->close();
+    exit(0);
 }
 
 int main() {
     sim_init();
-    top->reset = 1; top->sys_clk = 1; step_and_dump_wave();
-	sim_exit();
+    top->reset = 1; top->sys_clk = 1;   step_and_dump_wave();
+    top->sys_clk = !top->sys_clk;       step_and_dump_wave();
+    top->sys_clk = !top->sys_clk;       step_and_dump_wave();
+    top->sys_clk = !top->sys_clk;       step_and_dump_wave();
+    top->reset = 0; step_and_dump_wave();
+    top->i_ren = 1;
+
+    while (1) {
+        top->sys_clk = !top->sys_clk;
+
+        
+        if(top->o_pc==0x80000000)       {top->i_command = rom[0];    top->i_ren = 1;}
+        else if(top->o_pc==0x80000004)  {top->i_command = rom[1];    top->i_ren = 1;}
+        else if(top->o_pc==0x80000008)  {top->i_command = rom[2];    top->i_ren = 1;}
+        else if(top->o_pc==0x8000000C)  {top->i_command = rom[3];    top->i_ren = 1;}
+        else if(top->o_pc==0x80000010)  {top->i_command = rom[4];    top->i_ren = 1;}
+        else                            top->i_ren = 0;
+        
+        step_and_dump_wave();
+    }
 }
