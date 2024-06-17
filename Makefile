@@ -1,4 +1,4 @@
-STUID = ysyx_22040092
+STUID = ysyx_23060306
 STUNAME = 雷啸天
 
 # DO NOT modify the following code!!!
