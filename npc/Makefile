@@ -6,9 +6,11 @@ VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc -O3 --x-initial fast --noassert --trace
 
 GTKWAVE = gtkwave
-GTKWAVE_CFLAGS += 
+GTKWAVE_CFLAGS +=
 
-BUILD_DIR = ./build
+PROJ_NAME ?= simplest_cpu
+
+BUILD_DIR = ./build/$(PROJ_NAME)
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(BUILD_DIR)/$(TOPNAME)
 
@@ -22,9 +24,9 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 
 # project source
-VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
-CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
-VERCS = $(shell find $(abspath ./csrc) -name "sim_main.c")
+VSRCS = $(shell find $(abspath ./vsrc/$(PROJ_NAME)) -name "*.v")
+CSRCS = $(shell find $(abspath ./csrc/$(PROJ_NAME)) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
+VERCS = $(shell find $(abspath ./csrc/$(PROJ_NAME)) -name "sim_main.c")
 VCDSRCS = $(shell find $(abspath ./) -name "*.vcd")
 
 # rules for NVBoard
@@ -34,7 +36,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 
-$(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
+$(BIN): $(VSRCS) $(CSRCS)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $^ \
@@ -47,7 +49,7 @@ run: $(BIN)
 	@$^
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf ./build
 	rm -rf ./*.vcd
 
 sim: $(VSRCS) $(VERCS)
@@ -55,7 +57,7 @@ sim: $(VSRCS) $(VERCS)
 	@rm -rf $(OBJ_DIR)
 	@rm -rf ./*.vcd
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
-		--top-module $(TOPNAME) $(abspath ./csrc/sim_main.cpp) $(VSRCS) $(CSRCS) \
+		--top-module $(TOPNAME) $(VSRCS) $(CSRCS) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 	$(BUILD_DIR)/top
 wave: 
