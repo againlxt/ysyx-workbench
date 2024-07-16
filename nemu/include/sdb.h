@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-05-18 10:02:30
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-07-16 15:19:54
+ * @LastEditTime: 2024-07-16 15:50:28
  * @FilePath: /ysyx-workbench/nemu/include/sdb.h
  * @Description: 
  * 
@@ -32,23 +32,6 @@
 #define IRINGBUF_SIZE 128  
 
 void device_update();
-
-typedef struct StrNode {
-	char str[LOG_BUF_LENGTH];
-	StrNode* pre;
-	StrNode* next;
-} StrNode;
-
-typedef struct StrQueue {
-	uint8_t	count;
-	StrNode* head;
-	StrNode* Last;
-	StrNode* str_pool[IRINGBUF_SIZE];
-} StrQueue;
-
-void init_sq(StrQueue sq);
-void new_iringbuf(char *log_str);
-
 
 typedef struct watchpoint {
   int NO;
