@@ -1,3 +1,13 @@
+/*
+ * @Author: lxt leixiaotian434@gmail.com
+ * @Date: 2024-01-15 09:47:31
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-07-14 19:45:30
+ * @FilePath: /ysyx-workbench/abstract-machine/klib/include/klib.h
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #ifndef KLIB_H__
 #define KLIB_H__
 

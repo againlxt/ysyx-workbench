@@ -1,3 +1,13 @@
+/*
+ * @Author: lxt leixiaotian434@gmail.com
+ * @Date: 2024-05-18 10:02:30
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-07-16 15:19:54
+ * @FilePath: /ysyx-workbench/nemu/include/sdb.h
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 /***************************************************************************************
 * Copyright (c) 2014-2022 Zihao Yu, Nanjing University
 *
@@ -17,6 +27,28 @@
 #define __SDB_H__
 
 #include <common.h>
+
+#define LOG_BUF_LENGTH 64
+#define IRINGBUF_SIZE 128  
+
+void device_update();
+
+typedef struct StrNode {
+	char str[LOG_BUF_LENGTH];
+	StrNode* pre;
+	StrNode* next;
+} StrNode;
+
+typedef struct StrQueue {
+	uint8_t	count;
+	StrNode* head;
+	StrNode* Last;
+	StrNode* str_pool[IRINGBUF_SIZE];
+} StrQueue;
+
+void init_sq(StrQueue sq);
+void new_iringbuf(char *log_str);
+
 
 typedef struct watchpoint {
   int NO;
