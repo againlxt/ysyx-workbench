@@ -30,6 +30,54 @@ uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
+// my design of iringbufnode
+#ifdef CONFIG_ITRACE
+
+#define LOG_LENTH 128
+#define LOG_POOL_SIZE 50
+typedef struct iringbufnode {
+    char log[LOG_LENTH];
+    struct iringbufnode *next;
+}IRBN;
+
+IRBN *log_pool[LOG_POOL_SIZE] = {};
+IRBN *head = NULL, *last = NULL;
+size_t ringbufcount = 0;
+
+void new_irbn(char *str) {
+	char buf[LOG_LENTH] = "    ";
+	char *irbn_str = strcat(buf, str);
+	
+	IRBN *node = calloc(1, sizeof(IRBN));
+	strcpy(node->log, irbn_str);
+
+	if(ringbufcount == 0) {
+		node->next = NULL;
+		head = node;
+		last = node;
+		log_pool[0] = node;
+	}
+	else if (ringbufcount >= LOG_POOL_SIZE) {
+		node->next = head->next;
+		last->next = node;
+		free(log_pool[ringbufcount % LOG_POOL_SIZE]);
+		head = node->next;
+		last = node;
+		log_pool[ringbufcount % LOG_POOL_SIZE] = node;
+	}
+	else {
+		node->next = head;
+		last->next = node;
+		last = node;
+		log_pool[ringbufcount] = node;
+	}
+
+	ringbufcount ++;
+}
+
+#endif
+//design end
+
 void device_update();
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
@@ -75,6 +123,7 @@ static void execute(uint64_t n) {
   Decode s;
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
+	new_irbn(s.logbuf);
     g_nr_guest_inst ++;
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING) break;

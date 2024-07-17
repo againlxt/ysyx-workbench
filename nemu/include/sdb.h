@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-05-18 10:02:30
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-07-16 15:50:28
+ * @LastEditTime: 2024-07-16 16:39:28
  * @FilePath: /ysyx-workbench/nemu/include/sdb.h
  * @Description: 
  * 
@@ -27,9 +27,6 @@
 #define __SDB_H__
 
 #include <common.h>
-
-#define LOG_BUF_LENGTH 64
-#define IRINGBUF_SIZE 128  
 
 void device_update();
 
