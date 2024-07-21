@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:26
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-07-17 10:48:24
+ * @LastEditTime: 2024-07-21 14:17:32
  * @FilePath: /ysyx-workbench/nemu/src/memory/paddr.c
  * @Description: 
  * 
@@ -45,7 +45,7 @@ paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 // my design of mtrace
 #ifdef CONFIG_MTRACE
 #define MTRACE_LOG(mtrace_address, mtrace_length, mtrace_operation, mtrace_value) do { \
-    log_write("m %#X\t %u\t %s\t %#X\n", mtrace_address, mtrace_length, mtrace_operation, mtrace_value); \
+    log_write("m %#X\t%u\t%s\t%#X\n", mtrace_address, mtrace_length, mtrace_operation, mtrace_value); \
 } while(0);
 #endif
 // design end

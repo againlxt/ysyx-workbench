@@ -7,12 +7,22 @@ AM_SRCS := platform/nemu/trm.c \
            platform/nemu/ioe/disk.c \
            platform/nemu/mpe.c
 
+
+# NEMU MODE
+BATCH_MODE?=true;
+FTRACE_MODE?=;
+
 CFLAGS    += -fdata-sections -ffunction-sections
 LDFLAGS   += -T $(AM_HOME)/scripts/linker.ld \
              --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
 NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt
-NEMUFLAGS += -b
+ifneq ($(BATCH_MODE), false)
+	NEMUFLAGS += -b
+endif
+ifeq ($(FTRACE_MODE), true)
+	NEMUFLAGS += -e $(IMAGE).elf
+endif
 
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 CFLAGS += -I$(AM_HOME)/am/src/platform/nemu/include
