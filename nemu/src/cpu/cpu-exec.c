@@ -85,7 +85,13 @@ void device_update();
  * @param {vaddr_t} next_pc
  * @return {*}
  */
-Elf32_Sym *check_func_call (vaddr_t next_pc);
+#ifdef CONFIG_FTRACE
+extern Elf32_Sym *find_func_call (vaddr_t next_pc);
+extern char *find_string (Elf32_Sym *func);
+extern word_t ftrace_function_call_flag;
+extern word_t ftrace_ret_flag;
+extern uint32_t ftrace_call_depth;
+#endif
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
@@ -95,7 +101,22 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
 
 #ifdef CONFIG_FTRACE
-	
+	Elf32_Sym *ftrace_function_symbol = NULL;
+	if(ftrace_function_call_flag == true) {
+		ftrace_function_call_flag = false;
+		ftrace_function_symbol = find_func_call(dnpc);
+		log_write("f %#X: ", _this->pc);
+		ftrace_call_depth ++;
+		for (uint32_t i = 0; i < ftrace_call_depth; i++) { log_write("  "); }
+		log_write("call [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);	
+	} else if (ftrace_ret_flag == true) {
+		ftrace_ret_flag = false;
+		ftrace_function_symbol = find_func_call(dnpc);
+		log_write("f %#X: ", _this->pc);
+		if(ftrace_call_depth >= 1) ftrace_call_depth --;
+		for (uint32_t i = 0; i < ftrace_call_depth; i++) { log_write("  "); }
+		log_write("ret [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);	
+	} else { }
 #endif
 }
 
@@ -134,7 +155,9 @@ static void execute(uint64_t n) {
   Decode s;
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
+	#ifdef CONFIG_ITRACE
 	new_irbn(s.logbuf);
+	#endif
     g_nr_guest_inst ++;
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING) break;

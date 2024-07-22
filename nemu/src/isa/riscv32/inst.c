@@ -49,14 +49,32 @@ enum {
 #define Jalr() do { word_t t = s->pc + 4; s->dnpc = (src1 + imm) &~ 1; R(rd) = t; } while(0)
 #define Bne() do { s->dnpc = s->pc + ((src1 != src2) ? imm : 4); } while(0)
 #define Beq() do { s->dnpc = s->pc + ((src1 == src2) ? imm : 4); } while(0)
-#define Bge() do { s->dnpc = s->pc + (((int32_t)src1 >= (int32_t)src2) ? imm : 4); } while(0);
-#define Bgeu() do { s->dnpc = s->pc + ((src1 >= src2) ? imm : 4); } while(0);
-#define Blt() do { s->dnpc = s->pc + (((int32_t)src1 < (int32_t)src2) ? imm : 4); } while(0);
-#define Bltu() do { s->dnpc = s->pc + ((src1 < src2) ? imm : 4); } while(0);
+#define Bge() do { s->dnpc = s->pc + (((int32_t)src1 >= (int32_t)src2) ? imm : 4); } while(0)
+#define Bgeu() do { s->dnpc = s->pc + ((src1 >= src2) ? imm : 4); } while(0)
+#define Blt() do { s->dnpc = s->pc + (((int32_t)src1 < (int32_t)src2) ? imm : 4); } while(0)
+#define Bltu() do { s->dnpc = s->pc + ((src1 < src2) ? imm : 4); } while(0)
 #define Mul() do { int32_t t1 = src1; int32_t t2 = src2; R(rd) = t1 * t2; } while(0)
 #define Mulh() do { uint64_t t1 = SEXT(src1, 32); uint64_t t2 = SEXT(src2, 32); long long t = t1 * t2; R(rd) = t >> 32; } while(0)
-#define Div() do { int32_t t1 = src1; int32_t t2 = src2; R(rd) = t1 / t2; } while(0);
-#define Rem() do { int32_t t1 = src1; int32_t t2 = src2; R(rd) = t1 % t2; } while(0);
+#define Div() do { int32_t t1 = src1; int32_t t2 = src2; R(rd) = t1 / t2; } while(0)
+#define Rem() do { int32_t t1 = src1; int32_t t2 = src2; R(rd) = t1 % t2; } while(0)
+
+word_t ftrace_function_call_flag = false;
+word_t ftrace_ret_flag = false;
+
+/* Pseudo-Instructions define */
+#define Call() do {  \
+	Jal(); \
+	ftrace_function_call_flag = true; \
+} while(0)
+#define Callr() do {  \
+	Jalr(); \
+	ftrace_function_call_flag = true; \
+} while(0)
+#define Ret() do {  \
+    Jalr(); \
+    ftrace_ret_flag = true; \
+} while(0)
+/* Pseudo-Instructions define end */
 
 static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_t *imm, int type);
 static int decode_exec(Decode *s);
@@ -93,7 +111,9 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 000 ????? 01000 11", sb     , S, Mw(src1 + imm, 1, src2));   // store byte
 
   /* Pseudo-Instructions */
-  INSTPAT("??????? ????? ????? ??? 00001 11011 11", jal    , J, call());
+  INSTPAT("??????? ????? ????? ??? 00001 11011 11", jal    , J, Call());
+  INSTPAT("??????? ????? 00001 000 00000 11001 11", jalr   , I, Ret());
+  INSTPAT("??????? ????? ????? 000 00001 11001 11", jalr   , I, Callr());
   
   /* Integer Register-Register Operations */
   INSTPAT("0000000 ????? ????? 000 ????? 01100 11", add    , R, R(rd) = src1 + src2);

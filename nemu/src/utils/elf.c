@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-07-19 17:41:21
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-07-21 15:50:32
+ * @LastEditTime: 2024-07-21 21:41:05
  * @FilePath: /ysyx-workbench/nemu/src/utils/elf.c
  * @Description: Parsing ELF files
  * 
@@ -16,9 +16,7 @@
 #define SECTION_TABLE_SIZE	50
 #define Assert_Elf(cond, format, ...) do { \
 	if (!(cond)) { \
-		free(elf_header); \
-        free(section_header); \
-        if (elf_fp != NULL) fclose(elf_fp); \
+		free_resources(); \
         Assert(cond, format, ##__VA_ARGS__); \
     } \
 } while(0)
@@ -28,18 +26,20 @@ static Elf32_Ehdr *elf_header = NULL;
 static Elf32_Shdr *section_header = NULL;
 #ifdef CONFIG_FTRACE
 static Elf32_Shdr *elf_symbol_table_index = NULL;
+static Elf32_Shdr *elf_shstrtab_hdr = NULL;
+static Elf32_Shdr *elf_string_table_index = NULL;
 static Elf32_Sym elf_symbol_func_table[SYMBOL_TABLE_SIZE] = {};
 static size_t func_num = 0;
-#endif
-
-#ifdef CONFIG_FTRACE
+static char *elf_shstrtab = NULL;
+static char *elf_string_table = NULL;
+uint32_t ftrace_call_depth = 0; 
 
 /**
  * @description: Check whether the next pc call a function
  * @param {vaddr_t} next_pc
  * @return {*}
  */
-Elf32_Sym *check_func_call (vaddr_t next_pc) {
+Elf32_Sym *find_func_call (vaddr_t next_pc) {
 	Elf32_Addr func_addr = 0;
 	Elf32_Word func_size = 0;
 	for (int i = 0; i < func_num; i ++) {
@@ -52,7 +52,20 @@ Elf32_Sym *check_func_call (vaddr_t next_pc) {
 	return NULL;
 }
 
+char *find_string (Elf32_Sym *func) {
+	return &elf_string_table[func->st_name];
+}
+
 #endif
+
+void free_resources() {
+    free(elf_header);
+    free(section_header);
+	#ifdef CONFIG_FTRACE
+    free(elf_shstrtab);
+    #endif
+    fclose(elf_fp); 
+}
 
 /**
  * @description: Init the elf file, and parse the func symbol in symbol table from it
@@ -60,14 +73,13 @@ Elf32_Sym *check_func_call (vaddr_t next_pc) {
  * @return {*}
  */
 void init_elf (const char *elf_file_name) {
-	Assert_Elf(elf_file_name != NULL, "Input is NULL!");
+	if(elf_file_name == NULL) return;
 
 	elf_fp = fopen(elf_file_name, "r");
 	Assert_Elf(elf_fp != NULL, "Falied to open elf file!");
-
-	int a = 0;
 	
 	#ifdef CONFIG_FTRACE
+	int a = 0;
 	elf_header = calloc(1, sizeof(Elf32_Ehdr));
 	Assert_Elf(elf_header != NULL, "Failed to allocate memory for ELF header!");
 
@@ -94,14 +106,38 @@ void init_elf (const char *elf_file_name) {
 
 	a = fread(section_header, sizeof(Elf32_Shdr), elf_header->e_shnum, elf_fp);
 	Assert_Elf(a == elf_header->e_shnum, "Failed to read section headers!");
+
+	elf_shstrtab_hdr = &(section_header[elf_header->e_shstrndx]);
+	elf_shstrtab = malloc(elf_shstrtab_hdr->sh_size);
+	Assert_Elf(elf_shstrtab != NULL, "Failed to allocate memory for section header string table!");
 	
+	a = fseek(elf_fp, elf_shstrtab_hdr->sh_offset, SEEK_SET);
+    Assert_Elf(a == 0, "Failed to move the stream pointer!");
+
+    a = fread(elf_shstrtab, elf_shstrtab_hdr->sh_size, 1, elf_fp);
+    Assert_Elf(a == 1, "Failed to read section header string table!");
+
 	for (int i = 0; i < elf_header->e_shnum; i ++) {
 		if (section_header[i].sh_type == SHT_SYMTAB) {
 			elf_symbol_table_index = &section_header[i];
-			break;
+		} else if (section_header[i].sh_type == SHT_STRTAB && strcmp(&elf_shstrtab[section_header[i].sh_name], ".strtab") == 0) {
+			elf_string_table_index = &section_header[i];
 		}
 	}
 	Assert_Elf(elf_symbol_table_index != NULL, "Symbol table section not found!");
+	Assert_Elf(elf_string_table_index != NULL, "String table section not found!");
+
+
+	// Load the string table
+	elf_string_table = malloc(elf_string_table_index->sh_size);
+	Assert_Elf(elf_string_table != NULL, "Failed to allocate memory for string table!");
+
+	a = fseek(elf_fp, elf_string_table_index->sh_offset, SEEK_SET);
+    Assert_Elf(a == 0, "Failed to move the stream pointer!");
+
+	a = fread(elf_string_table, elf_string_table_index->sh_size, 1, elf_fp);
+    Assert_Elf(a == 1, "Failed to read string table!");
+
 
 	// Find the symbol which type is FUNC
 	a = fseek(elf_fp, elf_symbol_table_index->sh_offset, SEEK_SET);
@@ -118,10 +154,7 @@ void init_elf (const char *elf_file_name) {
 	}
 	#endif
 	
-	free(elf_header);
-	free(section_header);
-	a = fclose(elf_fp);
-	Assert_Elf(a == 0, "Failed to close the stream");
+	free_resources();
 }
 
 #undef Assert_Elf
