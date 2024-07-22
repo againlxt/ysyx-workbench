@@ -2,7 +2,7 @@
  * @Author: hzxOnlineOk
  * @Date: 2024-01-15 09:47:31
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-07-16 17:34:56
+ * @LastEditTime: 2024-07-22 16:19:48
  * @Description: 请填写简介
  */
 #include <klib.h>
@@ -18,9 +18,11 @@
  * @return {*}
  */
 size_t strlen(const char *s) {
-  for (size_t i = 0; ; i++) {
-    if(*(s+i) != '\0') return i;
+  size_t i = 0;
+  while (s[i] != '\0') {
+    i++;
   }
+  return i;
 }
 
 /**
@@ -32,9 +34,9 @@ size_t strlen(const char *s) {
  * @return {*}
  */
 char *strcpy(char *dst, const char *src) {
-  memcpy(dst, src, strlen(src));
-  *(dst+strlen(src)) = '\0';
-
+  size_t len = strlen(src);
+  memcpy(dst, src, len);
+  dst[len] = '\0';
   return dst;
 }
 
@@ -51,7 +53,7 @@ char *strncpy(char *dst, const char *src, size_t n) {
   size_t i;
   for (i = 0; i < n && src[i] != '\0'; i++)
     dst[i] = src[i];
-  for( ; i < n; i++)
+  for (; i < n; i++)
     dst[i] = '\0';
 
   return dst;
@@ -79,24 +81,28 @@ char *strcat(char *dst, const char *src) {
  * @return {*} 
  */
 int strcmp(const char *s1, const char *s2) {
-  int i=0;
-
-  while (*(s1+i)==*(s2+i) && *(s1+i)!='\0' && *(s2+i)!='\0') {
-    i ++;
+  while (*s1 && (*s1 == *s2)) {
+    s1++;
+    s2++;
   }
-
-  return *(s1+i) - *(s2+i);
+  return *(unsigned char *)s1 - *(unsigned char *)s2;
 }
 
 int strncmp(const char *s1, const char *s2, size_t n) {
-  int i=0;
+  size_t i = 0;
 
-  while (*(s1+i)==*(s2+i)) {
-    if(*(s1+i)=='\0' || *(s2+i)=='\0' || i==n-1) break;
-    i ++;
+  while (i < n && s1[i] == s2[i]) {
+    if (s1[i] == '\0' || s2[i] == '\0') {
+      break;
+    }
+    i++;
   }
 
-  return *(s1+i) - *(s2+i);
+  if (i == n) {
+    return 0;
+  } else {
+    return (unsigned char)s1[i] - (unsigned char)s2[i];
+  }
 }
 
 /**
@@ -109,9 +115,9 @@ int strncmp(const char *s1, const char *s2, size_t n) {
  */
 void *memset(void *s, int c, size_t n) {
   unsigned char *is = (unsigned char *)s;
-  for (int i = 0; i < n; i++)
-    *(is+i) = c;
-  
+  for (size_t i = 0; i < n; i++)
+    is[i] = (unsigned char)c;
+
   return s;
 }
 
@@ -127,15 +133,15 @@ void *memmove(void *dst, const void *src, size_t n) {
   const unsigned char *csrc = (const unsigned char *)src;
 
   if (cdst < csrc) {
-      // copy from front to back
-      for (size_t i = 0; i < n; i++) {
-          cdst[i] = csrc[i];
-      }
+    // copy from front to back
+    for (size_t i = 0; i < n; i++) {
+      cdst[i] = csrc[i];
+    }
   } else if (cdst > csrc) {
-      // copy from back to front
-      for (size_t i = n; i != 0; i--) {
-          cdst[i - 1] = csrc[i - 1];
-      }
+    // copy from back to front
+    for (size_t i = n; i != 0; i--) {
+      cdst[i - 1] = csrc[i - 1];
+    }
   }
 
   return dst;
@@ -149,36 +155,36 @@ void *memmove(void *dst, const void *src, size_t n) {
  * @return {*}
  */
 void *memcpy(void *out, const void *in, size_t n) {
-    // 将void*转换为char*以进行指针运算
-    unsigned char *cout = (unsigned char *)out;
-    const unsigned char *cin = (const unsigned char *)in;
+  // 将void*转换为char*以进行指针运算
+  unsigned char *cout = (unsigned char *)out;
+  const unsigned char *cin = (const unsigned char *)in;
 
-    // 检查内存重叠
-    if ((cout < cin && cout + n > cin) || (cin < cout && cin + n > cout)) {
-        panic("Memory conflicts!");
-    } else {
-        // 复制内存内容
-        for (size_t i = 0; i < n; i++) {
-            cout[i] = cin[i];
-        }
+  // 检查内存重叠
+  if ((cout < cin && cout + n > cin) || (cin < cout && cin + n > cout)) {
+    panic("Memory conflicts!");
+  } else {
+    // 复制内存内容
+    for (size_t i = 0; i < n; i++) {
+      cout[i] = cin[i];
     }
+  }
 
-    return out;
+  return out;
 }
 
 int memcmp(const void *s1, const void *s2, size_t n) {
-    unsigned char *cs1 = (unsigned char *)s1;
-    unsigned char *cs2 = (unsigned char *)s2;
+  const unsigned char *cs1 = (const unsigned char *)s1;
+  const unsigned char *cs2 = (const unsigned char *)s2;
 
-    while (n-- > 0) {
-        if (*cs1 != *cs2) {
-            return *cs1 < *cs2 ? -1 : 1;
-        }
-        cs1++;
-        cs2++;
+  while (n-- > 0) {
+    if (*cs1 != *cs2) {
+      return *cs1 < *cs2 ? -1 : 1;
     }
+    cs1++;
+    cs2++;
+  }
 
-    return 0;
+  return 0;
 }
 
 #endif
