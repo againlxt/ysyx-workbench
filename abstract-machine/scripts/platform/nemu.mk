@@ -10,7 +10,7 @@ AM_SRCS := platform/nemu/trm.c \
 
 # NEMU MODE
 BATCH_MODE?=true;
-FTRACE_MODE?=;
+FTRACE_MODE?=true;
 
 CFLAGS    += -fdata-sections -ffunction-sections
 LDFLAGS   += -T $(AM_HOME)/scripts/linker.ld \
@@ -20,7 +20,7 @@ NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt
 ifneq ($(BATCH_MODE), false)
 	NEMUFLAGS += -b
 endif
-ifeq ($(FTRACE_MODE), true)
+ifneq ($(FTRACE_MODE), false)
 	NEMUFLAGS += -e $(IMAGE).elf
 endif
 

@@ -2,7 +2,11 @@
  * @Author: hzxOnlineOk
  * @Date: 2024-01-15 09:47:31
  * @LastEditors: lxt leixiaotian434@gmail.com
+<<<<<<< HEAD
  * @LastEditTime: 2024-07-22 16:19:48
+=======
+ * @LastEditTime: 2024-07-23 15:13:40
+>>>>>>> 2e0aeb1 (	modified:   abstract-machine/klib/include/klib.h)
  * @Description: 请填写简介
  */
 #include <klib.h>
@@ -34,10 +38,16 @@ size_t strlen(const char *s) {
  * @return {*}
  */
 char *strcpy(char *dst, const char *src) {
+<<<<<<< HEAD
   size_t len = strlen(src);
   memcpy(dst, src, len);
   dst[len] = '\0';
   return dst;
+=======
+  char *ret = dst;
+  while ((*dst++ = *src++) != '\0');
+  return ret;
+>>>>>>> 2e0aeb1 (	modified:   abstract-machine/klib/include/klib.h)
 }
 
 /**
@@ -81,9 +91,16 @@ char *strcat(char *dst, const char *src) {
  * @return {*} 
  */
 int strcmp(const char *s1, const char *s2) {
+<<<<<<< HEAD
   while (*s1 && (*s1 == *s2)) {
     s1++;
     s2++;
+=======
+  size_t i=0;
+
+  while (*(s1+i)==*(s2+i) && *(s1+i)!='\0' && *(s2+i)!='\0') {
+    i ++;
+>>>>>>> 2e0aeb1 (	modified:   abstract-machine/klib/include/klib.h)
   }
   return *(unsigned char *)s1 - *(unsigned char *)s2;
 }
@@ -115,9 +132,15 @@ int strncmp(const char *s1, const char *s2, size_t n) {
  */
 void *memset(void *s, int c, size_t n) {
   unsigned char *is = (unsigned char *)s;
+<<<<<<< HEAD
   for (size_t i = 0; i < n; i++)
     is[i] = (unsigned char)c;
 
+=======
+  unsigned char uc = (unsigned char)c;
+  for (size_t i = 0; i < n; i++)
+    is[i] = uc;
+>>>>>>> 2e0aeb1 (	modified:   abstract-machine/klib/include/klib.h)
   return s;
 }
 

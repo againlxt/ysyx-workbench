@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:31
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-07-15 11:41:07
+ * @LastEditTime: 2024-07-23 15:21:45
  * @FilePath: /ysyx-workbench/abstract-machine/klib/src/stdio.c
  * @Description: 
  * 
@@ -20,35 +20,34 @@
 
 int int2str(int a, char* charbuf);
 int vprintf(const char *restrict format, va_list ap);
-static int escape_char_trans(char* src, int len, va_list ap, char* dst);
+static int escape_char_trans(const char* src, int len, va_list ap, char* dst);
 
-static int escape_char_trans(char* src, int len, va_list ap, char* dst) {
-	char end = *(src + len - 1);
-	switch (end)
-	{
-	case 'd':
-		int int_temp = va_arg(ap, int);
-		if(!int2str(int_temp, dst)) return 0;
-		break;
-	case 's':
-		dst = strncpy(dst, src, len);
-	
-	default:
-		dst = strncpy(dst, src, len);
-		return 0;
-		break;
-	}
-
-	return 1;
+static int escape_char_trans(const char* src, int len, va_list ap, char* dst) {
+    char end = src[len - 1];
+    switch (end) {
+        case 'd': {
+            int int_temp = va_arg(ap, int);
+            if (!int2str(int_temp, dst)) return 0;
+            break;
+        }
+        case 's': {
+            const char* str_temp = va_arg(ap, const char*);
+            strcpy(dst, str_temp);
+            break;
+        }
+        default:
+            strncpy(dst, src, len);
+            dst[len] = '\0';
+            return 0;
+    }
+    return 1;
 }
 
 int vprintf(const char *restrict format, va_list ap) {
-	int success = 0;
-	char chararray[CHARBUF_LEN] = "";
-	char* str = chararray;
-	success = vsprintf(str, format, ap);
-	putstr(str);
-	return success;
+    char chararray[CHARBUF_LEN] = "";
+    int success = vsprintf(chararray, format, ap);
+    putstr(chararray);
+    return success;
 }
 
 int printf(const char *fmt, ...) {
