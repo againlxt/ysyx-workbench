@@ -34,49 +34,84 @@ static bool g_print_step = false;
 // my design of iringbufnode
 #ifdef CONFIG_ITRACE
 
-#define LOG_LENTH 128
-#define LOG_POOL_SIZE 50
+#define LOG_LENGTH 128
+#define LOG_POOL_SIZE 20
+
 typedef struct iringbufnode {
-    char log[LOG_LENTH];
+    char log[LOG_LENGTH];
     struct iringbufnode *next;
-}IRBN;
+} IRBN;
 
-IRBN *log_pool[LOG_POOL_SIZE] = {};
-IRBN *head = NULL, *last = NULL;
-size_t ringbufcount = 0;
+static IRBN *log_pool[LOG_POOL_SIZE] = {};
+static IRBN *head = NULL, *last = NULL;
+static size_t ringbufcount = 0;
 
-void new_irbn(char *str) {
-	char buf[LOG_LENTH] = "    ";
-	char *irbn_str = strcat(buf, str);
-	
-	IRBN *node = calloc(1, sizeof(IRBN));
-	strcpy(node->log, irbn_str);
+void new_irbn(const char *str) {
+    char buf[LOG_LENGTH] = "";
+    if (strlen(str) > LOG_LENGTH - 5) {
+        fprintf(stderr, "Error: Log entry too long\n");
+        return;
+    }
+    strcpy(buf, str);
 
-	if(ringbufcount == 0) {
-		node->next = NULL;
-		head = node;
-		last = node;
-		log_pool[0] = node;
-	}
-	else if (ringbufcount >= LOG_POOL_SIZE) {
-		node->next = head->next;
-		last->next = node;
-		free(log_pool[ringbufcount % LOG_POOL_SIZE]);
-		head = node->next;
-		last = node;
-		log_pool[ringbufcount % LOG_POOL_SIZE] = node;
-	}
-	else {
-		node->next = head;
-		last->next = node;
-		last = node;
-		log_pool[ringbufcount] = node;
-	}
+    IRBN *node = (IRBN *)calloc(1, sizeof(IRBN));
+    if (!node) {
+        fprintf(stderr, "Error: Memory allocation failed\n");
+        return;
+    }
+    strcpy(node->log, buf);
 
-	ringbufcount ++;
+    if (ringbufcount == 0) {
+        node->next = node;  // 初始环
+        head = node;
+        last = node;
+        log_pool[0] = node;
+    } else if (ringbufcount >= LOG_POOL_SIZE) {
+        head = head->next;
+        last->next = node;
+        node->next = head;
+        last = node;
+
+        free(log_pool[ringbufcount % LOG_POOL_SIZE]);
+        log_pool[ringbufcount % LOG_POOL_SIZE] = node;
+    } else {
+        last->next = node;
+        node->next = head;
+        last = node;
+        log_pool[ringbufcount] = node;
+    }
+
+    ringbufcount++;
+}
+
+static void iringbuf_log() {
+    if (ringbufcount == 0) return;
+    log_write("---------- Instruction Trace ----------\n");
+    
+    IRBN *node = head;
+    size_t count = ringbufcount > LOG_POOL_SIZE ? LOG_POOL_SIZE : ringbufcount;
+    
+    for (size_t i = 0; i < count; i++) {
+        log_write("%s\n", node->log);
+        node = node->next;
+    }
+    log_write("----------------- End -----------------\n");
+
+    // 释放内存
+    for (size_t i = 0; i < count; i++) {
+        IRBN *temp = head;
+        head = head->next;
+        free(temp);
+    }
+
+    // 重置指针
+    head = NULL;
+    last = NULL;
+    ringbufcount = 0;
 }
 
 #endif
+
 //design end
 
 void device_update();
@@ -175,8 +210,11 @@ static void statistic() {
 }
 
 void assert_fail_msg() {
-  isa_reg_display();
-  statistic();
+#ifdef CONFIG_ITRACE
+	iringbuf_log();
+#endif
+  	isa_reg_display();
+  	statistic();
 }
 
 /* Simulate how the CPU works. */

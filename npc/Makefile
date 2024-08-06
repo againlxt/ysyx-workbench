@@ -1,5 +1,5 @@
 TOPNAME = top
-NXDC_FILES = constr/top.nxdc
+NXDC_FILES = constr/Top.nxdc
 INC_PATH ?=
 
 VERILATOR = verilator
@@ -8,7 +8,7 @@ VERILATOR_CFLAGS += -MMD --build -cc -O3 --x-initial fast --noassert --trace
 GTKWAVE = gtkwave
 GTKWAVE_CFLAGS +=
 
-PROJ_NAME ?= simplest_cpu
+PROJ_NAME ?= single_cycle_cpu
 
 BUILD_DIR = ./build/$(PROJ_NAME)
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -24,10 +24,10 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 
 # project source
-VSRCS = $(shell find $(abspath ./vsrc/$(PROJ_NAME)) -name "*.v")
+VSRCS = $(shell find $(abspath ./vsrc/$(PROJ_NAME)) -name "*.v" -or -name "*.sv")
 CSRCS = $(shell find $(abspath ./csrc/$(PROJ_NAME)) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 VERCS = $(shell find $(abspath ./csrc/$(PROJ_NAME)) -name "sim_main.c")
-VCDSRCS = $(shell find $(abspath ./) -name "*.vcd")
+VCDSRCS = $(shell find $(abspath ./) -name $(PROJ_NAME).vcd)
 
 # rules for NVBoard
 include $(NVBOARD_HOME)/scripts/nvboard.mk
