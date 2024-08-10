@@ -1,3 +1,13 @@
+/*
+ * @Author: lxt leixiaotian434@gmail.com
+ * @Date: 2024-08-05 20:00:11
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-08-09 14:13:03
+ * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/sim_main.cpp
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #include "verilated.h"
 #include <verilated_vcd_c.h>
 #include <svdpi.h>
@@ -50,19 +60,19 @@ void sim_exit() {
 int main() {
     sim_init();
     uint32_t pc = 0x80000000;
-    top->io_pc = pc;
+    top->io_pcInput = pc;
+	top->io_npcState = 0;
     top->reset = 1;
 
     // 初始复位序列
     for (int i = 0; i < 5; ++i) {
-        top->clock = 1; step_and_dump_wave();
         top->clock = 0; step_and_dump_wave();
+		top->clock = 1; step_and_dump_wave();
     }
     top->reset = 0; step_and_dump_wave();
 
     // 主仿真循环
     while (true) {
-        top->clock = 1; step_and_dump_wave();
         top->clock = 0; step_and_dump_wave();
         
         if (pc == 0x80000000)       { top->io_memData = rom[0]; }
@@ -72,7 +82,12 @@ int main() {
         else if (pc == 0x80000010)  { top->io_memData = rom[4]; }
         else                        { break; }
 
-        if (top->clock == 0) { pc += 4; top->io_pc = pc; }
+        if (top->clock == 0) { 
+			pc = top->io_nextPC; 
+			top->io_pcInput = pc; 
+		}
+
+		top->clock = 1; step_and_dump_wave();
     }
 
     sim_exit();
