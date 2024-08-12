@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-05 20:00:11
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-12 19:41:16
+ * @LastEditTime: 2024-08-12 22:39:33
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/sim_main.cpp
  * @Description: 
  * 
@@ -119,7 +119,7 @@ static long load_img() {
 static void init_npc() {
 	top->io_npcState 	= NPC_INIT;
 	top->io_pcInput 	= npc_pc;
-	top->io_memData 	= ((*rom_buffer+(npc_pc-base_addr))) + (*(rom_buffer+(npc_pc-base_addr)+1) << 8) +
+	top->io_memData 	= (*(rom_buffer+(npc_pc-base_addr))) + (*(rom_buffer+(npc_pc-base_addr)+1) << 8) +
 	(*(rom_buffer+(npc_pc-base_addr)+2) << 16) + (*(rom_buffer+(npc_pc-base_addr)+3) << 24);
 	top->reset 			= 1;
 
@@ -139,21 +139,24 @@ int main(int argc, char *argv[]) {
 	// RUNNING
 	top->io_npcState 	= NPC_RUNNING;
 	top->reset 			= 0;
-	
 	top->clock = 0; step_and_dump_wave();
-
 	top->io_memData =  
-	((*rom_buffer+(npc_pc-base_addr))) + (*(rom_buffer+(npc_pc-base_addr)+1) << 8) +
-	(*(rom_buffer+(npc_pc-base_addr)+2) << 16) + (*(rom_buffer+(npc_pc-base_addr)+3) << 24);
+		(*(rom_buffer+(npc_pc-base_addr))) + (*(rom_buffer+(npc_pc-base_addr)+1) << 8) +
+		(*(rom_buffer+(npc_pc-base_addr)+2) << 16) + (*(rom_buffer+(npc_pc-base_addr)+3) << 24);
 	npc_pc = top->io_nextPC;
 	top->io_pcInput = npc_pc;
-
+	top->io_memData =  
+		(*(rom_buffer+(npc_pc-base_addr))) + (*(rom_buffer+(npc_pc-base_addr)+1) << 8) +
+		(*(rom_buffer+(npc_pc-base_addr)+2) << 16) + (*(rom_buffer+(npc_pc-base_addr)+3) << 24);
 	top->clock = 1; step_and_dump_wave();
-	for (int i = 0; i < 3100; i++) {
+	
+	for (int i = 0; i < 30; i++) {
 		top->clock = 0; step_and_dump_wave();
+
 		top->io_memData =  
 		(*(rom_buffer+(npc_pc-base_addr))) + (*(rom_buffer+(npc_pc-base_addr)+1) << 8) +
 		(*(rom_buffer+(npc_pc-base_addr)+2) << 16) + (*(rom_buffer+(npc_pc-base_addr)+3) << 24);
+		
 		npc_pc = top->io_nextPC;
 		top->io_pcInput = npc_pc;
 
