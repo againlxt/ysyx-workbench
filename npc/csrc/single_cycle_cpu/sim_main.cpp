@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-05 20:00:11
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-09 14:13:03
+ * @LastEditTime: 2024-08-12 19:41:16
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/sim_main.cpp
  * @Description: 
  * 
@@ -13,11 +13,23 @@
 #include <svdpi.h>
 #include <iostream>
 #include "Vtop.h"
+#include "../../include/common.h"
+#include "../../include/debug.h"
+#include <getopt.h>
+#include <unistd.h>
 
 // 全局变量
 VerilatedContext* contextp = nullptr;
 VerilatedVcdC* tfp = nullptr;
 Vtop* top = nullptr;
+
+enum { NPC_RUNNING, NPC_STOP, NPC_END, NPC_ABORT, NPC_QUIT, NPC_INIT };
+static uint32_t npc_pc 		= 0x80000000;
+static uint32_t base_addr 	= 0x80000000;
+typedef struct {
+  int state;
+} NPCState;
+NPCState npc_state = { .state = NPC_STOP };
 
 // ROM 指令集
 static unsigned int rom[128] = {
@@ -56,40 +68,99 @@ void sim_exit() {
     exit(0);
 }
 
-// 主函数
-int main() {
-    sim_init();
-    uint32_t pc = 0x80000000;
-    top->io_pcInput = pc;
-	top->io_npcState = 0;
-    top->reset = 1;
+static char *img_file = NULL;
+uint8_t *rom_buffer = NULL;
+uint32_t rom_buffer_size = 0;
 
-    // 初始复位序列
-    for (int i = 0; i < 5; ++i) {
-        top->clock = 0; step_and_dump_wave();
-		top->clock = 1; step_and_dump_wave();
-    }
-    top->reset = 0; step_and_dump_wave();
-
-    // 主仿真循环
-    while (true) {
-        top->clock = 0; step_and_dump_wave();
-        
-        if (pc == 0x80000000)       { top->io_memData = rom[0]; }
-        else if (pc == 0x80000004)  { top->io_memData = rom[1]; }
-        else if (pc == 0x80000008)  { top->io_memData = rom[2]; }
-        else if (pc == 0x8000000C)  { top->io_memData = rom[3]; }
-        else if (pc == 0x80000010)  { top->io_memData = rom[4]; }
-        else                        { break; }
-
-        if (top->clock == 0) { 
-			pc = top->io_nextPC; 
-			top->io_pcInput = pc; 
+static int parse_args(int argc, char *argv[]) {
+	const struct option table[] = {
+		{"help"     , 0 		       , NULL, 'h'},
+		{0          , 0                , NULL,  0 },
+	};
+	int o;
+	while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:", table, NULL)) != -1) {
+		switch (o) {
+		case 1: img_file = optarg; return 0;
+		default:
+			printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
+			printf("\n");
+			exit(0);
 		}
+	}
+	return 0;
+}
 
+static long load_img() {
+	if (img_file == NULL) {
+		Log("No image is given. Use the default build-in image.");
+		return 4096; // built-in image size
+	}
+
+	FILE *fp = fopen(img_file, "rb");
+	Assert(fp, "Can not open '%s'", img_file);
+
+	fseek(fp, 0, SEEK_END);
+	long size = ftell(fp);
+
+	Log("The image is %s, size = %ld\n", img_file, size);
+
+	fseek(fp, 0, SEEK_SET);
+	rom_buffer_size = size / sizeof(uint8_t);
+	rom_buffer = (uint8_t *)malloc(rom_buffer_size * sizeof(uint8_t));
+	Assert(rom_buffer != NULL, "ROM memory allocation failed\n");
+	
+	int ret = fread(rom_buffer, 1, rom_buffer_size, fp);
+	Assert(ret != rom_buffer_size, "Read file failed\n");
+
+	fclose(fp);
+	return size;
+}
+
+static void init_npc() {
+	top->io_npcState 	= NPC_INIT;
+	top->io_pcInput 	= npc_pc;
+	top->io_memData 	= ((*rom_buffer+(npc_pc-base_addr))) + (*(rom_buffer+(npc_pc-base_addr)+1) << 8) +
+	(*(rom_buffer+(npc_pc-base_addr)+2) << 16) + (*(rom_buffer+(npc_pc-base_addr)+3) << 24);
+	top->reset 			= 1;
+
+	for (int i = 0; i < 2; ++i) {
+        top->clock = 0; step_and_dump_wave();
 		top->clock = 1; step_and_dump_wave();
     }
+}
+
+// 主函数
+int main(int argc, char *argv[]) {
+	parse_args(argc, argv);
+	load_img();
+	sim_init();	
+	init_npc();
+
+	// RUNNING
+	top->io_npcState 	= NPC_RUNNING;
+	top->reset 			= 0;
+	
+	top->clock = 0; step_and_dump_wave();
+
+	top->io_memData =  
+	((*rom_buffer+(npc_pc-base_addr))) + (*(rom_buffer+(npc_pc-base_addr)+1) << 8) +
+	(*(rom_buffer+(npc_pc-base_addr)+2) << 16) + (*(rom_buffer+(npc_pc-base_addr)+3) << 24);
+	npc_pc = top->io_nextPC;
+	top->io_pcInput = npc_pc;
+
+	top->clock = 1; step_and_dump_wave();
+	for (int i = 0; i < 3100; i++) {
+		top->clock = 0; step_and_dump_wave();
+		top->io_memData =  
+		(*(rom_buffer+(npc_pc-base_addr))) + (*(rom_buffer+(npc_pc-base_addr)+1) << 8) +
+		(*(rom_buffer+(npc_pc-base_addr)+2) << 16) + (*(rom_buffer+(npc_pc-base_addr)+3) << 24);
+		npc_pc = top->io_nextPC;
+		top->io_pcInput = npc_pc;
+
+		top->clock = 1; step_and_dump_wave();
+	}
 
     sim_exit();
     return 0;
+
 }

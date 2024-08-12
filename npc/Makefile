@@ -1,3 +1,4 @@
+
 TOPNAME = top
 NXDC_FILES = constr/Top.nxdc
 INC_PATH ?=
@@ -29,6 +30,9 @@ CSRCS = $(shell find $(abspath ./csrc/$(PROJ_NAME)) -name "*.c" -or -name "*.cc"
 VERCS = $(shell find $(abspath ./csrc/$(PROJ_NAME)) -name "sim_main.c")
 VCDSRCS = $(shell find $(abspath ./) -name $(PROJ_NAME).vcd)
 
+# Command to execute NPC
+NPC_SIM := $(BUILD_DIR)/top $(ARGS) $(IMG)
+
 # rules for NVBoard
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
@@ -52,14 +56,14 @@ clean:
 	rm -rf ./build
 	rm -rf ./*.vcd
 
-sim: $(VSRCS) $(VERCS)
+sim: $(VSRCS) $(VERCS) $(CSRCS)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@rm -rf $(OBJ_DIR)
 	@rm -rf ./*.vcd
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $(VSRCS) $(CSRCS) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
-	$(BUILD_DIR)/top
+	$(NPC_SIM)
 wave: 
 	$(GTKWAVE) $(GTKWAVE_CFLAGS) $(VCDSRCS)
 

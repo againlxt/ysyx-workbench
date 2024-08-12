@@ -2,7 +2,7 @@
  * @Author: hzxOnlineOk
  * @Date: 2024-01-15 09:47:31
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-07-23 16:04:18
+ * @LastEditTime: 2024-08-12 15:51:55
  * @Description: 请填写简介
  */
 #include <klib.h>
@@ -21,6 +21,10 @@ size_t strlen(const char *s) {
   for (size_t i = 0; ; i++) {
     if(*(s+i) != '\0') return i;
   }
+}
+
+size_t putchar(int c) {
+	return printf("%c", c);
 }
 
 /**
