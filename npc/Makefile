@@ -41,6 +41,8 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 CXXFLAGS += $(HSRCS)
+CXXFLAGS += -mcmodel=large
+LDFLAGS += -lreadline
 
 $(BIN): $(VSRCS) $(CSRCS)
 	@rm -rf $(OBJ_DIR)
@@ -64,6 +66,7 @@ sim: $(VSRCS) $(VERCS) $(CSRCS)
 	@rm -rf ./*.vcd
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) \
+		$(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--top-module $(TOPNAME) $(VSRCS) $(CSRCS) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 	$(NPC_SIM)

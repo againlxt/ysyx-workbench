@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-16 08:25:02
+ * @LastEditTime: 2024-08-16 15:39:44
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -63,8 +63,7 @@ static void init_npc() {
 }
 
 static void execute(uint64_t n) {
-	verilatorTop->io_npcState 		= npc_state.state;
-	verilatorTop->reset 			= 0;
+	verilatorTop->io_npcState 		= npc_state.state;	
 
 	for(uint64_t i=0; i < n; i ++) {
 		if(npc_state.state != NPC_RUNNING)	break;
@@ -87,9 +86,14 @@ static void execute(uint64_t n) {
 	}
 }
 
+static bool sim_init_flag = true;
+
 void cpu_exec(uint64_t n) {
-	sim_init(99);
-	init_npc();
+	if(sim_init_flag == true) {
+		sim_init(99);
+		init_npc();
+		sim_init_flag = false;
+	}
 
 	switch (npc_state.state) {
 		case NPC_END: case NPC_ABORT:
@@ -98,6 +102,7 @@ void cpu_exec(uint64_t n) {
 		default: npc_state.state = NPC_RUNNING;
 	}
 
+	verilatorTop->reset 			= 0;
 	execute(n);
 	switch (npc_state.state) {
 		case NPC_RUNNING: npc_state.state = NPC_STOP; break;

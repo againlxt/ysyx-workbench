@@ -1,0 +1,16 @@
+/*
+ * @Author: lxt leixiaotian434@gmail.com
+ * @Date: 2024-08-16 10:04:08
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-08-16 15:18:05
+ * @FilePath: /ysyx-workbench/npc/include/config/config.h
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
+#ifndef __CONFIG_H__
+#define __CONFIG_H__
+
+#define CONFIG_SDB_MODE 	1
+
+#endif

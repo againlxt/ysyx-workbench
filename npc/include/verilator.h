@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-11 10:38:36
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-16 08:19:24
+ * @LastEditTime: 2024-08-16 15:33:05
  * @FilePath: /ysyx-workbench/npc/include/verilator.h
  * @Description: 
  * 
@@ -20,7 +20,6 @@
 extern Vtop* verilatorTop;
 
 void step_and_dump_wave();
-void sim_init();
 
 #define FREE_VERILATOR() { \
 	verlatorTfp->close(); \

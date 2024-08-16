@@ -1,13 +1,3 @@
-/*
- * @Author: lxt leixiaotian434@gmail.com
- * @Date: 2024-01-15 09:47:26
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-15 11:27:07
- * @FilePath: /ysyx-workbench/nemu/include/utils.h
- * @Description: 
- * 
- * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
- */
 /***************************************************************************************
 * Copyright (c) 2014-2022 Zihao Yu, Nanjing University
 *
@@ -66,9 +56,21 @@ uint64_t get_time();
 
 #define ANSI_FMT(str, fmt) fmt str ANSI_NONE
 
+#define log_write(...) IFDEF(CONFIG_TARGET_NATIVE_ELF, \
+  do { \
+    extern FILE* log_fp; \
+    extern bool log_enable(); \
+    if (log_enable()) { \
+      fprintf(log_fp, __VA_ARGS__); \
+      fflush(log_fp); \
+    } \
+  } while (0) \
+)
+
 #define _Log(...) \
   do { \
     printf(__VA_ARGS__); \
+    log_write(__VA_ARGS__); \
   } while (0)
 
 

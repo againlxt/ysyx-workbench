@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-15 14:02:52
+ * @LastEditTime: 2024-08-16 15:31:53
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/monitor/monitor.cpp
  * @Description: 
  * 
@@ -16,15 +16,19 @@ static char *img_file = NULL;
 uint8_t *rom_buffer = NULL;
 uint32_t rom_buffer_size = 0;
 
+void sdb_set_batch_mode();
+
 static int parse_args(int argc, char *argv[]) {
 	const struct option table[] = {
+		{"batch"    , no_argument      , NULL, 'b'},
 		{"help"     , 0 		       , NULL, 'h'},
 		{0          , 0                , NULL,  0 },
 	};
 	int o;
 	while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:", table, NULL)) != -1) {
 		switch (o) {
-		case 1: img_file = optarg; return 0;
+			case 'b': sdb_set_batch_mode(); break;
+			case 1: img_file = optarg; return 0;
 		default:
 			printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
 			printf("\n");

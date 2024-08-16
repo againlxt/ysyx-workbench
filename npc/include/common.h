@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-10 10:44:23
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-15 18:26:28
+ * @LastEditTime: 2024-08-16 10:07:13
  * @FilePath: /ysyx-workbench/npc/include/common.h
  * @Description: 
  * 
@@ -19,6 +19,7 @@
 #include <cstdlib>
 #include <cassert>
 #include <macro.h>
+#include <config/config.h>
 
 // typedef MUXDEF(CONFIG_ISA64, uint64_t, uint32_t) word_t;
 // typedef MUXDEF(CONFIG_ISA64, int64_t, int32_t)  sword_t;

@@ -140,13 +140,13 @@ static int cmd_q(char *args) {
 }
 
 static int cmd_si(char *args) {
-  args = strtok(NULL, " ");
-  uint64_t n;
-  if (args == NULL) n = 1;
-  else n = (uint64_t) strtoull(args, NULL, 10);
-  
-  cpu_exec(n);
-  return 0;
+	args = strtok(NULL, " ");
+	uint64_t n;
+	if (args == NULL) n = 1;
+	else n = (uint64_t) strtoull(args, NULL, 10);
+	
+	cpu_exec(n);
+	return 0;
 }
 
 static int cmd_info(char *args) {
