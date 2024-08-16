@@ -264,6 +264,7 @@ static int cmd_test(char *args) {
     else {
       printf("Evaluate Wrong!\n");
     }
+	free(success);
   }
   return 0;
 }

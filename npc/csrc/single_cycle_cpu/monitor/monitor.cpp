@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-16 15:31:53
+ * @LastEditTime: 2024-08-16 20:43:05
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/monitor/monitor.cpp
  * @Description: 
  * 
@@ -64,8 +64,32 @@ static long load_img() {
 	return size;
 }
 
+static void init_npc() {
+	verilatorTop->io_npcState 	= NPC_INIT;
+
+	verilatorTop->reset 			= 1;
+	verilatorTop->clock = 0; step_and_dump_wave();
+	verilatorTop->clock = 1; step_and_dump_wave();
+	verilatorTop->clock = 0; step_and_dump_wave();
+	verilatorTop->clock = 1; step_and_dump_wave();
+}
+
+static void sim_init(uint32_t deepth) {
+    verlatorContextp = new VerilatedContext;
+    verlatorTfp = new VerilatedVcdC;
+    verilatorTop = new Vtop(verlatorContextp);
+    verlatorContextp->traceEverOn(true);
+    verilatorTop->trace(verlatorTfp, deepth);
+    verlatorTfp->open("single_cycle_cpu.vcd");
+}
+
+
 void init_monitor(int argc, char *argv[]) {
 	parse_args(argc, argv);
+
+	sim_init(99);
+	
+	init_npc();
 
 	load_img();
 }

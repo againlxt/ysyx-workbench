@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-11 10:38:36
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-16 15:33:05
+ * @LastEditTime: 2024-08-16 20:44:09
  * @FilePath: /ysyx-workbench/npc/include/verilator.h
  * @Description: 
  * 
@@ -16,8 +16,12 @@
 #include <svdpi.h>
 #include <iostream>
 #include "Vtop.h"
+#include "Vtop___024root.h"
 
 extern Vtop* verilatorTop;
+
+extern VerilatedContext* verlatorContextp;
+extern VerilatedVcdC* verlatorTfp;
 
 void step_and_dump_wave();
 

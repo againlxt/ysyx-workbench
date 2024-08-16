@@ -41,7 +41,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 CXXFLAGS += $(HSRCS)
-CXXFLAGS += -mcmodel=large
+CXXFLAGS += -D__REG_PREFIX__=top__DOT__riscv32BaseReg__DOT__riscv32BaseReg_
 LDFLAGS += -lreadline
 
 $(BIN): $(VSRCS) $(CSRCS)

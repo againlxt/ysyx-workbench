@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-16 15:39:44
+ * @LastEditTime: 2024-08-16 20:42:19
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -89,14 +89,17 @@ static void execute(uint64_t n) {
 static bool sim_init_flag = true;
 
 void cpu_exec(uint64_t n) {
+	/*
 	if(sim_init_flag == true) {
 		sim_init(99);
 		init_npc();
 		sim_init_flag = false;
 	}
+	*/
 
 	switch (npc_state.state) {
 		case NPC_END: case NPC_ABORT:
+			printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
 			return;
 		
 		default: npc_state.state = NPC_RUNNING;

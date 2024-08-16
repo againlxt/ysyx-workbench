@@ -192,6 +192,7 @@ void traverse_watchpoints() {
       return;
     }
     else {}
+	free(success);
     wp = wp->next;
   }
 }

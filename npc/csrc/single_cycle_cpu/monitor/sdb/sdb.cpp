@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-16 10:11:52
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-16 15:21:51
+ * @LastEditTime: 2024-08-16 20:27:06
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/monitor/sdb/sdb.cpp
  * @Description: 
  * 
@@ -12,6 +12,7 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <isa/reg.h>
 
 static int is_batch_mode = false;
 
@@ -20,6 +21,7 @@ static int cmd_c(char *args);
 static int cmd_q(char *args);
 static int cmd_help(char *args);
 static int cmd_si(char *args);
+static int cmd_info(char *args);
 
 static struct {
 	const char *name;
@@ -31,6 +33,8 @@ static struct {
 	{ "q", "Exit NEMU", cmd_q },
 
 	{ "si", "Followed by parameter n, Execute n times", cmd_si},
+	{ "info", "Print program status, followed with parameter. If parameter \
+  	is r, printing register status. If parameter is w, print monitoring point information", cmd_info},
 };
 
 #define NR_CMD ARRLEN(cmd_table)
@@ -93,6 +97,23 @@ static int cmd_si(char *args) {
   
   cpu_exec(n);
   return 0;
+}
+
+static int cmd_info(char *args) {
+	args = strtok(NULL, " ");
+	if (args == NULL) {
+		printf("Please enter subcmd.(r or w)\n");
+		return 0;
+	}
+	else {
+		if (strcmp(args, "r") == 0) {
+			isa_reg_display();
+		}
+		else {
+			printf("Subcmd wrong, please enter r or w.\n");
+		}
+	}
+	return 0;
 }
 
 void sdb_set_batch_mode() {
