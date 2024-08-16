@@ -28,6 +28,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 VSRCS = $(shell find $(abspath ./vsrc/$(PROJ_NAME)) -name "*.v" -or -name "*.sv")
 CSRCS = $(shell find $(abspath ./csrc/$(PROJ_NAME)) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 VERCS = $(shell find $(abspath ./csrc/$(PROJ_NAME)) -name "sim_main.c")
+HSRCS = -I$(NPC_HOME)/include
 VCDSRCS = $(shell find $(abspath ./) -name $(PROJ_NAME).vcd)
 
 # Command to execute NPC
@@ -39,6 +40,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
+CXXFLAGS += $(HSRCS)
 
 $(BIN): $(VSRCS) $(CSRCS)
 	@rm -rf $(OBJ_DIR)
@@ -61,6 +63,7 @@ sim: $(VSRCS) $(VERCS) $(CSRCS)
 	@rm -rf $(OBJ_DIR)
 	@rm -rf ./*.vcd
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
+		$(addprefix -CFLAGS , $(CXXFLAGS)) \
 		--top-module $(TOPNAME) $(VSRCS) $(CSRCS) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 	$(NPC_SIM)

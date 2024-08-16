@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-10 10:44:23
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-11 14:24:58
+ * @LastEditTime: 2024-08-15 18:26:28
  * @FilePath: /ysyx-workbench/npc/include/common.h
  * @Description: 
  * 
@@ -15,6 +15,26 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include <string.h>
-#include "debug.h"
+#include <debug.h>
+#include <cstdlib>
+#include <cassert>
+#include <macro.h>
+
+// typedef MUXDEF(CONFIG_ISA64, uint64_t, uint32_t) word_t;
+// typedef MUXDEF(CONFIG_ISA64, int64_t, int32_t)  sword_t;
+
+typedef uint32_t word_t;
+typedef int32_t sword_t;
+
+// #define FMT_WORD MUXDEF(CONFIG_ISA64, "0x%016" PRIx64, "0x%08" PRIx32)
+#define FMT_WORD "0x%08" PRIx32
+
+typedef word_t vaddr_t;
+// typedef MUXDEF(PMEM64, uint64_t, uint32_t) paddr_t;
+typedef uint32_t paddr_t;
+// #define FMT_PADDR MUXDEF(PMEM64, "0x%016" PRIx64, "0x%08" PRIx32)
+#define FMT_PADDR "0x%08" PRIx32
+
+typedef uint16_t ioaddr_t;
 
 #endif

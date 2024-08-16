@@ -1,48 +1,31 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
- * @Date: 2024-01-15 09:47:26
+ * @Date: 2024-08-15 11:28:24
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-15 11:27:07
- * @FilePath: /ysyx-workbench/nemu/include/utils.h
+ * @LastEditTime: 2024-08-16 07:42:36
+ * @FilePath: /ysyx-workbench/npc/include/utils.h
  * @Description: 
  * 
  * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
  */
-/***************************************************************************************
-* Copyright (c) 2014-2022 Zihao Yu, Nanjing University
-*
-* NEMU is licensed under Mulan PSL v2.
-* You can use this software according to the terms and conditions of the Mulan PSL v2.
-* You may obtain a copy of Mulan PSL v2 at:
-*          http://license.coscl.org.cn/MulanPSL2
-*
-* THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
-* EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
-* MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
-*
-* See the Mulan PSL v2 for more details.
-***************************************************************************************/
-
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
 #include <common.h>
 
+typedef uint32_t word_t;
+
 // ----------- state -----------
 
-enum { NEMU_RUNNING, NEMU_STOP, NEMU_END, NEMU_ABORT, NEMU_QUIT };
+enum { NPC_RUNNING, NPC_STOP, NPC_END, NPC_ABORT, NPC_QUIT, NPC_INIT };
 
 typedef struct {
   int state;
-  vaddr_t halt_pc;
+  word_t halt_pc;
   uint32_t halt_ret;
-} NEMUState;
+} NPCState;
 
-extern NEMUState nemu_state;
-
-// ----------- timer -----------
-
-uint64_t get_time();
+extern NPCState npc_state;
 
 // ----------- log -----------
 
