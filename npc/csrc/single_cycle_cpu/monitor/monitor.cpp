@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-17 13:17:23
+ * @LastEditTime: 2024-08-17 14:39:04
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/monitor/monitor.cpp
  * @Description: 
  * 
@@ -13,6 +13,7 @@
 #include <verilator.h>
 
 static char *img_file = NULL;
+static char *log_file = NULL;
 uint8_t *rom_buffer = NULL;
 uint32_t rom_buffer_size = 0;
 
@@ -21,6 +22,7 @@ void sdb_set_batch_mode();
 static int parse_args(int argc, char *argv[]) {
 	const struct option table[] = {
 		{"batch"    , no_argument      , NULL, 'b'},
+		{"log"      , required_argument, NULL, 'l'},
 		{"help"     , 0 		       , NULL, 'h'},
 		{0          , 0                , NULL,  0 },
 	};
@@ -28,6 +30,7 @@ static int parse_args(int argc, char *argv[]) {
 	while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:", table, NULL)) != -1) {
 		switch (o) {
 			case 'b': sdb_set_batch_mode(); break;
+			case 'l': log_file = optarg; break;
 			case 1: img_file = optarg; return 0;
 		default:
 			printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);

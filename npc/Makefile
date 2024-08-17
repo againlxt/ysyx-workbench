@@ -43,6 +43,9 @@ CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 CXXFLAGS += $(HSRCS)
 LDFLAGS += -lreadline
 
+FILELIST_MK = $(shell find -L ./src -name "filelist.mk")
+include $(FILELIST_MK)
+
 $(BIN): $(VSRCS) $(CSRCS)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \

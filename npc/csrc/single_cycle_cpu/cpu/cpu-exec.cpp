@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-17 14:13:32
+ * @LastEditTime: 2024-08-17 15:51:56
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -12,6 +12,7 @@
 #include <verilator.h>
 #include <utils.h>
 #include <paddr.h>
+#include <trace/trace.h>
 
 VerilatedContext* verlatorContextp = nullptr;
 VerilatedVcdC* verlatorTfp = nullptr;
@@ -23,6 +24,7 @@ extern uint32_t rom_buffer_size;
 uint32_t npc_dnpc 	= 0x80000000;
 uint32_t npc_pc 	= 0x80000000;
 uint32_t base_addr 	= 0x80000000;
+uint64_t g_nr_guest_inst = 0;
 
 // temp
 static uint execute_quit = 0;
@@ -54,6 +56,35 @@ void sim_exit() {
     step_and_dump_wave(); // 确保最后一步被记录
 }
 
+static void exec_once() {
+	verilatorTop->clock = 0; step_and_dump_wave();
+	verilatorTop->io_memData = vaddr_read(npc_pc, 4); verilatorTop->eval();
+	verilatorTop->clock = 1; step_and_dump_wave();
+
+	step_and_dump_wave();
+	npc_pc		= verilatorTop->io_curPC; 
+	npc_dnpc	= verilatorTop->io_nextPC;
+	verilatorTop->io_npcState = npc_state.state;
+	verilatorTop->eval();
+
+#ifdef CONFIG_ITRACE
+	char *p = logbuf;
+	p += snprintf(p, sizeof(logbuf), FMT_WORD ":", npc_pc);
+	int ilen = npc_dnpc - npc_pc;
+	int i;
+	uint8_t *inst = (uint8_t *)&s->isa.inst.val;
+	for (i = ilen - 1; i >= 0; i --) {
+		p += snprintf(p, 4, " %02x", inst[i]);
+	}
+	int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
+	int space_len = ilen_max - ilen;
+	if (space_len < 0) space_len = 0;
+	space_len = space_len * 3 + 1;
+	memset(p, ' ', space_len);
+	p += space_len;
+#endif
+}
+
 static void execute(uint64_t n) {
 	npc_pc		= verilatorTop->io_curPC; 
 	npc_dnpc	= verilatorTop->io_nextPC;
@@ -62,28 +93,18 @@ static void execute(uint64_t n) {
 
 	for(uint64_t i=0; i < n; i ++) {
 		if(npc_state.state != NPC_RUNNING)	break;
-		verilatorTop->clock = 0; step_and_dump_wave();
-		verilatorTop->io_memData = vaddr_read(npc_pc, 4); verilatorTop->eval();
-		verilatorTop->clock = 1; step_and_dump_wave();
-
-		step_and_dump_wave();
-		npc_pc		= verilatorTop->io_curPC; 
-		npc_dnpc	= verilatorTop->io_nextPC;
-		verilatorTop->io_npcState = npc_state.state;
-		verilatorTop->eval();
+		exec_once();
+		
+		#ifdef CONFIG_ITRACE
+		new_irbn();
+		#endif
+		g_nr_guest_inst ++;
 	}
 }
 
 static bool sim_init_flag = true;
 
 void cpu_exec(uint64_t n) {
-	/*
-	if(sim_init_flag == true) {
-		sim_init(99);
-		init_npc();
-		sim_init_flag = false;
-	}
-	*/
 
 	switch (npc_state.state) {
 		case NPC_END: case NPC_ABORT:

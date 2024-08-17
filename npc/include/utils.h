@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-15 11:28:24
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-16 07:42:36
+ * @LastEditTime: 2024-08-17 15:06:32
  * @FilePath: /ysyx-workbench/npc/include/utils.h
  * @Description: 
  * 
@@ -50,9 +50,19 @@ extern NPCState npc_state;
 #define ANSI_FMT(str, fmt) fmt str ANSI_NONE
 
 #define _Log(...) \
-  do { \
-    printf(__VA_ARGS__); \
-  } while (0)
+do { \
+	printf(__VA_ARGS__); \
+	log_write(__VA_ARGS__); \
+} while (0)
 
+#define log_write(...) \
+	do { \
+		extern FILE* log_fp; \
+		extern bool log_enable(); \
+		if (log_enable()) { \
+		fprintf(log_fp, __VA_ARGS__); \
+		fflush(log_fp); \
+	} \
+} while (0) \
 
 #endif
