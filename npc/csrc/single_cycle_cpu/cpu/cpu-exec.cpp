@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-16 20:42:19
+ * @LastEditTime: 2024-08-16 20:49:25
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -46,7 +46,7 @@ static void sim_init(uint32_t deepth) {
 // Simulation exit
 extern "C" void sim_exit();
 void sim_exit() {
-	NPCTRAP(verilatorTop->io_nextPC, 0);
+	NPCTRAP(npc_pc, 0);
 	verilatorTop->io_npcState 		= npc_state.state; 
 
     step_and_dump_wave(); // 确保最后一步被记录
@@ -72,6 +72,7 @@ static void execute(uint64_t n) {
 		(*(rom_buffer+(npc_pc-base_addr))) + (*(rom_buffer+(npc_pc-base_addr)+1) << 8) +
 		(*(rom_buffer+(npc_pc-base_addr)+2) << 16) + (*(rom_buffer+(npc_pc-base_addr)+3) << 24);
 		verilatorTop->io_npcState = npc_state.state;
+		
 		verilatorTop->clock = 0; step_and_dump_wave();
 
 		verilatorTop->io_memData =  
