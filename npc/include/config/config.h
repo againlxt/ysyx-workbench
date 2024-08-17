@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-16 10:04:08
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-16 15:18:05
+ * @LastEditTime: 2024-08-17 13:38:47
  * @FilePath: /ysyx-workbench/npc/include/config/config.h
  * @Description: 
  * 
@@ -12,5 +12,6 @@
 #define __CONFIG_H__
 
 #define CONFIG_SDB_MODE 	1
+#define CONFIG_MBASE 		0x80000000
 
 #endif

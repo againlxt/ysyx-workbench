@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-16 20:49:25
+ * @LastEditTime: 2024-08-17 14:13:32
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -11,6 +11,7 @@
 #include <cpu/cpu.h>
 #include <verilator.h>
 #include <utils.h>
+#include <paddr.h>
 
 VerilatedContext* verlatorContextp = nullptr;
 VerilatedVcdC* verlatorTfp = nullptr;
@@ -19,8 +20,9 @@ Vtop* verilatorTop = nullptr;
 extern uint8_t *rom_buffer;
 extern uint32_t rom_buffer_size;
 
-static uint32_t npc_pc 		= 0x80000000;
-static uint32_t base_addr 		= 0x80000000;
+uint32_t npc_dnpc 	= 0x80000000;
+uint32_t npc_pc 	= 0x80000000;
+uint32_t base_addr 	= 0x80000000;
 
 // temp
 static uint execute_quit = 0;
@@ -52,38 +54,23 @@ void sim_exit() {
     step_and_dump_wave(); // 确保最后一步被记录
 }
 
-static void init_npc() {
-	verilatorTop->io_npcState 	= NPC_INIT;
-
-	verilatorTop->reset 			= 1;
-	verilatorTop->clock = 0; step_and_dump_wave();
-	verilatorTop->clock = 1; step_and_dump_wave();
-	verilatorTop->clock = 0; step_and_dump_wave();
-	verilatorTop->clock = 1; step_and_dump_wave();
-}
-
 static void execute(uint64_t n) {
-	verilatorTop->io_npcState 		= npc_state.state;	
+	npc_pc		= verilatorTop->io_curPC; 
+	npc_dnpc	= verilatorTop->io_nextPC;
+	verilatorTop->io_npcState 		= npc_state.state;
+	verilatorTop->eval();
 
 	for(uint64_t i=0; i < n; i ++) {
 		if(npc_state.state != NPC_RUNNING)	break;
-
-		verilatorTop->io_memData =  
-		(*(rom_buffer+(npc_pc-base_addr))) + (*(rom_buffer+(npc_pc-base_addr)+1) << 8) +
-		(*(rom_buffer+(npc_pc-base_addr)+2) << 16) + (*(rom_buffer+(npc_pc-base_addr)+3) << 24);
-		verilatorTop->io_npcState = npc_state.state;
-		
 		verilatorTop->clock = 0; step_and_dump_wave();
-
-		verilatorTop->io_memData =  
-		(*(rom_buffer+(npc_pc-base_addr))) + (*(rom_buffer+(npc_pc-base_addr)+1) << 8) +
-		(*(rom_buffer+(npc_pc-base_addr)+2) << 16) + (*(rom_buffer+(npc_pc-base_addr)+3) << 24);
-		
-		npc_pc = verilatorTop->io_nextPC;
-		verilatorTop->io_pcInput = npc_pc;
-		verilatorTop->io_npcState = npc_state.state;
-
+		verilatorTop->io_memData = vaddr_read(npc_pc, 4); verilatorTop->eval();
 		verilatorTop->clock = 1; step_and_dump_wave();
+
+		step_and_dump_wave();
+		npc_pc		= verilatorTop->io_curPC; 
+		npc_dnpc	= verilatorTop->io_nextPC;
+		verilatorTop->io_npcState = npc_state.state;
+		verilatorTop->eval();
 	}
 }
 

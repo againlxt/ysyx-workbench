@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-11 10:38:36
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-16 20:44:09
+ * @LastEditTime: 2024-08-17 13:16:39
  * @FilePath: /ysyx-workbench/npc/include/verilator.h
  * @Description: 
  * 
@@ -22,6 +22,9 @@ extern Vtop* verilatorTop;
 
 extern VerilatedContext* verlatorContextp;
 extern VerilatedVcdC* verlatorTfp;
+extern uint32_t npc_dnpc;
+extern uint32_t npc_pc;
+extern uint32_t base_addr;
 
 void step_and_dump_wave();
 

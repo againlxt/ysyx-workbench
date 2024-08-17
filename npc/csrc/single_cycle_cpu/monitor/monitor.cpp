@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-16 20:43:05
+ * @LastEditTime: 2024-08-17 13:17:23
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/monitor/monitor.cpp
  * @Description: 
  * 
@@ -70,6 +70,9 @@ static void init_npc() {
 	verilatorTop->reset 			= 1;
 	verilatorTop->clock = 0; step_and_dump_wave();
 	verilatorTop->clock = 1; step_and_dump_wave();
+	verilatorTop->io_memData =  
+		(*(rom_buffer+(npc_pc-base_addr))) + (*(rom_buffer+(npc_pc-base_addr)+1) << 8) +
+		(*(rom_buffer+(npc_pc-base_addr)+2) << 16) + (*(rom_buffer+(npc_pc-base_addr)+3) << 24); verilatorTop->eval();
 	verilatorTop->clock = 0; step_and_dump_wave();
 	verilatorTop->clock = 1; step_and_dump_wave();
 }
@@ -87,9 +90,9 @@ static void sim_init(uint32_t deepth) {
 void init_monitor(int argc, char *argv[]) {
 	parse_args(argc, argv);
 
+	load_img();
+
 	sim_init(99);
 	
 	init_npc();
-
-	load_img();
 }
