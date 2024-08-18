@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-17 15:16:22
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-17 15:25:10
+ * @LastEditTime: 2024-08-17 16:56:30
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/trace/itrace.cpp
  * @Description: 
  * 
@@ -10,7 +10,6 @@
  */
 #include <utils.h>
 #include <trace/itrace.h>
-#include <config/config.h>
 
 #ifdef CONFIG_ITRACE
 

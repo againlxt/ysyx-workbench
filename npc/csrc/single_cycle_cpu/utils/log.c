@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-17 14:47:50
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-17 15:49:15
+ * @LastEditTime: 2024-08-18 20:47:56
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/utils/log.c
  * @Description: 
  * 
@@ -14,8 +14,6 @@
 extern uint64_t g_nr_guest_inst;
 
 FILE *log_fp = NULL;
-
-char log_buf[128];
 
 void init_log(const char *log_file) {
   log_fp = stdout;

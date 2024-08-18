@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-11 08:16:32
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-15 13:51:12
+ * @LastEditTime: 2024-08-18 21:21:53
  * @FilePath: /ysyx-workbench/npc/include/debug.h
  * @Description: 
  * 
@@ -23,6 +23,8 @@
   do { \
     if (!(cond)) { \
 		fprintf(stderr, format "\n", ##__VA_ARGS__); \
+		extern void assert_fail_msg(); \
+      	assert_fail_msg(); \
     	assert(cond); \
     } \
   } while (0)

@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-17 15:51:56
+ * @LastEditTime: 2024-08-18 21:29:29
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -13,6 +13,7 @@
 #include <utils.h>
 #include <paddr.h>
 #include <trace/trace.h>
+#include <isa/reg.h>
 
 VerilatedContext* verlatorContextp = nullptr;
 VerilatedVcdC* verlatorTfp = nullptr;
@@ -21,6 +22,7 @@ Vtop* verilatorTop = nullptr;
 extern uint8_t *rom_buffer;
 extern uint32_t rom_buffer_size;
 
+char logbuf[128] = "";
 uint32_t npc_dnpc 	= 0x80000000;
 uint32_t npc_pc 	= 0x80000000;
 uint32_t base_addr 	= 0x80000000;
@@ -47,6 +49,7 @@ static void sim_init(uint32_t deepth) {
     verlatorTfp->open("single_cycle_cpu.vcd");
 }
 
+// DPI-C
 // Simulation exit
 extern "C" void sim_exit();
 void sim_exit() {
@@ -55,6 +58,9 @@ void sim_exit() {
 
     step_and_dump_wave(); // 确保最后一步被记录
 }
+
+extern "C" svBitVecVal getCommond();
+// DPI-C END
 
 static void exec_once() {
 	verilatorTop->clock = 0; step_and_dump_wave();
@@ -72,11 +78,11 @@ static void exec_once() {
 	p += snprintf(p, sizeof(logbuf), FMT_WORD ":", npc_pc);
 	int ilen = npc_dnpc - npc_pc;
 	int i;
-	uint8_t *inst = (uint8_t *)&s->isa.inst.val;
-	for (i = ilen - 1; i >= 0; i --) {
-		p += snprintf(p, 4, " %02x", inst[i]);
-	}
-	int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
+	svSetScope(svGetScopeFromName("TOP.top"));
+	svBitVecVal cmd = getCommond();
+	uint32_t npcCurCmd = (uint32_t) cmd;
+	p += snprintf(p, 12, " %010x", npcCurCmd);
+	int ilen_max = 4;
 	int space_len = ilen_max - ilen;
 	if (space_len < 0) space_len = 0;
 	space_len = space_len * 3 + 1;
@@ -93,19 +99,22 @@ static void execute(uint64_t n) {
 
 	for(uint64_t i=0; i < n; i ++) {
 		if(npc_state.state != NPC_RUNNING)	break;
-		exec_once();
-		
+		exec_once();	
 		#ifdef CONFIG_ITRACE
-		new_irbn();
+		new_irbn(logbuf);
 		#endif
 		g_nr_guest_inst ++;
 	}
 }
 
-static bool sim_init_flag = true;
+void assert_fail_msg() {
+#ifdef CONFIG_ITRACE
+	iringbuf_log();
+#endif
+  	isa_reg_display();
+}
 
 void cpu_exec(uint64_t n) {
-
 	switch (npc_state.state) {
 		case NPC_END: case NPC_ABORT:
 			printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
@@ -126,6 +135,9 @@ void cpu_exec(uint64_t n) {
 				ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
 			npc_state.halt_pc);
 		FREE_VERILATOR();
+		#ifdef CONFIG_ITRACE
+		iringbuf_log();
+		#endif
 		// fall through
 		
 		default:

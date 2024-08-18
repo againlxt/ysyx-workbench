@@ -43,7 +43,7 @@ CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 CXXFLAGS += $(HSRCS)
 LDFLAGS += -lreadline
 
-FILELIST_MK = $(shell find -L ./src -name "filelist.mk")
+FILELIST_MK = $(shell find -L ./csrc -name "filelist.mk")
 include $(FILELIST_MK)
 
 $(BIN): $(VSRCS) $(CSRCS)
@@ -75,4 +75,7 @@ sim: $(VSRCS) $(VERCS) $(CSRCS)
 wave: 
 	$(GTKWAVE) $(GTKWAVE_CFLAGS) $(VCDSRCS)
 
-.PHONY: default all clean run
+# Include rules for menuconfig
+include $(NPC_HOME)/scripts/config.mk
+
+.PHONY: default all clean run wave

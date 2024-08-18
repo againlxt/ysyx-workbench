@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-17 15:22:10
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-17 15:29:01
+ * @LastEditTime: 2024-08-17 16:52:57
  * @FilePath: /ysyx-workbench/npc/include/trace/trace.h
  * @Description: 
  * 
@@ -10,7 +10,7 @@
  */
 #ifndef __TRACE_H__
 #define __TRACE_H__
-#include <config/config.h>
+#include <common.h>
 
 #ifdef CONFIG_ITRACE
 #include <trace/itrace.h>

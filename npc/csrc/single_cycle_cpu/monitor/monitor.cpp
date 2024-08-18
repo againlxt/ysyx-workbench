@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-17 14:39:04
+ * @LastEditTime: 2024-08-17 17:09:18
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/monitor/monitor.cpp
  * @Description: 
  * 
@@ -17,7 +17,18 @@ static char *log_file = NULL;
 uint8_t *rom_buffer = NULL;
 uint32_t rom_buffer_size = 0;
 
-void sdb_set_batch_mode();
+extern void sdb_set_batch_mode();
+extern void init_log(const char *log_file);
+
+static void welcome() {
+  Log("Trace: %s", MUXDEF(CONFIG_TRACE, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
+  IFDEF(CONFIG_TRACE, Log("If trace is enabled, a log file will be generated "
+        "to record the trace. This may lead to a large log file. "
+        "If it is not necessary, you can disable it in menuconfig"));
+  Log("Build time: %s, %s", __TIME__, __DATE__);
+  printf("Welcome to %s-NPC!\n", ANSI_FMT(str("riscv32e"), ANSI_FG_YELLOW ANSI_BG_RED));
+  printf("For help, type \"help\"\n");
+}
 
 static int parse_args(int argc, char *argv[]) {
 	const struct option table[] = {
@@ -55,7 +66,9 @@ static long load_img() {
 
 	Log("The image is %s, size = %ld\n", img_file, size);
 
+	printf("1\n");
 	fseek(fp, 0, SEEK_SET);
+	printf("2\n");
 	rom_buffer_size = size / sizeof(uint8_t);
 	rom_buffer = (uint8_t *)malloc(rom_buffer_size * sizeof(uint8_t));
 	Assert(rom_buffer != NULL, "ROM memory allocation failed\n");
@@ -93,9 +106,13 @@ static void sim_init(uint32_t deepth) {
 void init_monitor(int argc, char *argv[]) {
 	parse_args(argc, argv);
 
+	init_log(log_file);
+
 	load_img();
 
 	sim_init(99);
 	
 	init_npc();
+
+	welcome();
 }

@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-15 11:28:24
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-17 15:06:32
+ * @LastEditTime: 2024-08-18 20:47:01
  * @FilePath: /ysyx-workbench/npc/include/utils.h
  * @Description: 
  * 
@@ -48,6 +48,8 @@ extern NPCState npc_state;
 #define ANSI_NONE       "\33[0m"
 
 #define ANSI_FMT(str, fmt) fmt str ANSI_NONE
+
+extern char log_buf[128];
 
 #define _Log(...) \
 do { \
