@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-17 17:09:18
+ * @LastEditTime: 2024-08-19 08:53:49
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/monitor/monitor.cpp
  * @Description: 
  * 
@@ -66,9 +66,7 @@ static long load_img() {
 
 	Log("The image is %s, size = %ld\n", img_file, size);
 
-	printf("1\n");
 	fseek(fp, 0, SEEK_SET);
-	printf("2\n");
 	rom_buffer_size = size / sizeof(uint8_t);
 	rom_buffer = (uint8_t *)malloc(rom_buffer_size * sizeof(uint8_t));
 	Assert(rom_buffer != NULL, "ROM memory allocation failed\n");

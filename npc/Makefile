@@ -1,7 +1,9 @@
+-include $(NEMU_HOME)/include/config/auto.conf
+-include $(NEMU_HOME)/include/config/auto.conf.cmd
 
 TOPNAME = top
 NXDC_FILES = constr/Top.nxdc
-INC_PATH ?=
+INC_PATH ?= $(NPC_HOME)/include
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc -O3 --x-initial fast --noassert --trace
@@ -19,6 +21,9 @@ default: $(BIN)
 
 $(shell mkdir -p $(BUILD_DIR))
 
+FILELIST_MK = $(shell find -L ./csrc -name "filelist.mk")
+include $(FILELIST_MK)
+
 # constraint file
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
@@ -27,8 +32,8 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 # project source
 VSRCS = $(shell find $(abspath ./vsrc/$(PROJ_NAME)) -name "*.v" -or -name "*.sv")
 CSRCS = $(shell find $(abspath ./csrc/$(PROJ_NAME)) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
-VERCS = $(shell find $(abspath ./csrc/$(PROJ_NAME)) -name "sim_main.c")
-HSRCS = -I$(NPC_HOME)/include
+
+OBJS  = $(VSRCS) $(CSRCS)
 VCDSRCS = $(shell find $(abspath ./) -name $(PROJ_NAME).vcd)
 
 # Command to execute NPC
@@ -41,12 +46,11 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 CXXFLAGS += $(HSRCS)
-LDFLAGS += -lreadline
+CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
+LDFLAGS  += $(shell llvm-config --ldflags --libs all)
+LDFLAGS  += -lreadline
 
-FILELIST_MK = $(shell find -L ./csrc -name "filelist.mk")
-include $(FILELIST_MK)
-
-$(BIN): $(VSRCS) $(CSRCS)
+$(BIN): $(OBJS)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $^ \
@@ -57,19 +61,18 @@ all: default
 
 run: $(BIN)
 	@$^
-
 clean:
 	rm -rf ./build
 	rm -rf ./*.vcd
 
-sim: $(VSRCS) $(VERCS) $(CSRCS)
+sim: $(OBJS)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@rm -rf $(OBJ_DIR)
 	@rm -rf ./*.vcd
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) \
 		$(addprefix -LDFLAGS , $(LDFLAGS)) \
-		--top-module $(TOPNAME) $(VSRCS) $(CSRCS) \
+		--top-module $(TOPNAME) $(OBJS) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 	$(NPC_SIM)
 wave: 
