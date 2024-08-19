@@ -46,8 +46,6 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 CXXFLAGS += $(HSRCS)
-CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
-LDFLAGS  += $(shell llvm-config --ldflags --libs all)
 LDFLAGS  += -lreadline
 
 $(BIN): $(OBJS)

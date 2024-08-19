@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-18 21:29:29
+ * @LastEditTime: 2024-08-19 10:58:53
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -14,6 +14,10 @@
 #include <paddr.h>
 #include <trace/trace.h>
 #include <isa/reg.h>
+#include <iostream>
+#include <cstdint>
+
+#define MAX_INST_TO_PRINT 10
 
 VerilatedContext* verlatorContextp = nullptr;
 VerilatedVcdC* verlatorTfp = nullptr;
@@ -63,6 +67,8 @@ extern "C" svBitVecVal getCommond();
 // DPI-C END
 
 static void exec_once() {
+	uint32_t npc_curPC  = npc_pc;
+	uint32_t npc_snpc 	= npc_curPC + 4;
 	verilatorTop->clock = 0; step_and_dump_wave();
 	verilatorTop->io_memData = vaddr_read(npc_pc, 4); verilatorTop->eval();
 	verilatorTop->clock = 1; step_and_dump_wave();
@@ -75,19 +81,26 @@ static void exec_once() {
 
 #ifdef CONFIG_ITRACE
 	char *p = logbuf;
-	p += snprintf(p, sizeof(logbuf), FMT_WORD ":", npc_pc);
-	int ilen = npc_dnpc - npc_pc;
+	p += snprintf(p, sizeof(logbuf), FMT_WORD ":", npc_curPC);
+	int ilen = npc_snpc - npc_curPC;
 	int i;
 	svSetScope(svGetScopeFromName("TOP.top"));
 	svBitVecVal cmd = getCommond();
 	uint32_t npcCurCmd = (uint32_t) cmd;
-	p += snprintf(p, 12, " %010x", npcCurCmd);
+	uint8_t *inst = reinterpret_cast<uint8_t*>(&npcCurCmd);
+	for (i = ilen - 1; i >= 0; i --) {
+		p += snprintf(p, 4, " %02x", inst[i]);
+	}
 	int ilen_max = 4;
 	int space_len = ilen_max - ilen;
 	if (space_len < 0) space_len = 0;
 	space_len = space_len * 3 + 1;
 	memset(p, ' ', space_len);
 	p += space_len;
+
+	void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+	disassemble(p, logbuf + sizeof(logbuf) - p,
+    	MUXDEF(CONFIG_ISA_x86, npc_dnpc, npc_pc), (uint8_t *) &npcCurCmd, ilen);
 #endif
 }
 

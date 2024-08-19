@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-19 08:53:49
+ * @LastEditTime: 2024-08-19 10:33:33
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/monitor/monitor.cpp
  * @Description: 
  * 
@@ -19,6 +19,7 @@ uint32_t rom_buffer_size = 0;
 
 extern void sdb_set_batch_mode();
 extern void init_log(const char *log_file);
+extern void init_disasm(const char *triple);
 
 static void welcome() {
   Log("Trace: %s", MUXDEF(CONFIG_TRACE, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
@@ -100,7 +101,6 @@ static void sim_init(uint32_t deepth) {
     verlatorTfp->open("single_cycle_cpu.vcd");
 }
 
-
 void init_monitor(int argc, char *argv[]) {
 	parse_args(argc, argv);
 
@@ -111,6 +111,10 @@ void init_monitor(int argc, char *argv[]) {
 	sim_init(99);
 	
 	init_npc();
+
+	IFDEF(CONFIG_ITRACE, init_disasm(
+		"riscv32" "-pc-linux-gnu"
+	));
 
 	welcome();
 }
