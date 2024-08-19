@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-19 10:58:53
+ * @LastEditTime: 2024-08-19 20:45:37
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -16,8 +16,12 @@
 #include <isa/reg.h>
 #include <iostream>
 #include <cstdint>
+#include <elf.h>
 
 #define MAX_INST_TO_PRINT 10
+uint64_t g_nr_guest_inst = 0;
+static uint64_t g_timer = 0;
+static bool g_print_step = false;
 
 VerilatedContext* verlatorContextp = nullptr;
 VerilatedVcdC* verlatorTfp = nullptr;
@@ -30,28 +34,11 @@ char logbuf[128] = "";
 uint32_t npc_dnpc 	= 0x80000000;
 uint32_t npc_pc 	= 0x80000000;
 uint32_t base_addr 	= 0x80000000;
-uint64_t g_nr_guest_inst = 0;
 
-// temp
-static uint execute_quit = 0;
-// temp end 
+word_t ftrace_function_call_flag;
+word_t ftrace_ret_flag;
 
-// Simulate stepping and record waveform
-void step_and_dump_wave() {
-    verilatorTop->eval();
-    verlatorContextp->timeInc(1); // 时间增加
-    verlatorTfp->dump(verlatorContextp->time());
-}
-
-// Simulation Init
-static void sim_init(uint32_t deepth) {
-    verlatorContextp = new VerilatedContext;
-    verlatorTfp = new VerilatedVcdC;
-    verilatorTop = new Vtop(verlatorContextp);
-    verlatorContextp->traceEverOn(true);
-    verilatorTop->trace(verlatorTfp, deepth);
-    verlatorTfp->open("single_cycle_cpu.vcd");
-}
+static void step_and_dump_wave();
 
 // DPI-C
 // Simulation exit
@@ -63,22 +50,58 @@ void sim_exit() {
     step_and_dump_wave(); // 确保最后一步被记录
 }
 
+extern "C" void set_ftrace_function_call_flag(); 
+void set_ftrace_function_call_flag() {
+	ftrace_function_call_flag = true;
+}
+
+extern "C" void set_ftrace_ret_flag();
+void set_ftrace_ret_flag() {
+	ftrace_ret_flag = true;
+}
+
 extern "C" svBitVecVal getCommond();
 // DPI-C END
+
+// Simulate stepping and record waveform
+static void step_and_dump_wave() {
+    verilatorTop->eval();
+    verlatorContextp->timeInc(1); // 时间增加
+    verlatorTfp->dump(verlatorContextp->time());
+}
+
+static void trace_and_difftest() {
+#ifdef CONFIG_TRACE
+	log_write("%s\n", logbuf);
+#endif
+  	if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(logbuf)); }
+
+#ifdef CONFIG_FTRACE
+	Elf32_Sym *ftrace_function_symbol = NULL;
+	if(ftrace_function_call_flag == true) {
+		ftrace_function_call_flag = false;
+		ftrace_function_symbol = find_func_call(npc_dnpc);
+		log_write("f %#X: ", npc_pc);
+		ftrace_call_depth ++;
+		for (uint32_t i = 0; i < ftrace_call_depth; i++) { log_write("  "); }
+		log_write("call [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);	
+	} else if (ftrace_ret_flag == true) {
+		ftrace_ret_flag = false;
+		ftrace_function_symbol = find_func_call(npc_dnpc);
+		log_write("f %#X: ", npc_pc);
+		if(ftrace_call_depth >= 1) ftrace_call_depth --;
+		for (uint32_t i = 0; i < ftrace_call_depth; i++) { log_write("  "); }
+		log_write("ret [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);	
+	} else { }
+#endif
+}
 
 static void exec_once() {
 	uint32_t npc_curPC  = npc_pc;
 	uint32_t npc_snpc 	= npc_curPC + 4;
+	
 	verilatorTop->clock = 0; step_and_dump_wave();
 	verilatorTop->io_memData = vaddr_read(npc_pc, 4); verilatorTop->eval();
-	verilatorTop->clock = 1; step_and_dump_wave();
-
-	step_and_dump_wave();
-	npc_pc		= verilatorTop->io_curPC; 
-	npc_dnpc	= verilatorTop->io_nextPC;
-	verilatorTop->io_npcState = npc_state.state;
-	verilatorTop->eval();
-
 #ifdef CONFIG_ITRACE
 	char *p = logbuf;
 	p += snprintf(p, sizeof(logbuf), FMT_WORD ":", npc_curPC);
@@ -100,8 +123,17 @@ static void exec_once() {
 
 	void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 	disassemble(p, logbuf + sizeof(logbuf) - p,
-    	MUXDEF(CONFIG_ISA_x86, npc_dnpc, npc_pc), (uint8_t *) &npcCurCmd, ilen);
+    	npc_pc, (uint8_t *) &npcCurCmd, ilen);
+
+	new_irbn(logbuf);
 #endif
+	trace_and_difftest();
+	verilatorTop->clock = 1; step_and_dump_wave();
+
+	npc_pc		= verilatorTop->io_curPC; 
+	npc_dnpc	= verilatorTop->io_nextPC;
+	verilatorTop->io_npcState = npc_state.state;
+	verilatorTop->eval();
 }
 
 static void execute(uint64_t n) {
@@ -114,10 +146,18 @@ static void execute(uint64_t n) {
 		if(npc_state.state != NPC_RUNNING)	break;
 		exec_once();	
 		#ifdef CONFIG_ITRACE
-		new_irbn(logbuf);
 		#endif
 		g_nr_guest_inst ++;
 	}
+}
+
+static void statistic() {
+	setlocale(LC_NUMERIC, "");
+	#define NUMBERIC_FMT MUXDEF(CONFIG_TARGET_AM, "%", "%'") PRIu64
+	Log("host time spent = " NUMBERIC_FMT " us", g_timer);
+	Log("total guest instructions = " NUMBERIC_FMT, g_nr_guest_inst);
+	if (g_timer > 0) Log("simulation frequency = " NUMBERIC_FMT " inst/s", g_nr_guest_inst * 1000000 / g_timer);
+	else Log("Finish running in less than 1 us and can not calculate the simulation frequency");
 }
 
 void assert_fail_msg() {
@@ -125,9 +165,13 @@ void assert_fail_msg() {
 	iringbuf_log();
 #endif
   	isa_reg_display();
+	free(rom_buffer);
+	verlatorTfp->close();
+	statistic();
 }
 
 void cpu_exec(uint64_t n) {
+	g_print_step = (n < MAX_INST_TO_PRINT);
 	switch (npc_state.state) {
 		case NPC_END: case NPC_ABORT:
 			printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
@@ -136,8 +180,14 @@ void cpu_exec(uint64_t n) {
 		default: npc_state.state = NPC_RUNNING;
 	}
 
+	uint64_t timer_start = get_time();
+
 	verilatorTop->reset 			= 0;
 	execute(n);
+
+	uint64_t timer_end = get_time();
+  	g_timer += timer_end - timer_start;
+
 	switch (npc_state.state) {
 		case NPC_RUNNING: npc_state.state = NPC_STOP; break;
 
@@ -153,6 +203,7 @@ void cpu_exec(uint64_t n) {
 		#endif
 		// fall through
 		
+		case NPC_QUIT:  statistic();
 		default:
 			break;
 	}

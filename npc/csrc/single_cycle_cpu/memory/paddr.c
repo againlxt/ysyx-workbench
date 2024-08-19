@@ -2,8 +2,8 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-17 13:27:08
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-17 16:56:12
- * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/memory/paddr.cpp
+ * @LastEditTime: 2024-08-19 20:23:26
+ * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/memory/paddr.c
  * @Description: 
  * 
  * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 

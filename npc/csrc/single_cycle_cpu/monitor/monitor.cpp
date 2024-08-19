@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-19 10:33:33
+ * @LastEditTime: 2024-08-19 19:17:47
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/monitor/monitor.cpp
  * @Description: 
  * 
@@ -14,12 +14,19 @@
 
 static char *img_file = NULL;
 static char *log_file = NULL;
+static char *elf_file = NULL;
 uint8_t *rom_buffer = NULL;
 uint32_t rom_buffer_size = 0;
 
 extern void sdb_set_batch_mode();
 extern void init_log(const char *log_file);
+extern void init_elf(const char *elf_file);
 extern void init_disasm(const char *triple);
+static void step_and_dump_wave() {
+    verilatorTop->eval();
+    verlatorContextp->timeInc(1); // 时间增加
+    verlatorTfp->dump(verlatorContextp->time());
+}
 
 static void welcome() {
   Log("Trace: %s", MUXDEF(CONFIG_TRACE, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
@@ -35,6 +42,7 @@ static int parse_args(int argc, char *argv[]) {
 	const struct option table[] = {
 		{"batch"    , no_argument      , NULL, 'b'},
 		{"log"      , required_argument, NULL, 'l'},
+		{"elf"		, required_argument, NULL, 'e'},
 		{"help"     , 0 		       , NULL, 'h'},
 		{0          , 0                , NULL,  0 },
 	};
@@ -43,9 +51,13 @@ static int parse_args(int argc, char *argv[]) {
 		switch (o) {
 			case 'b': sdb_set_batch_mode(); break;
 			case 'l': log_file = optarg; break;
+			case 'e':	elf_file = optarg; break;
 			case 1: img_file = optarg; return 0;
 		default:
 			printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
+			printf("\t-b,--batch              run with batch mode\n");
+			printf("\t-l,--log=FILE           output log to FILE\n");
+			printf("\t-e,--elf=ELF			  input elf file\n");
 			printf("\n");
 			exit(0);
 		}
@@ -85,19 +97,16 @@ static void init_npc() {
 	verilatorTop->reset 			= 1;
 	verilatorTop->clock = 0; step_and_dump_wave();
 	verilatorTop->clock = 1; step_and_dump_wave();
-	verilatorTop->io_memData =  
-		(*(rom_buffer+(npc_pc-base_addr))) + (*(rom_buffer+(npc_pc-base_addr)+1) << 8) +
-		(*(rom_buffer+(npc_pc-base_addr)+2) << 16) + (*(rom_buffer+(npc_pc-base_addr)+3) << 24); verilatorTop->eval();
 	verilatorTop->clock = 0; step_and_dump_wave();
 	verilatorTop->clock = 1; step_and_dump_wave();
 }
 
-static void sim_init(uint32_t deepth) {
+static void sim_init() {
     verlatorContextp = new VerilatedContext;
     verlatorTfp = new VerilatedVcdC;
     verilatorTop = new Vtop(verlatorContextp);
     verlatorContextp->traceEverOn(true);
-    verilatorTop->trace(verlatorTfp, deepth);
+    verilatorTop->trace(verlatorTfp, 1000);
     verlatorTfp->open("single_cycle_cpu.vcd");
 }
 
@@ -106,9 +115,11 @@ void init_monitor(int argc, char *argv[]) {
 
 	init_log(log_file);
 
+	init_elf(elf_file);
+
 	load_img();
 
-	sim_init(99);
+	sim_init();
 	
 	init_npc();
 

@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-15 11:28:24
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-18 20:47:01
+ * @LastEditTime: 2024-08-19 15:59:45
  * @FilePath: /ysyx-workbench/npc/include/utils.h
  * @Description: 
  * 
@@ -26,6 +26,10 @@ typedef struct {
 } NPCState;
 
 extern NPCState npc_state;
+
+// ----------- timer -----------
+
+uint64_t get_time();
 
 // ----------- log -----------
 

@@ -42,6 +42,15 @@ NPC_SIM := $(BUILD_DIR)/top $(ARGS) $(IMG)
 # rules for NVBoard
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
+# Extract compiler and options from menuconfig
+CC = $(call remove_quote,$(CONFIG_CC))
+CFLAGS_BUILD += $(call remove_quote,$(CONFIG_CC_OPT))
+CFLAGS_BUILD += $(if $(CONFIG_CC_LTO),-flto,)
+CFLAGS_BUILD += -Og -ggdb3
+CFLAGS_TRACE += -DITRACE_COND=$(if $(CONFIG_ITRACE_COND),$(call remove_quote,$(CONFIG_ITRACE_COND)),true)
+CXXFLAGS  += $(CFLAGS_BUILD) $(CFLAGS_TRACE) 
+LDFLAGS += $(CFLAGS_BUILD)
+
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
@@ -73,6 +82,13 @@ sim: $(OBJS)
 		--top-module $(TOPNAME) $(OBJS) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 	$(NPC_SIM)
+
+val: $(BIN)
+	valgrind --leak-check=full $(NPC_SIM)
+
+gdb: $(BIN)
+	gdb -s $(BIN) --args $(NPC_SIM)
+
 wave: 
 	$(GTKWAVE) $(GTKWAVE_CFLAGS) $(VCDSRCS)
 
