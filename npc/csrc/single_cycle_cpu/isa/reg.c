@@ -2,8 +2,8 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-16 16:46:46
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-19 18:48:59
- * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/isa/reg.cpp
+ * @LastEditTime: 2024-08-20 19:50:00
+ * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/isa/reg.c
  * @Description: 
  * 
  * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
@@ -12,6 +12,7 @@
 #include <isa/reg.h>
 
 #define REGS_SIZE 16
+static uint32_t regsData[REGS_SIZE] = {};
 
 const char *regs[] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",

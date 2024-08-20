@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-19 20:45:37
+ * @LastEditTime: 2024-08-20 17:10:43
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -11,7 +11,7 @@
 #include <cpu/cpu.h>
 #include <verilator.h>
 #include <utils.h>
-#include <paddr.h>
+#include <memory/paddr.h>
 #include <trace/trace.h>
 #include <isa/reg.h>
 #include <iostream>

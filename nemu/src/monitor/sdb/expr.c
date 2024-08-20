@@ -324,7 +324,7 @@ static bool check_left_is_operator(uint32_t index) {
   return false;
 }
 
-uint32_t findop(uint32_t begin, uint32_t end) {
+static uint32_t findop(uint32_t begin, uint32_t end) {
   // uint32_t id[32];
   uint32_t j = 0;
   uint32_t optype = 0;

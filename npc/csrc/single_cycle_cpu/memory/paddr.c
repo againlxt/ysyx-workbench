@@ -2,13 +2,13 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-17 13:27:08
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-19 20:23:26
+ * @LastEditTime: 2024-08-20 17:10:59
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/memory/paddr.c
  * @Description: 
  * 
  * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
  */
-#include <paddr.h>
+#include <memory/paddr.h>
 
 #ifdef CONFIG_MTRACE
 static word_t mtrace_begin   = PMEM_LEFT;

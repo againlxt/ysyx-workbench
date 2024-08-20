@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-19 19:17:47
+ * @LastEditTime: 2024-08-20 16:48:48
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/monitor/monitor.cpp
  * @Description: 
  * 
@@ -14,6 +14,7 @@
 
 static char *img_file = NULL;
 static char *log_file = NULL;
+static char *diff_so_file = NULL;
 static char *elf_file = NULL;
 uint8_t *rom_buffer = NULL;
 uint32_t rom_buffer_size = 0;
@@ -42,6 +43,7 @@ static int parse_args(int argc, char *argv[]) {
 	const struct option table[] = {
 		{"batch"    , no_argument      , NULL, 'b'},
 		{"log"      , required_argument, NULL, 'l'},
+		{"diff"     , required_argument, NULL, 'd'},
 		{"elf"		, required_argument, NULL, 'e'},
 		{"help"     , 0 		       , NULL, 'h'},
 		{0          , 0                , NULL,  0 },
@@ -51,8 +53,9 @@ static int parse_args(int argc, char *argv[]) {
 		switch (o) {
 			case 'b': sdb_set_batch_mode(); break;
 			case 'l': log_file = optarg; break;
-			case 'e':	elf_file = optarg; break;
-			case 1: img_file = optarg; return 0;
+			case 'd': diff_so_file = optarg; break;
+			case 'e': elf_file = optarg; break;
+			case 1:   img_file = optarg; return 0;
 		default:
 			printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
 			printf("\t-b,--batch              run with batch mode\n");

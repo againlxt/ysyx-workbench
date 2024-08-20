@@ -1,3 +1,13 @@
+/*
+ * @Author: lxt leixiaotian434@gmail.com
+ * @Date: 2024-01-15 09:47:26
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-08-20 17:00:59
+ * @FilePath: /ysyx-workbench/nemu/src/cpu/difftest/ref.c
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 /***************************************************************************************
 * Copyright (c) 2014-2022 Zihao Yu, Nanjing University
 *
@@ -19,15 +29,32 @@
 #include <memory/paddr.h>
 
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
-  assert(0);
+	assert(buf != NULL);
+	uint8_t* dut = (uint8_t*) buf;
+
+	if (direction == DIFFTEST_TO_DUT) {
+		for (size_t i = 0; i < n; i++) { *(dut+i) = paddr_read((addr+i), 1); }
+	}
+	else {
+		for (size_t i = 0; i < n; i++) { paddr_write(addr+i, 1, *(dut+i)); }
+	}
 }
 
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
-  assert(0);
+	assert(dut != NULL);
+	uint32_t* dut_buf = (uint32_t*) dut;
+
+	size_t size = MUXDEF(CONFIG_RVE, 16, 32);
+	if (direction == DIFFTEST_TO_DUT) {
+		for (size_t i = 0; i < size; i++) { dut_buf[i] = cpu.gpr[i]; }
+	}
+	else {
+		for (size_t i = 0; i < size; i++) { cpu.gpr[i] = dut_buf[i]; }		
+	}
 }
 
 __EXPORT void difftest_exec(uint64_t n) {
-  assert(0);
+	cpu_exec(n);
 }
 
 __EXPORT void difftest_raise_intr(word_t NO) {

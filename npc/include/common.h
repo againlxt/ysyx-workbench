@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-10 10:44:23
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-17 16:43:52
+ * @LastEditTime: 2024-08-20 17:40:55
  * @FilePath: /ysyx-workbench/npc/include/common.h
  * @Description: 
  * 
@@ -15,6 +15,7 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include <string.h>
+#include <assert.h>
 #include <debug.h>
 #include <cstdlib>
 #include <cassert>
