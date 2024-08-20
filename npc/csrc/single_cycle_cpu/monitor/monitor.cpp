@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-20 16:48:48
+ * @LastEditTime: 2024-08-20 20:24:42
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/monitor/monitor.cpp
  * @Description: 
  * 
@@ -11,6 +11,7 @@
 #include <common.h>
 #include <getopt.h>
 #include <verilator.h>
+#include <isa/reg.h>
 
 static char *img_file = NULL;
 static char *log_file = NULL;
@@ -113,6 +114,12 @@ static void sim_init() {
     verlatorTfp->open("single_cycle_cpu.vcd");
 }
 
+static void init_reg() {
+	for (size_t i = 0; i < REGS_SIZE; i++) {
+		regsData[i] = (uint32_t*) grda(i);
+	}
+}
+
 void init_monitor(int argc, char *argv[]) {
 	parse_args(argc, argv);
 
@@ -129,6 +136,8 @@ void init_monitor(int argc, char *argv[]) {
 	IFDEF(CONFIG_ITRACE, init_disasm(
 		"riscv32" "-pc-linux-gnu"
 	));
+
+	init_reg();
 
 	welcome();
 }
