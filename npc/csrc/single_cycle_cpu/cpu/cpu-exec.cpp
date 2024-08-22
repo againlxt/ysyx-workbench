@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-20 17:10:43
+ * @LastEditTime: 2024-08-22 09:33:49
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -152,6 +152,7 @@ static void execute(uint64_t n) {
 }
 
 static void statistic() {
+	verlatorTfp->close();
 	setlocale(LC_NUMERIC, "");
 	#define NUMBERIC_FMT MUXDEF(CONFIG_TARGET_AM, "%", "%'") PRIu64
 	Log("host time spent = " NUMBERIC_FMT " us", g_timer);
@@ -166,7 +167,6 @@ void assert_fail_msg() {
 #endif
   	isa_reg_display();
 	free(rom_buffer);
-	verlatorTfp->close();
 	statistic();
 }
 
@@ -203,7 +203,7 @@ void cpu_exec(uint64_t n) {
 		#endif
 		// fall through
 		
-		case NPC_QUIT:  statistic();
+		case NPC_QUIT:  statistic(); break;
 		default:
 			break;
 	}

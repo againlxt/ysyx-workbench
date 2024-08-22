@@ -2,8 +2,8 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-16 10:11:52
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-16 20:27:06
- * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/monitor/sdb/sdb.cpp
+ * @LastEditTime: 2024-08-22 09:25:50
+ * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/monitor/sdb/sdb.c
  * @Description: 
  * 
  * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 

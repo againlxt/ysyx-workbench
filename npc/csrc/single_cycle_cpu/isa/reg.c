@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-16 16:46:46
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-20 20:26:29
+ * @LastEditTime: 2024-08-20 21:13:18
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/isa/reg.c
  * @Description: 
  * 
@@ -21,9 +21,7 @@ const char *regs[] = {
 
 void isa_reg_display() {
 	printf("Reg display begin\n");
-	for (int i = 0; i < REGS_SIZE; i++)
-	{
-		printf("-----%d-----\n", i);
+	for (int i = 0; i < REGS_SIZE; i++) {
 		printf("%s:\t%#x\n", regs[i], gpr(i));
 	}
 	printf("Reg display end\n");
