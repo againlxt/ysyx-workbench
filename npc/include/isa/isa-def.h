@@ -1,13 +1,3 @@
-/*
- * @Author: lxt leixiaotian434@gmail.com
- * @Date: 2024-01-15 09:47:26
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-23 16:52:03
- * @FilePath: /ysyx-workbench/npc/include/difftest-def.h
- * @Description: 
- * 
- * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
- */
 /***************************************************************************************
 * Copyright (c) 2014-2022 Zihao Yu, Nanjing University
 *
@@ -23,17 +13,14 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
-#ifndef __DIFFTEST_DEF_H__
-#define __DIFFTEST_DEF_H__
+#ifndef __ISA_RISCV_H__
+#define __ISA_RISCV_H__
 
-#include <stdint.h>
-#include <macro.h>
-#include <generated/autoconf.h>
+#include <common.h>
 
-enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
-
-#define RISCV_GPR_TYPE MUXDEF(CONFIG_RV64, uint64_t, uint32_t)
-#define RISCV_GPR_NUM  MUXDEF(CONFIG_RVE , 16, 32)
-#define DIFFTEST_REG_SIZE (sizeof(RISCV_GPR_TYPE) * (RISCV_GPR_NUM + 1)) // GPRs + pc
+typedef struct {
+  word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)];
+  vaddr_t pc;
+} MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state);
 
 #endif

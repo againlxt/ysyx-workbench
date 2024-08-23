@@ -2,8 +2,8 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-23 12:20:44
- * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/monitor/monitor.cpp
+ * @LastEditTime: 2024-08-23 16:08:11
+ * @FilePath: /ysyx-workbench/npc/csrc/monitor/monitor.cpp
  * @Description: 
  * 
  * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
@@ -18,6 +18,7 @@ static char *img_file = NULL;
 static char *log_file = NULL;
 static char *diff_so_file = NULL;
 static char *elf_file = NULL;
+static int difftest_port = 1234;
 uint8_t *rom_buffer = NULL;
 uint32_t rom_buffer_size = 0;
 
@@ -29,6 +30,8 @@ extern void sdb_set_batch_mode();
 extern void init_log(const char *log_file);
 extern void init_elf(const char *elf_file);
 extern void init_disasm(const char *triple);
+void init_difftest(char *ref_so_file, long img_size, int port);
+
 static void step_and_dump_wave() {
     verilatorTop->eval();
     verlatorContextp->timeInc(1); // 时间增加
@@ -50,6 +53,7 @@ static int parse_args(int argc, char *argv[]) {
 		{"batch"    , no_argument      , NULL, 'b'},
 		{"log"      , required_argument, NULL, 'l'},
 		{"diff"     , required_argument, NULL, 'd'},
+		{"port"     , required_argument, NULL, 'p'},
 		{"elf"		, required_argument, NULL, 'e'},
 		{"help"     , 0 		       , NULL, 'h'},
 		{0          , 0                , NULL,  0 },
@@ -58,6 +62,7 @@ static int parse_args(int argc, char *argv[]) {
 	while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:", table, NULL)) != -1) {
 		switch (o) {
 			case 'b': sdb_set_batch_mode(); break;
+			case 'p': sscanf(optarg, "%d", &difftest_port); break;
 			case 'l': log_file = optarg; break;
 			case 'd': diff_so_file = optarg; break;
 			case 'e': elf_file = optarg; break;
@@ -65,6 +70,7 @@ static int parse_args(int argc, char *argv[]) {
 		default:
 			printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
 			printf("\t-b,--batch              run with batch mode\n");
+			printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
 			printf("\t-l,--log=FILE           output log to FILE\n");
 			printf("\t-e,--elf=ELF			  input elf file\n");
 			printf("\n");

@@ -21,7 +21,7 @@ default: $(BIN)
 
 $(shell mkdir -p $(BUILD_DIR))
 
-FILELIST_MK = $(shell find -L ./csrc -name "filelist.mk")
+FILELIST_MK = $(shell find -L $(NPC_HOME)/csrc -name "filelist.mk")
 include $(FILELIST_MK)
 
 # constraint file
@@ -30,8 +30,8 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 
 # project source
-VSRCS = $(shell find $(abspath ./vsrc/$(PROJ_NAME)) -name "*.v" -or -name "*.sv")
-CSRCS = $(shell find $(abspath ./csrc/$(PROJ_NAME)) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
+VSRCS = $(shell find $(abspath $(NPC_HOME)/vsrc/$(PROJ_NAME)) -name "*.v" -or -name "*.sv")
+CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 
 OBJS  = $(VSRCS) $(CSRCS)
 VCDSRCS = $(shell find $(abspath ./) -name $(PROJ_NAME).vcd)

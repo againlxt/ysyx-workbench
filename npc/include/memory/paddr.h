@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-17 13:34:16
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-23 12:20:28
+ * @LastEditTime: 2024-08-23 14:56:20
  * @FilePath: /ysyx-workbench/npc/include/memory/paddr.h
  * @Description: 
  * 
@@ -18,5 +18,7 @@
 #define RESET_VECTOR (PMEM_LEFT + CONFIG_PC_RESET_OFFSET)
 
 void init_mem();
+uint8_t* guest_to_host(paddr_t paddr);
+paddr_t host_to_guest(uint8_t *haddr);
 
 #endif

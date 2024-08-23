@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:26
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-20 17:00:59
+ * @LastEditTime: 2024-08-23 15:11:22
  * @FilePath: /ysyx-workbench/nemu/src/cpu/difftest/ref.c
  * @Description: 
  * 
@@ -40,16 +40,22 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 	}
 }
 
+/**
+ * @description: 
+ * @param {void} *dut 该参数为寄存器指针数组的指针
+ * @param {bool} direction
+ * @return {*}
+ */
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
 	assert(dut != NULL);
-	uint32_t* dut_buf = (uint32_t*) dut;
+	uint32_t** dut_buf = (uint32_t**) dut;
 
 	size_t size = MUXDEF(CONFIG_RVE, 16, 32);
 	if (direction == DIFFTEST_TO_DUT) {
-		for (size_t i = 0; i < size; i++) { dut_buf[i] = cpu.gpr[i]; }
+		for (size_t i = 0; i < size; i++) { *dut_buf[i] = cpu.gpr[i]; }
 	}
 	else {
-		for (size_t i = 0; i < size; i++) { cpu.gpr[i] = dut_buf[i]; }		
+		for (size_t i = 0; i < size; i++) { cpu.gpr[i] = *dut_buf[i]; }		
 	}
 }
 

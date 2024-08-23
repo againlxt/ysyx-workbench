@@ -2,8 +2,8 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-20 16:44:35
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-20 19:59:40
- * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/cpu/difftest/dut.c
+ * @LastEditTime: 2024-08-23 16:51:39
+ * @FilePath: /ysyx-workbench/npc/csrc/cpu/difftest/dut.c
  * @Description: 
  * 
  * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
@@ -13,6 +13,7 @@
 
 #include <utils.h>
 #include <memory/paddr.h>
+#include <isa/reg.h>
 #include <difftest-def.h>
 
 void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) = NULL;
@@ -51,5 +52,6 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
       "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
 
 	ref_difftest_init(port);
+	ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF);
+	ref_difftest_regcpy(regsData, DIFFTEST_TO_REF);
 }
-
