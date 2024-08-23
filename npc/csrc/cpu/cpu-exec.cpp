@@ -2,8 +2,8 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-23 12:57:56
- * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/cpu/cpu-exec.cpp
+ * @LastEditTime: 2024-08-23 17:44:29
+ * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
  * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
@@ -148,7 +148,6 @@ static void execute(uint64_t n) {
 }
 
 static void statistic() {
-	verlatorTfp->close();
 	setlocale(LC_NUMERIC, "");
 	#define NUMBERIC_FMT MUXDEF(CONFIG_TARGET_AM, "%", "%'") PRIu64
 	Log("host time spent = " NUMBERIC_FMT " us", g_timer);

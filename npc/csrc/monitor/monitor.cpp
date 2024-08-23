@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-23 16:08:11
+ * @LastEditTime: 2024-08-23 17:19:32
  * @FilePath: /ysyx-workbench/npc/csrc/monitor/monitor.cpp
  * @Description: 
  * 
@@ -71,6 +71,7 @@ static int parse_args(int argc, char *argv[]) {
 			printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
 			printf("\t-b,--batch              run with batch mode\n");
 			printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
+			printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
 			printf("\t-l,--log=FILE           output log to FILE\n");
 			printf("\t-e,--elf=ELF			  input elf file\n");
 			printf("\n");
@@ -138,7 +139,7 @@ void init_monitor(int argc, char *argv[]) {
 
 	init_elf(elf_file);
 
-	load_img();
+	long img_size = load_img();
 
 	init_mem();
 
@@ -153,6 +154,8 @@ void init_monitor(int argc, char *argv[]) {
 	));
 
 	init_reg();
+
+	init_difftest(diff_so_file, img_size, difftest_port);
 
 	welcome();
 }
