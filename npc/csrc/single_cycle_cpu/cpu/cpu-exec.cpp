@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-22 09:33:49
+ * @LastEditTime: 2024-08-23 12:57:56
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -11,7 +11,7 @@
 #include <cpu/cpu.h>
 #include <verilator.h>
 #include <utils.h>
-#include <memory/paddr.h>
+#include <memory/iaddr.h>
 #include <trace/trace.h>
 #include <isa/reg.h>
 #include <iostream>
@@ -22,10 +22,6 @@
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0;
 static bool g_print_step = false;
-
-VerilatedContext* verlatorContextp = nullptr;
-VerilatedVcdC* verlatorTfp = nullptr;
-Vtop* verilatorTop = nullptr;
 
 extern uint8_t *rom_buffer;
 extern uint32_t rom_buffer_size;
@@ -101,13 +97,13 @@ static void exec_once() {
 	uint32_t npc_snpc 	= npc_curPC + 4;
 	
 	verilatorTop->clock = 0; step_and_dump_wave();
-	verilatorTop->io_memData = vaddr_read(npc_pc, 4); verilatorTop->eval();
+	verilatorTop->io_memData = iaddr_read(npc_pc); verilatorTop->eval();
 #ifdef CONFIG_ITRACE
 	char *p = logbuf;
 	p += snprintf(p, sizeof(logbuf), FMT_WORD ":", npc_curPC);
 	int ilen = npc_snpc - npc_curPC;
 	int i;
-	svSetScope(svGetScopeFromName("TOP.top"));
+	svSetScope(svGetScopeFromName("TOP.top.idu.contrGen.cgDPIC"));
 	svBitVecVal cmd = getCommond();
 	uint32_t npcCurCmd = (uint32_t) cmd;
 	uint8_t *inst = reinterpret_cast<uint8_t*>(&npcCurCmd);

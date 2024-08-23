@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-10 10:44:23
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-20 17:40:55
+ * @LastEditTime: 2024-08-23 10:53:20
  * @FilePath: /ysyx-workbench/npc/include/common.h
  * @Description: 
  * 
@@ -34,6 +34,7 @@ typedef int32_t sword_t;
 typedef word_t vaddr_t;
 // typedef MUXDEF(PMEM64, uint64_t, uint32_t) paddr_t;
 typedef uint32_t paddr_t;
+typedef uint32_t iaddr_t;
 // #define FMT_PADDR MUXDEF(PMEM64, "0x%016" PRIx64, "0x%08" PRIx32)
 #define FMT_PADDR "0x%08" PRIx32
 

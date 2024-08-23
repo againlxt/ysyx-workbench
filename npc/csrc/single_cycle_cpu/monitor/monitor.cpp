@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-20 20:24:42
+ * @LastEditTime: 2024-08-23 12:20:44
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/monitor/monitor.cpp
  * @Description: 
  * 
@@ -12,6 +12,7 @@
 #include <getopt.h>
 #include <verilator.h>
 #include <isa/reg.h>
+#include <memory/paddr.h>
 
 static char *img_file = NULL;
 static char *log_file = NULL;
@@ -19,6 +20,10 @@ static char *diff_so_file = NULL;
 static char *elf_file = NULL;
 uint8_t *rom_buffer = NULL;
 uint32_t rom_buffer_size = 0;
+
+VerilatedContext* verlatorContextp = nullptr;
+VerilatedVcdC* verlatorTfp = nullptr;
+Vtop* verilatorTop = nullptr;
 
 extern void sdb_set_batch_mode();
 extern void init_log(const char *log_file);
@@ -81,7 +86,7 @@ static long load_img() {
 	fseek(fp, 0, SEEK_END);
 	long size = ftell(fp);
 
-	Log("The image is %s, size = %ld\n", img_file, size);
+	Log("The image is %s, size = %ld", img_file, size);
 
 	fseek(fp, 0, SEEK_SET);
 	rom_buffer_size = size / sizeof(uint8_t);
@@ -129,9 +134,13 @@ void init_monitor(int argc, char *argv[]) {
 
 	load_img();
 
+	init_mem();
+
 	sim_init();
 	
 	init_npc();
+
+	printf("1\n");
 
 	IFDEF(CONFIG_ITRACE, init_disasm(
 		"riscv32" "-pc-linux-gnu"
