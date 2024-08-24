@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-24 15:14:39
+ * @LastEditTime: 2024-08-24 17:09:22
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -25,9 +25,6 @@ uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0;
 static bool g_print_step = false;
 CPU_state cpu = {};
-
-extern uint8_t *rom_buffer;
-extern uint32_t rom_buffer_size;
 
 char logbuf[128] = "";
 uint32_t npc_dnpc 	= 0x80000000;
@@ -99,7 +96,7 @@ static void trace_and_difftest() {
 static void exec_once() {
 	uint32_t npc_curPC  = npc_pc;
 	uint32_t npc_snpc 	= npc_curPC + 4;
-	
+
 	verilatorTop->clock = 0; step_and_dump_wave();
 	verilatorTop->io_memData = iaddr_read(npc_pc); verilatorTop->eval();
 #ifdef CONFIG_ITRACE
@@ -126,9 +123,10 @@ static void exec_once() {
     	npc_pc, (uint8_t *) &npcCurCmd, ilen);
 
 	new_irbn(logbuf);
-#endif
-	trace_and_difftest();
+#endif	
+	
 	verilatorTop->clock = 1; step_and_dump_wave();
+	trace_and_difftest();
 
 	npc_pc		= verilatorTop->io_curPC; 
 	npc_dnpc	= verilatorTop->io_nextPC;
@@ -165,7 +163,6 @@ void assert_fail_msg() {
 	iringbuf_log();
 #endif
   	isa_reg_display();
-	free(rom_buffer);
 	statistic();
 }
 

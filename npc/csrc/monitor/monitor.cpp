@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-24 15:51:31
+ * @LastEditTime: 2024-08-24 16:03:15
  * @FilePath: /ysyx-workbench/npc/csrc/monitor/monitor.cpp
  * @Description: 
  * 
@@ -19,8 +19,6 @@ static char *log_file = NULL;
 static char *diff_so_file = NULL;
 static char *elf_file = NULL;
 static int difftest_port = 1234;
-uint8_t *rom_buffer = NULL;
-uint32_t rom_buffer_size = 0;
 
 VerilatedContext* verlatorContextp = nullptr;
 VerilatedVcdC* verlatorTfp = nullptr;
@@ -96,12 +94,8 @@ static long load_img() {
 	Log("The image is %s, size = %ld", img_file, size);
 
 	fseek(fp, 0, SEEK_SET);
-	rom_buffer_size = size / sizeof(uint8_t);
-	rom_buffer = (uint8_t *)malloc(rom_buffer_size * sizeof(uint8_t));
-	Assert(rom_buffer != NULL, "ROM memory allocation failed\n");
-	
-	int ret = fread(rom_buffer, 1, rom_buffer_size, fp);
-	Assert(ret == rom_buffer_size, "Read file failed\n");
+	int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
+	assert(ret == 1);
 
 	fclose(fp);
 	return size;
@@ -133,9 +127,9 @@ void init_monitor(int argc, char *argv[]) {
 
 	init_elf(elf_file);
 
-	long img_size = load_img();
-
 	init_mem();
+
+	long img_size = load_img();
 
 	sim_init();
 	
