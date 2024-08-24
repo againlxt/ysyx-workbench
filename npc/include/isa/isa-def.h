@@ -23,4 +23,8 @@ typedef struct {
   vaddr_t pc;
 } MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state);
 
+typedef riscv32_CPU_state CPU_state;
+
+extern CPU_state cpu;
+
 #endif

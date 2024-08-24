@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-23 17:19:32
+ * @LastEditTime: 2024-08-24 15:51:31
  * @FilePath: /ysyx-workbench/npc/csrc/monitor/monitor.cpp
  * @Description: 
  * 
@@ -126,12 +126,6 @@ static void sim_init() {
     verlatorTfp->open("single_cycle_cpu.vcd");
 }
 
-static void init_reg() {
-	for (size_t i = 0; i < REGS_SIZE; i++) {
-		regsData[i] = (uint32_t*) grda(i);
-	}
-}
-
 void init_monitor(int argc, char *argv[]) {
 	parse_args(argc, argv);
 
@@ -147,13 +141,9 @@ void init_monitor(int argc, char *argv[]) {
 	
 	init_npc();
 
-	printf("1\n");
-
 	IFDEF(CONFIG_ITRACE, init_disasm(
 		"riscv32" "-pc-linux-gnu"
 	));
-
-	init_reg();
 
 	init_difftest(diff_so_file, img_size, difftest_port);
 

@@ -1,3 +1,13 @@
+/*
+ * @Author: lxt leixiaotian434@gmail.com
+ * @Date: 2024-05-17 15:10:01
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-08-24 15:08:21
+ * @FilePath: /ysyx-workbench/nemu/src/isa/riscv32/reg.c
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 /***************************************************************************************
 * Copyright (c) 2014-2022 Zihao Yu, Nanjing University
 *
@@ -16,7 +26,7 @@
 #include <isa.h>
 #include "local-include/reg.h"
 
-#define REGS_SIZE 32
+#define REGS_SIZE MUXDEF(CONFIG_RVE, 16, 32)
 const char *regs[] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
   "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",

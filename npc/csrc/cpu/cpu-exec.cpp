@@ -2,18 +2,20 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-23 17:44:29
+ * @LastEditTime: 2024-08-24 15:14:39
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
  * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
  */
 #include <cpu/cpu.h>
+#include <cpu/difftest.h>
 #include <verilator.h>
 #include <utils.h>
 #include <memory/iaddr.h>
 #include <trace/trace.h>
 #include <isa/reg.h>
+#include <isa/isa-def.h>
 #include <iostream>
 #include <cstdint>
 #include <elf.h>
@@ -22,6 +24,7 @@
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0;
 static bool g_print_step = false;
+CPU_state cpu = {};
 
 extern uint8_t *rom_buffer;
 extern uint32_t rom_buffer_size;
@@ -71,6 +74,7 @@ static void trace_and_difftest() {
 	log_write("%s\n", logbuf);
 #endif
   	if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(logbuf)); }
+	IFDEF(CONFIG_DIFFTEST, difftest_step(npc_pc, npc_dnpc));
 
 #ifdef CONFIG_FTRACE
 	Elf32_Sym *ftrace_function_symbol = NULL;

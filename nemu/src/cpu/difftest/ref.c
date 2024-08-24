@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:26
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-23 15:11:22
+ * @LastEditTime: 2024-08-24 15:35:47
  * @FilePath: /ysyx-workbench/nemu/src/cpu/difftest/ref.c
  * @Description: 
  * 
@@ -48,14 +48,14 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
  */
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
 	assert(dut != NULL);
-	uint32_t** dut_buf = (uint32_t**) dut;
+	CPU_state* dut_buf = (CPU_state*) dut;
 
 	size_t size = MUXDEF(CONFIG_RVE, 16, 32);
 	if (direction == DIFFTEST_TO_DUT) {
-		for (size_t i = 0; i < size; i++) { *dut_buf[i] = cpu.gpr[i]; }
+		for (size_t i = 0; i < size; i++) { dut_buf->gpr[i] = cpu.gpr[i]; }
 	}
 	else {
-		for (size_t i = 0; i < size; i++) { cpu.gpr[i] = *dut_buf[i]; }		
+		for (size_t i = 0; i < size; i++) { cpu.gpr[i] = dut_buf->gpr[i]; }		
 	}
 }
 
@@ -64,11 +64,11 @@ __EXPORT void difftest_exec(uint64_t n) {
 }
 
 __EXPORT void difftest_raise_intr(word_t NO) {
-  assert(0);
 }
 
 __EXPORT void difftest_init(int port) {
   void init_mem();
+  void init_isa();
   init_mem();
   /* Perform ISA dependent initialization. */
   init_isa();

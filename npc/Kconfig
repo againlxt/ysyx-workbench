@@ -1,5 +1,12 @@
 mainmenu "NPC Configuration Menu"
 
+menu "ISA-dependent Options for riscv"
+
+config RVE
+  bool "Use E extension"
+  default n
+endmenu
+
 choice
 	prompt "Running mode"
 	default BATCH_MODE
