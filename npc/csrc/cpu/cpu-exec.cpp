@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-24 17:09:22
+ * @LastEditTime: 2024-08-25 16:11:25
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -40,7 +40,7 @@ static void step_and_dump_wave();
 // Simulation exit
 extern "C" void sim_exit();
 void sim_exit() {
-	NPCTRAP(npc_pc, 0);
+	NPCTRAP(npc_pc, gpr(10));
 	verilatorTop->io_npcState 		= npc_state.state; 
 
     step_and_dump_wave(); // 确保最后一步被记录
