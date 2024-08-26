@@ -12,7 +12,6 @@
 #
 # See the Mulan PSL v2 for more details.
 #**************************************************************************************/
-
 DIRS-y += src/device/io
 SRCS-$(CONFIG_DEVICE) += src/device/device.c src/device/alarm.c src/device/intr.c
 SRCS-$(CONFIG_HAS_SERIAL) += src/device/serial.c
@@ -27,6 +26,6 @@ SRCS-BLACKLIST-$(CONFIG_TARGET_AM) += src/device/alarm.c
 
 ifdef CONFIG_DEVICE
 ifndef CONFIG_TARGET_AM
- += -lSDL2
+LIBS += -lSDL2
 endif
 endif
