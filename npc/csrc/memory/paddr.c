@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-17 13:27:08
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-25 17:17:16
+ * @LastEditTime: 2024-08-26 11:45:12
  * @FilePath: /ysyx-workbench/npc/csrc/memory/paddr.c
  * @Description: 
  * 
@@ -80,15 +80,16 @@ void pmem_write(unsigned int waddr, unsigned int wdata, unsigned char wmask) {
 	// 由于单周期处理器存在冒险问题且该存储器为异步读写存储器，会有一些瞬间的地址会不在正常地址范围内，需要忽略这些冒险的瞬间
 	if (likely(in_pmem(waddr))) {
 		word_t data = 0;
-		switch (wmask) {
-			case 0b00000001: data = wdata & 0xFF; break;
-			case 0b00000011: data = wdata & 0xFFFF; break;
-			case 0b00001111: data = wdata & 0xFFFFFFFF; break;
+		size_t len = 0;
+		switch (wmask) { 
+			case 0b00000001: data = wdata & 0xFF; len=1; break;
+			case 0b00000011: data = wdata & 0xFFFF; len=2; break;
+			case 0b00001111: data = wdata & 0xFFFFFFFF; len=4; break;
 			case 0: break;
 			
 			default: break;
 		}
-		host_write(guest_to_host(waddr), 4, data);
+		host_write(guest_to_host(waddr), len, data);
 		 #ifdef CONFIG_MTRACE
 		if(mtrace_begin <= waddr && waddr <= mtrace_end)	MTRACE_LOG(waddr, 4, "write", data);
 		#endif

@@ -14,7 +14,7 @@
 #**************************************************************************************/
 
 ifneq ($(CONFIG_ITRACE),)
-CSRCS = $(NPC_HOME)/csrc/utils/disasm.cc
-CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
+CSRCS += $(NPC_HOME)/csrc/utils/disasm.cc
+CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE -fsanitize=address
 LDFLAGS += $(shell llvm-config --libs)
 endif
