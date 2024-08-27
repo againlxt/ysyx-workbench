@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:31
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-07-25 16:43:43
+ * @LastEditTime: 2024-08-26 16:47:08
  * @FilePath: /ysyx-workbench/abstract-machine/klib/src/stdio.c
  * @Description: 
  * 
@@ -70,34 +70,6 @@ int printf(const char *fmt, ...) {
 	va_start(args, fmt);
 	return vprintf(fmt, args);
 }
-/*
-int vsprintf(char *out, const char *fmt, va_list ap) {
-	char charfmtbuf[CHARBUF_LEN] = "";
-	char* strfmtbuf = charfmtbuf;
-	strcpy(strfmtbuf, fmt);
-	char chararray[CHARBUF_LEN] = "";
-	char* str = chararray;
-	int k = 0;
-
-	for (int i = 0; *(fmt+i) != '\0'; i ++) {
-		chararray[k++] = *(fmt+i);
-
-		if (*(fmt + i + 1) == '%' || *(fmt + i + 1) == '\0') {
-			int j = i+1;
-			char charbuf[CHARBUFTMP_LEN] = "";
-			char* strbuf = charbuf;
-			while(*(fmt + (i++)) <= '9') {};
-			if(!escape_char_trans((strfmtbuf+j), (i-j), ap, strbuf)) return 0;
-			str = strcat(str, strbuf);
-			k += strlen(strbuf);
-		} 
-	}
-
-	va_end(ap);
-
-	return 1;
-}
-*/
 
 int sprintf(char *out, const char *fmt, ...) {
 	va_list args;
