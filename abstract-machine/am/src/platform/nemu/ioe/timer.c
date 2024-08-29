@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:31
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-27 10:18:18
+ * @LastEditTime: 2024-08-29 20:14:10
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/platform/nemu/ioe/timer.c
  * @Description: 
  * 
@@ -11,13 +11,15 @@
 #include <am.h>
 #include <nemu.h>
 #include <riscv/riscv.h>
+#include <stdio.h>
 
 void __am_timer_init() {
-	outl(RTC_ADDR, 0);
+	io_write(AM_TIMER_RTC, 0, 0, 0, 0, 0, 1900);
+	io_write(AM_TIMER_UPTIME, 0);
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  	uptime->us = inl(RTC_ADDR) + ((uint64_t) inl(RTC_ADDR + 4) << 32);
+  	uptime->us = io_read(AM_TIMER_UPTIME).us;
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {
