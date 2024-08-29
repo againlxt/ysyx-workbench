@@ -55,9 +55,27 @@ enum {
 #define Bltu() do { s->dnpc = s->pc + ((src1 < src2) ? imm : 4); } while(0)
 #define Mul() do { int32_t t1 = src1; int32_t t2 = src2; R(rd) = t1 * t2; } while(0)
 #define Mulh() do { int64_t t1 = SEXT(src1, 32); int64_t t2 = SEXT(src2, 32); long long t = t1 * t2; R(rd) = t >> 32; } while(0)
-#define Mulhu() do { uint64_t t1 = SEXT(src1, 32); uint64_t t2 = SEXT(src2, 32); long long t = t1 * t2; R(rd) = t >> 32; } while(0)
-#define Div() do { int32_t t1 = src1; int32_t t2 = src2; R(rd) = t1 / t2; } while(0)
-#define Rem() do { int32_t t1 = src1; int32_t t2 = src2; R(rd) = t1 % t2; } while(0)
+#define Mulhu() do { uint64_t t1 = src1; uint64_t t2 = src2; long long t = t1 * t2; R(rd) = t >> 32; } while(0)
+#define Div() do { \
+	int32_t t1 = src1; \
+	int32_t t2 = src2; \
+	if(t2 != 0) R(rd) = t1 / t2; \
+	else R(rd) = t1; \
+} while(0)
+#define Divu() do { \
+	if(src2 != 0) R(rd) = src1 / src2; \
+	else R(rd) = src1; \
+} while(0)
+#define Rem() do { \
+	int32_t t1 = src1; \
+	int32_t t2 = src2; \
+	if(t2 != 0) R(rd) = t1 % t2; \
+	else R(rd) = t1; \
+} while(0)
+#define Remu() do { \
+	if(src2 != 0) R(rd) = src1 % src2; \
+	else R(rd) = src1; \
+} while(0)
 
 word_t ftrace_function_call_flag = false;
 word_t ftrace_ret_flag = false;
@@ -168,9 +186,9 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000001 ????? ????? 011 ????? 01100 11", mulh   , R, Mulhu());
 
   INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div    , R, Div());
-  INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu   , R, R(rd) = src1 / src2);
+  INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu   , R, Divu());
   INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem    , R, Rem());
-  INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , R, R(rd) = src1 % src2);
+  INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , R, Remu());
 
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
