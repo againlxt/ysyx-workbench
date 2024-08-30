@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:31
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-29 20:14:10
+ * @LastEditTime: 2024-08-30 10:51:06
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/platform/nemu/ioe/timer.c
  * @Description: 
  * 
@@ -14,12 +14,13 @@
 #include <stdio.h>
 
 void __am_timer_init() {
-	io_write(AM_TIMER_RTC, 0, 0, 0, 0, 0, 1900);
-	io_write(AM_TIMER_UPTIME, 0);
+	outl(RTC_ADDR, 0);
+	outl(RTC_ADDR+4, 0);	
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  	uptime->us = io_read(AM_TIMER_UPTIME).us;
+  	uptime->us = (uint64_t) inl(RTC_ADDR) + (((uint64_t) inl(RTC_ADDR + 4)) << 32);
+	printf("CurTime (us): %lu\n", uptime->us);
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {
