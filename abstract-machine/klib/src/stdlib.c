@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:31
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-31 16:39:56
+ * @LastEditTime: 2024-08-31 19:00:46
  * @FilePath: /ysyx-workbench/abstract-machine/klib/src/stdlib.c
  * @Description: 
  * 
@@ -60,7 +60,7 @@ void *malloc(size_t size) {
 	for (uint64_t *p = (uint64_t *)old; p != (uint64_t *)hbrk; p ++) {
 		*p = 0;
 	}
-	if ((uintptr_t)hbrk <= (uintptr_t)heap.end)
+	if ((uintptr_t)hbrk > (uintptr_t)heap.end)
 		return NULL;
 	return old;
 #endif
