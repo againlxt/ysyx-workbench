@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:31
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-26 16:47:08
+ * @LastEditTime: 2024-08-31 10:54:22
  * @FilePath: /ysyx-workbench/abstract-machine/klib/src/stdio.c
  * @Description: 
  * 
@@ -33,30 +33,6 @@ static char *upper_digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 int int2str(int a, char* charbuf);
 int vprintf(const char *restrict format, va_list ap);
-/*
-static int escape_char_trans(const char* src, int len, va_list ap, char* dst);
-
-static int escape_char_trans(const char* src, int len, va_list ap, char* dst) {
-    char end = src[len - 1];
-    switch (end) {
-        case 'd': {
-            int int_temp = va_arg(ap, int);
-            if (!int2str(int_temp, dst)) return 0;
-            break;
-        }
-        case 's': {
-            const char* str_temp = va_arg(ap, const char*);
-            strcpy(dst, str_temp);
-            break;
-        }
-        default:
-            strncpy(dst, src, len);
-            dst[len] = '\0';
-            return 0;
-    }
-    return 1;
-}
-*/
 
 int vprintf(const char *restrict format, va_list ap) {
     char chararray[CHARBUF_LEN] = "";

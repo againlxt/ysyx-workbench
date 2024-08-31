@@ -1,9 +1,23 @@
+/*
+ * @Author: lxt leixiaotian434@gmail.com
+ * @Date: 2024-01-15 09:47:31
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-08-31 16:39:56
+ * @FilePath: /ysyx-workbench/abstract-machine/klib/src/stdlib.c
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #include <am.h>
 #include <klib.h>
 #include <klib-macros.h>
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 static unsigned long int next = 1;
+
+#if !(defined(__ISA_NATIVE__) && defined(__NATIVE_USE_KLIB__))
+static char *hbrk = NULL;
+#endif
 
 int rand(void) {
   // RAND_MAX assumed to be 32767
@@ -34,9 +48,22 @@ void *malloc(size_t size) {
   // Therefore do not call panic() here, else it will yield a dead recursion:
   //   panic() -> putchar() -> (glibc) -> malloc() -> panic()
 #if !(defined(__ISA_NATIVE__) && defined(__NATIVE_USE_KLIB__))
-  panic("Not implemented");
+	// aligning to 8 bytes boundary
+	size = (size_t)ROUNDUP(size, 8);
+	if(hbrk == NULL) {
+		printf("%lu\n", heap.start);
+		hbrk = (char *)ROUNDUP(heap.start, 8);
+	}
+	char *old = hbrk;
+	hbrk += size;
+	assert((uintptr_t)heap.start <= (uintptr_t)hbrk && (uintptr_t)hbrk < (uintptr_t)heap.end);	
+	for (uint64_t *p = (uint64_t *)old; p != (uint64_t *)hbrk; p ++) {
+		*p = 0;
+	}
+	if ((uintptr_t)hbrk <= (uintptr_t)heap.end)
+		return NULL;
+	return old;
 #endif
-  return NULL;
 }
 
 void free(void *ptr) {

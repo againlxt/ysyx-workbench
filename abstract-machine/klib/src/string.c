@@ -2,7 +2,7 @@
  * @Author: hzxOnlineOk
  * @Date: 2024-01-15 09:47:31
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-12 15:51:55
+ * @LastEditTime: 2024-08-31 17:02:26
  * @Description: 请填写简介
  */
 #include <klib.h>
@@ -112,11 +112,12 @@ int strncmp(const char *s1, const char *s2, size_t n) {
  * @return {*}
  */
 void *memset(void *s, int c, size_t n) {
-  unsigned char *is = (unsigned char *)s;
-  unsigned char uc = (unsigned char)c;
-  for (size_t i = 0; i < n; i++)
-    is[i] = uc;
-  return s;
+	if(s == NULL) return s;
+	unsigned char *is = (unsigned char *)s;
+	unsigned char uc = (unsigned char)c;
+	for (size_t i = 0; i < n; i++)
+		is[i] = uc;
+	return s;
 }
 
 /**
