@@ -163,6 +163,16 @@ config MTRACE
 config FTRACE
   depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER
   bool "Enable function tracer"
+  default n
+
+config DTRACE
+  depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER
+  bool "Enable device tracer"
+  default n
+
+config DTRACE_RTC
+  depends on DTRACE
+  bool "Enable device trace"
   default y
 
 
