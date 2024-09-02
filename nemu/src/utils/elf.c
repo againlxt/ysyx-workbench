@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-07-19 17:41:21
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-07-21 21:41:05
+ * @LastEditTime: 2024-09-02 16:59:25
  * @FilePath: /ysyx-workbench/nemu/src/utils/elf.c
  * @Description: Parsing ELF files
  * 
@@ -12,8 +12,8 @@
 #include <debug.h>
 #include <elf.h>
 
-#define SYMBOL_TABLE_SIZE	500
-#define SECTION_TABLE_SIZE	50
+#define SYMBOL_TABLE_SIZE	5000
+#define SECTION_TABLE_SIZE	5000
 #define Assert_Elf(cond, format, ...) do { \
 	if (!(cond)) { \
 		free_resources(); \
