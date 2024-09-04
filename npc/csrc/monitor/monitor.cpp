@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-26 11:51:57
+ * @LastEditTime: 2024-09-04 18:41:18
  * @FilePath: /ysyx-workbench/npc/csrc/monitor/monitor.cpp
  * @Description: 
  * 
@@ -21,8 +21,10 @@ static char *elf_file = NULL;
 static int difftest_port = 1234;
 
 VerilatedContext* verlatorContextp = nullptr;
-VerilatedVcdC* verlatorTfp = nullptr;
 Vtop* verilatorTop = nullptr;
+#ifdef CONFIG_WAVE_TRACE
+VerilatedVcdC* verlatorTfp = nullptr;
+#endif
 
 extern void sdb_set_batch_mode();
 extern void init_log(const char *log_file);
@@ -34,8 +36,10 @@ void init_difftest(char *ref_so_file, long img_size, int port);
 
 static void step_and_dump_wave() {
     verilatorTop->eval();
+	#ifdef CONFIG_WAVE_TRACE
     verlatorContextp->timeInc(1); // 时间增加
     verlatorTfp->dump(verlatorContextp->time());
+	#endif
 }
 
 static void welcome() {
@@ -115,11 +119,13 @@ static void init_npc() {
 
 static void sim_init() {
     verlatorContextp = new VerilatedContext;
-    verlatorTfp = new VerilatedVcdC;
     verilatorTop = new Vtop(verlatorContextp);
+	#ifdef CONFIG_WAVE_TRACE
+	verlatorTfp = new VerilatedVcdC;
     verlatorContextp->traceEverOn(true);
     verilatorTop->trace(verlatorTfp, 1000);
     verlatorTfp->open("single_cycle_cpu.vcd");
+	#endif
 }
 
 void init_monitor(int argc, char *argv[]) {

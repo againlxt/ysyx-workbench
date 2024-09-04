@@ -16,6 +16,12 @@ config SDB_MODE
 	bool "Running with sdb mode"
 endchoice
 
+menu "Verilator"
+
+config WAVE_TRACE
+	bool "Enable Wave tracer"
+	default y
+endmenu
 
 menu "Testing and Debugging"
 

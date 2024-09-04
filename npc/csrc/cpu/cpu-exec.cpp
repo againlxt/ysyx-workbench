@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-04 16:37:18
+ * @LastEditTime: 2024-09-04 18:42:46
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -62,12 +62,14 @@ extern "C" svBitVecVal getCommond();
 // Simulate stepping and record waveform
 static void step_and_dump_wave() {
     verilatorTop->eval();
+	#ifdef CONFIG_WAVE_TRACE
     verlatorContextp->timeInc(1); // 时间增加
    	verlatorTfp->dump(verlatorContextp->time());
+	#endif
 }
 
 static void trace_and_difftest() {
-#ifdef CONFIG_TRACE
+#ifdef CONFIG_ITRACE
 	log_write("%s\n", logbuf);
 #endif
   	if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(logbuf)); }
@@ -194,6 +196,10 @@ void cpu_exec(uint64_t n) {
 				ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
 			npc_state.halt_pc);
 		FREE_VERILATOR();
+		#ifdef CONFIG_WAVE_TRACE
+		verlatorTfp->close();
+		delete verlatorTfp;
+		#endif
 		#ifdef CONFIG_ITRACE
 		iringbuf_log();
 		#endif

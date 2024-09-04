@@ -6,7 +6,8 @@ NXDC_FILES = constr/Top.nxdc
 INC_PATH ?= $(NPC_HOME)/include
 
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc -O3 --x-initial fast --noassert --trace
+VERILATOR_CFLAGS += -MMD --build -cc -O3 --x-initial fast --noassert
+VERILATOR_CFLAGS += $(if $(CONFIG_WAVE_TRACE),--trace,)
 
 GTKWAVE = gtkwave
 GTKWAVE_CFLAGS +=
@@ -47,7 +48,7 @@ CC = $(call remove_quote,$(CONFIG_CC))
 CFLAGS_BUILD += $(call remove_quote,$(CONFIG_CC_OPT))
 CFLAGS_BUILD += $(if $(CONFIG_CC_LTO),-flto,)
 CFLAGS_BUILD += -Og -ggdb3
-CFLAGS_BUILD += -fsanitize=address
+#CFLAGS_BUILD += -fsanitize=address
 
 CFLAGS_TRACE += -DITRACE_COND=$(if $(CONFIG_ITRACE_COND),$(call remove_quote,$(CONFIG_ITRACE_COND)),true)
 CXXFLAGS  += $(CFLAGS_BUILD) $(CFLAGS_TRACE) 

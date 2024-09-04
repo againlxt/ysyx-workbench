@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-11 10:38:36
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-23 17:43:41
+ * @LastEditTime: 2024-09-04 18:42:18
  * @FilePath: /ysyx-workbench/npc/include/verilator.h
  * @Description: 
  * 
@@ -21,15 +21,15 @@
 extern Vtop* verilatorTop;
 
 extern VerilatedContext* verlatorContextp;
+#ifdef CONFIG_WAVE_TRACE
 extern VerilatedVcdC* verlatorTfp;
+#endif
 extern uint32_t npc_dnpc;
 extern uint32_t npc_pc;
 extern uint32_t base_addr;
 
 #define FREE_VERILATOR() { \
-	verlatorTfp->close(); \
     delete verilatorTop; \
-    delete verlatorTfp; \
     delete verlatorContextp; \
 }
 

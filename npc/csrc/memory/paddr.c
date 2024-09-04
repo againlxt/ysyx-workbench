@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-17 13:27:08
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-04 15:22:23
+ * @LastEditTime: 2024-09-04 18:38:09
  * @FilePath: /ysyx-workbench/npc/csrc/memory/paddr.c
  * @Description: 
  * 
@@ -27,7 +27,9 @@ static word_t mtrace_end	 = PMEM_RIGHT;
 extern uint32_t npc_pc;
 
 static void out_of_bound(paddr_t addr) {
+	#ifdef CONFIG_WAVE_TRACE
 	verlatorTfp->close();
+	#endif
   	panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
       addr, PMEM_LEFT, PMEM_RIGHT, npc_pc);
 }
