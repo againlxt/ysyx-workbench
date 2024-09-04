@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-20 16:44:35
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-24 15:14:47
+ * @LastEditTime: 2024-09-04 15:25:06
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/difftest/dut.c
  * @Description: 
  * 
@@ -21,6 +21,8 @@ void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) =
 void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
 void (*ref_difftest_exec)(uint64_t n) = NULL;
 void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
+
+#ifdef CONFIG_DIFFTEST
 
 static bool is_skip_ref = false;
 static int skip_dut_nr_inst = 0;
@@ -141,3 +143,6 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
 
 	checkregs(&ref_r, pc);
 }
+#else
+void init_difftest(char *ref_so_file, long img_size, int port) { }
+#endif

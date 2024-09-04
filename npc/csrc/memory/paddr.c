@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-17 13:27:08
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-26 11:45:12
+ * @LastEditTime: 2024-09-04 15:22:23
  * @FilePath: /ysyx-workbench/npc/csrc/memory/paddr.c
  * @Description: 
  * 
@@ -71,6 +71,8 @@ int unsigned pmem_read(unsigned int addr)
 		#endif
 		return ret;
 	}
+	if (addr == 0xa0000048) return get_time();
+	
 	// out_of_bound(addr);
 	return 0;
 }
@@ -94,6 +96,9 @@ void pmem_write(unsigned int waddr, unsigned int wdata, unsigned char wmask) {
 		if(mtrace_begin <= waddr && waddr <= mtrace_end)	MTRACE_LOG(waddr, 4, "write", data);
 		#endif
 		return;
+	}
+	if (waddr == 0xa00003f8) {
+		putchar((int)wdata);
 	}
 	// out_of_bound(waddr);
 }

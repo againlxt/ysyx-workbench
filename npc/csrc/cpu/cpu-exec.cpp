@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-25 16:11:25
+ * @LastEditTime: 2024-09-04 16:37:18
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -63,7 +63,7 @@ extern "C" svBitVecVal getCommond();
 static void step_and_dump_wave() {
     verilatorTop->eval();
     verlatorContextp->timeInc(1); // 时间增加
-    verlatorTfp->dump(verlatorContextp->time());
+   	verlatorTfp->dump(verlatorContextp->time());
 }
 
 static void trace_and_difftest() {

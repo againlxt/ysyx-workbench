@@ -31,7 +31,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 
 # project source
 VSRCS = $(shell find $(abspath $(NPC_HOME)/vsrc/$(PROJ_NAME)) -name "*.v" -or -name "*.sv")
-CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c" -or -name "*.cpp")
+CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c" -or -name "*.cpp" ! -name "disasm.cpp")
 
 OBJS  = $(VSRCS) $(CSRCS)
 VCDSRCS = $(shell find $(abspath ./) -name $(PROJ_NAME).vcd)
@@ -46,7 +46,8 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 CC = $(call remove_quote,$(CONFIG_CC))
 CFLAGS_BUILD += $(call remove_quote,$(CONFIG_CC_OPT))
 CFLAGS_BUILD += $(if $(CONFIG_CC_LTO),-flto,)
-CFLAGS_BUILD += -Og -ggdb3 -fsanitize=address
+CFLAGS_BUILD += -Og -ggdb3
+CFLAGS_BUILD += -fsanitize=address
 
 CFLAGS_TRACE += -DITRACE_COND=$(if $(CONFIG_ITRACE_COND),$(call remove_quote,$(CONFIG_ITRACE_COND)),true)
 CXXFLAGS  += $(CFLAGS_BUILD) $(CFLAGS_TRACE) 
