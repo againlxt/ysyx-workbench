@@ -66,10 +66,40 @@ enum {
 	if(src2 != 0) R(rd) = src1 % src2; \
 	else R(rd) = src1; \
 } while(0)
+#define Csrrc() do { \
+  uint32_t t = csr(imm); \
+  csr(imm) = t & (~src1); \
+  R(rd) = t; \
+} while (0)
+#define Csrrci() do { \
+  uint32_t t = csr(imm); \
+  csr(imm) = t & (~BITS(s->isa.inst.val, 19, 15)); \
+  R(rd) = t; \
+} while (0)
+#define Csrrs() do { \
+  uint32_t t = csr(imm); \
+  csr(imm) = t | src1; \
+  R(rd) = t; \
+} while (0)
+#define Csrrsi() do { \
+  uint32_t t = csr(imm); \
+  csr(imm) = t | BITS(s->isa.inst.val, 19, 15); \
+  R(rd) = t; \
+} while (0)
 #define Csrrw() do { \
+  uint32_t t = csr(imm); \
+  csr(imm) = src1; \
+  R(rd) = t; \
+} while (0)
+#define Csrrwi() do { \
+  uint32_t t = csr(imm); \
+  csr(imm) = BITS(s->isa.inst.val, 19, 15); \
+  R(rd) = t; \
 } while (0)
 #define Ecall() do { \
-	s->dnpc = isa_raise_intr(0, 0); \
+  csr(MEPC) = s->pc; \
+  csr(MCAUSE) = 11; \
+	s->dnpc = isa_raise_intr(csr(MCAUSE), csr(MTVEC)); \
 } while (0)
 
 
@@ -123,7 +153,12 @@ static int decode_exec(Decode *s) {
 }
   INSTPAT_START();
   /* RV Privileged */
+  INSTPAT("??????? ????? ????? 011 ????? 11100 11", csrrc  , I, Csrrc());
+  INSTPAT("??????? ????? ????? 111 ????? 11100 11", csrrci , I, Csrrci());
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, Csrrs());
+  INSTPAT("??????? ????? ????? 110 ????? 11100 11", csrrsi , I, Csrrsi());
   INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, Csrrw());
+  INSTPAT("??????? ????? ????? 101 ????? 11100 11", csrrwi , I, Csrrwi());
   INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , I, Ecall());
 
   INSTPAT("??????? ????? ????? ??? ????? 00101 11", auipc  , U, R(rd) = s->pc + imm);

@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:26
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-09 20:26:21
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-09-16 15:43:40
  * @FilePath: /ysyx-workbench/nemu/src/isa/riscv32/system/intr.c
  * @Description: 
  * 
@@ -30,7 +30,7 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
 	* Then return the address of the interrupt/exception vector.
 	*/
 
-	return 0x80001478;
+	return epc;
 }
 
 word_t isa_query_intr() {

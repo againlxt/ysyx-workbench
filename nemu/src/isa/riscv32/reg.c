@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-05-17 15:10:01
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-24 15:08:21
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-09-15 15:53:42
  * @FilePath: /ysyx-workbench/nemu/src/isa/riscv32/reg.c
  * @Description: 
  * 
@@ -33,6 +33,8 @@ const char *regs[] = {
   "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
+
+uint32_t csrs[4096] = {};
 
 void isa_reg_display() {
   printf("Reg display begin\n");
