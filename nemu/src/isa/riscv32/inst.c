@@ -97,15 +97,20 @@ enum {
   R(rd) = t; \
 } while (0)
 #ifdef CONFIG_ETRACE
+uint32_t Ecounter = 0;
 #define Ecall() do { \
   csr(MEPC) = s->pc; \
   csr(MCAUSE) = 11; \
+  Ecounter ++; \
 	s->dnpc = isa_raise_intr(csr(MCAUSE), csr(MTVEC)); \
+  for (uint32_t i = 0; i < Ecounter; i++) log_write("  "); \
   log_write("e %#X\tEcall\t%#X\n", s->pc, csr(MTVEC)); \
 } while (0)
 #define Mret() do { \
   s->dnpc = csr(MEPC); \
   csr(MSTATUS) = csr(MSTATUS); \
+  for (uint32_t i = 0; i < Ecounter; i++) log_write("  "); \
+  Ecounter --; \
   log_write("e %#X\tMret\t%#X\n", s->pc, csr(MEPC)); \
 } while (0)
 #else
