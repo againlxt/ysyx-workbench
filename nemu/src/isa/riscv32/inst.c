@@ -96,6 +96,19 @@ enum {
   csr(imm) = BITS(s->isa.inst.val, 19, 15); \
   R(rd) = t; \
 } while (0)
+#ifdef CONFIG_ETRACE
+#define Ecall() do { \
+  csr(MEPC) = s->pc; \
+  csr(MCAUSE) = 11; \
+	s->dnpc = isa_raise_intr(csr(MCAUSE), csr(MTVEC)); \
+  log_write("e %#X\tEcall\t%#X\n", s->pc, csr(MTVEC)); \
+} while (0)
+#define Mret() do { \
+  s->dnpc = csr(MEPC); \
+  csr(MSTATUS) = csr(MSTATUS); \
+  log_write("e %#X\tMret\t%#X\n", s->pc, csr(MEPC)); \
+} while (0)
+#else
 #define Ecall() do { \
   csr(MEPC) = s->pc; \
   csr(MCAUSE) = 11; \
@@ -105,8 +118,7 @@ enum {
   s->dnpc = csr(MEPC); \
   csr(MSTATUS) = csr(MSTATUS); \
 } while (0)
-
-
+#endif
 
 word_t ftrace_function_call_flag = false;
 word_t ftrace_ret_flag = false;
