@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-09-22 19:03:38
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-24 19:15:42
+ * @LastEditTime: 2024-09-24 20:13:33
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/nemu/cte.c
  * @Description: 
  * 
@@ -42,13 +42,11 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  
-  #define CONTEXT_SIZE (32 + 4 + 1) * 32
-  #define KSTACK_SIZE 4096
-  asm volatile("lw t0, 4(a0)");
-  asm volatile("sw t0, 8(a0)");
+  // Stored process address
 
   Context *context = (Context *) kstack.end;
+  context->gpr[2] = (uint32_t) kstack.end;
+  context->gpr[5] = (uint32_t) entry;
 
   return context;
 }

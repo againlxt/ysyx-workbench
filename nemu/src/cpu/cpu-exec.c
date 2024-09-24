@@ -36,7 +36,7 @@ static bool g_print_step = false;
 #ifdef CONFIG_ITRACE
 
 #define LOG_LENGTH 128
-#define LOG_POOL_SIZE 20
+#define LOG_POOL_SIZE 200
 
 typedef struct iringbufnode {
     char log[LOG_LENGTH];
