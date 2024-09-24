@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-07-19 17:41:21
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-02 16:59:25
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-09-24 16:21:09
  * @FilePath: /ysyx-workbench/nemu/src/utils/elf.c
  * @Description: Parsing ELF files
  * 
@@ -14,6 +14,7 @@
 
 #define SYMBOL_TABLE_SIZE	5000
 #define SECTION_TABLE_SIZE	5000
+static void free_resources();
 #define Assert_Elf(cond, format, ...) do { \
 	if (!(cond)) { \
 		free_resources(); \
@@ -49,16 +50,22 @@ Elf32_Sym *find_func_call (vaddr_t next_pc) {
 			return &(elf_symbol_func_table[i]);
 	}
 
+	printf("Can't find the function!\n");
+
 	return NULL;
 }
 
+static char UNKNOW_FUNCTION[20] = "Unknow function";
+
 char *find_string (Elf32_Sym *func) {
+	if (func == NULL) return UNKNOW_FUNCTION;
+	
 	return &elf_string_table[func->st_name];
 }
 
 #endif
 
-void free_resources() {
+static void free_resources() {
     free(elf_header);
     free(section_header);
 	#ifdef CONFIG_FTRACE

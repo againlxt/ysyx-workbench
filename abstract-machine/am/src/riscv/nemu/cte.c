@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-09-22 19:03:38
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-23 16:36:59
+ * @LastEditTime: 2024-09-24 16:41:15
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/nemu/cte.c
  * @Description: 
  * 
@@ -42,6 +42,7 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
+  
   #define CONTEXT_SIZE (32 + 4 + 1) * 32
   // Store the stack top pointer of the next process in sp
   asm volatile("lw sp, 4(a0)");

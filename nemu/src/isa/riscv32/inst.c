@@ -103,15 +103,17 @@ uint32_t Ecounter = 0;
   csr(MCAUSE) = 11; \
   Ecounter ++; \
 	s->dnpc = isa_raise_intr(csr(MCAUSE), csr(MTVEC)); \
+  log_write("e %#X:", s->pc); \
   for (uint32_t i = 0; i < Ecounter; i++) log_write("  "); \
-  log_write("e %#X\tEcall\t%#X\n", s->pc, csr(MTVEC)); \
+  log_write("Ecall %#X\n", csr(MTVEC)); \
 } while (0)
 #define Mret() do { \
   s->dnpc = csr(MEPC); \
   csr(MSTATUS) = csr(MSTATUS); \
+  log_write("e %#X:", s->pc); \
   for (uint32_t i = 0; i < Ecounter; i++) log_write("  "); \
   Ecounter --; \
-  log_write("e %#X\tMret\t%#X\n", s->pc, csr(MEPC)); \
+  log_write("Mret %#X\n", csr(MEPC)); \
 } while (0)
 #else
 #define Ecall() do { \
