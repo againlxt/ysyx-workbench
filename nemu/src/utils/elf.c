@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-07-19 17:41:21
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-24 16:21:09
+ * @LastEditTime: 2024-09-24 19:48:47
  * @FilePath: /ysyx-workbench/nemu/src/utils/elf.c
  * @Description: Parsing ELF files
  * 
@@ -50,15 +50,11 @@ Elf32_Sym *find_func_call (vaddr_t next_pc) {
 			return &(elf_symbol_func_table[i]);
 	}
 
-	printf("Can't find the function!\n");
-
 	return NULL;
 }
 
-static char UNKNOW_FUNCTION[20] = "Unknow function";
-
 char *find_string (Elf32_Sym *func) {
-	if (func == NULL) return UNKNOW_FUNCTION;
+	if (func == NULL) return NULL;
 	
 	return &elf_string_table[func->st_name];
 }

@@ -144,14 +144,20 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 		log_write("f %#X: ", _this->pc);
 		ftrace_call_depth ++;
 		for (uint32_t i = 0; i < ftrace_call_depth; i++) { log_write("  "); }
-		log_write("call [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);	
+    if(ftrace_function_symbol != NULL)
+		  log_write("call [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);
+    else
+      log_write("call [UNKOWN@%#X]\n", dnpc);
 	} else if (ftrace_ret_flag == true) {
 		ftrace_ret_flag = false;
 		ftrace_function_symbol = find_func_call(dnpc);
 		log_write("f %#X: ", _this->pc);
 		if(ftrace_call_depth >= 1) ftrace_call_depth --;
 		for (uint32_t i = 0; i < ftrace_call_depth; i++) { log_write("  "); }
-		log_write("ret [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);	
+    if(ftrace_function_symbol != NULL)
+		  log_write("ret [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);
+    else
+      log_write("ret [UNKOWN@%#X]\n", dnpc);
 	} else { }
 #endif
 }

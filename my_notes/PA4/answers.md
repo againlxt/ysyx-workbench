@@ -38,41 +38,49 @@ int main() {
 }
 ```
 
-在执行命令`make clean ARCH=riscv32-nemu`先初始化上下文，以schedule作为异常入口，调用cte_init（定义在）。
+我们需要实现的工作流程如下：
 
-### 原理
+在执行命令`make clean ARCH=riscv32-nemu`先初始化上下文，以schedule作为异常入口，调用cte_init。初始化之后，将两个线程的上下文分别创建，并存入对应线程PCB的cp指针中。
 
-`yield-os`与`CTE`中上下文切换的逻辑如下：在上一个异常结束时（恢复上下文之前），跳转到下一个异常。具体流程如下：
-
-1. 创建内核线程上下文
-2. 切换到下一个异常
-
-可以发现这个逻辑与普通的异常执行逻辑并无区别。所以只需要在内核中执行和创建普通上下文一样的操作即可。普通的上下文包含如下信息：
-
-1. 32个普通系统寄存器
-2. mcause、mstatus、mepc
-3. 地址空间
-
-对于kcontext函数：
+调用yield后，先进入异常`schedule`中，根据`cte.c`中的代码：
 
 ```c
-Context *kcontext(Area kstack, void (*entry)(void *), void *arg);
+static Context* (*user_handler)(Event, Context*) = NULL;
+
+Context* __am_irq_handle(Context *c) {
+  if (user_handler) {
+    Event ev = {0};
+    switch (c->mcause) {
+      case 11:  ev.event = EVENT_YIELD; break; 
+      default: ev.event = EVENT_ERROR; break;
+    }
+
+    c = user_handler(ev, c);
+    assert(c != NULL);
+  }
+
+  return c;
+}
+
+extern void __am_asm_trap(void);
+
+bool cte_init(Context*(*handler)(Event, Context*)) {
+  // initialize exception entry
+  asm volatile("csrw mtvec, %0" : : "r"(__am_asm_trap));
+
+  // register event handler
+  user_handler = handler;
+
+  return true;
+}
 ```
 
-对于32个普通系统寄存器中栈指针（sp寄存器）要指向`kstack.end`，CONTEXT_SIZE为`(32 + 3 + 1) * 32`。对于要切换的线程f：
-
-```
-static void f(void *arg)
-```
-
-a0寄存器要指向arg（暂时不用实现）。其他的保持。
-
-对于CSR寄存器，mcause要改变为f对应的mcause，mstatus保持不变，不关心mepc（`context()`要求内核线程不能从`entry`返回, 否则其行为是未定义的）。
-
-
+`schedule`会将下一个线程的上下文返回，而`__am_irq_handle`也会将该上下文作为返回值返回，返回后进入`__am_asm_trap`。接下来我们要根据这个返回的上下问调用`f`，`f`打印信息后会再次调用异常`__am_asm_trap`，而这次`schedule`会返回与上次不同的上下文，如此循环往复。
 
 # 选做题
 
-##  不同进程为什么需要使用不同的栈空间?
+##  不同进程为什么需要使用不同的栈空间?（已解决）
 
 如果不同的进程共享同一个栈空间, 会发生什么呢?
+
+当进程A,B,C压栈进入同一个栈空间，当A需要弹出时，必定会影响BC在栈中存储的数据，而且当bc调用数据时先要弹出A，如此进程间的切换就不成立了。
