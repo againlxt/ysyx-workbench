@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-09-22 19:03:38
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-24 20:13:33
+ * @LastEditTime: 2024-09-25 20:47:51
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/nemu/cte.c
  * @Description: 
  * 
@@ -45,8 +45,7 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   // Stored process address
 
   Context *context = (Context *) kstack.end;
-  context->gpr[2] = (uint32_t) kstack.end;
-  context->gpr[5] = (uint32_t) entry;
+  context->mepc = (intptr_t) entry;
 
   return context;
 }

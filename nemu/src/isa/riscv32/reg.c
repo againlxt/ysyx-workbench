@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-05-17 15:10:01
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-15 15:53:42
+ * @LastEditTime: 2024-09-25 20:43:21
  * @FilePath: /ysyx-workbench/nemu/src/isa/riscv32/reg.c
  * @Description: 
  * 
@@ -38,10 +38,12 @@ uint32_t csrs[4096] = {};
 
 void isa_reg_display() {
   printf("Reg display begin\n");
-  for (int i = 0; i < REGS_SIZE; i++)
-  {
+  for (int i = 0; i < REGS_SIZE; i++) {
     printf("%s:\t%#x\n", regs[i], gpr(i));
   }
+  printf("%s:\t%#x\n", "mepc", csr(MEPC));
+  printf("%s:\t%#x\n", "mstatus", csr(MSTATUS));
+  printf("%s:\t%#x\n", "mcause", csr(MCAUSE));
   printf("Reg display end\n");
 }
 

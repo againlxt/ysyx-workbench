@@ -77,6 +77,22 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 
 `schedule`会将下一个线程的上下文返回，而`__am_irq_handle`也会将该上下文作为返回值返回，返回后进入`__am_asm_trap`。接下来我们要根据这个返回的上下问调用`f`，`f`打印信息后会再次调用异常`__am_asm_trap`，而这次`schedule`会返回与上次不同的上下文，如此循环往复。
 
+### 上下文保存恢复过程
+
+上下文的保存和恢复工作都在`__am_asm_trap`中进行，`yield-os`会在`main`中先调用`yield`，在第一次上下文保存开始前，
+
+![Context-total.drawio](./assets/Context-total.drawio-1727266174233-4.png)
+
+系统栈指针还没开始保存上下文，用户进程已经保存好了上下文。
+
+第一次调用yield，系统栈会存入目前的上下文。 调用`__am_irq_handle`后，运行`schedule`，它会PCB0的cp（指向线程0的上下文起始地址），返回到`__am_asm_trap`。将`sp`指向返回的上下文起始地址。此时恢复上下文后即可转换到线程0的上下文。为了能够跳转到线程入口，**在设置kcontext时可以将entry存入mepc**，这样就可以在mret时调用该线程。恢复上下文恢复后，最终栈指针指向如下图变化所示。
+
+![Context-total.drawio0](./assets/Context-total.drawio0-1727269719153-12.png)
+
+`mret`命令运行后会跳转到线程`f`，线程`f`会在输出？后再次调用`yield`。
+
+
+
 # 选做题
 
 ##  不同进程为什么需要使用不同的栈空间?（已解决）
