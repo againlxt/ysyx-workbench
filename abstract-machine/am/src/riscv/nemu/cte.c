@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-09-22 19:03:38
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-26 20:18:34
+ * @LastEditTime: 2024-09-26 20:26:48
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/nemu/cte.c
  * @Description: 
  * 
@@ -46,6 +46,7 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
 
   Context *context = (Context *) (kstack.end - sizeof(Context));
   memset(context, 0, sizeof(Context));
+  context->gpr[10] = (intptr_t) arg;
   context->mepc = (intptr_t) entry;
   context->mstatus = 0x1800;
   context->mcause = 0xB;
