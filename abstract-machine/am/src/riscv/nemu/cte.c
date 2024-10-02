@@ -1,8 +1,8 @@
 /*
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-09-22 19:03:38
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-26 21:02:31
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-10-02 20:50:30
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/nemu/cte.c
  * @Description: 
  * 
@@ -42,7 +42,6 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  // Stored process address
 
   Context *context = (Context *) (kstack.end - sizeof(Context));
   memset(context, 0, sizeof(Context));

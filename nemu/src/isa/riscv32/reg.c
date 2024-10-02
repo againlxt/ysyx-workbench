@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-05-17 15:10:01
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-25 20:43:21
+ * @LastEditTime: 2024-10-02 21:14:17
  * @FilePath: /ysyx-workbench/nemu/src/isa/riscv32/reg.c
  * @Description: 
  * 
@@ -38,6 +38,7 @@ uint32_t csrs[4096] = {};
 
 void isa_reg_display() {
   printf("Reg display begin\n");
+  printf("%s:\t%#x\n", "pc", cpu.pc);
   for (int i = 0; i < REGS_SIZE; i++) {
     printf("%s:\t%#x\n", regs[i], gpr(i));
   }
@@ -53,6 +54,21 @@ word_t isa_reg_str2val(const char *s, bool *success) {
       *success = true;
       return gpr(i);
     }
+  }
+  char mepc[3] = "me";
+  char mstatus[3] = "ms";
+  char mcause[3] = "mc";
+  if (strcmp(s, mepc) == 0) {
+    *success = true;
+    return csr(MEPC);
+  }
+  else if (strcmp(s, mstatus) == 0) {
+    *success = true;
+    return csr(MSTATUS);
+  }
+  else if (strcmp(s, mcause) == 0) {
+    *success = true;
+    return csr(MCAUSE);
   }
   return 0;
 }
