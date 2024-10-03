@@ -188,11 +188,10 @@ void traverse_watchpoints() {
     if(val != wp->val) {
       nemu_state.state = NEMU_STOP;
       wp->val = val;
-      printf("Watchpoint value changes: %s = %d\n", wp->expr, wp->val);
+      printf("Watchpoint value changes: %s = %#X\n", wp->expr, wp->val);
       return;
     }
     else {}
-	free(success);
     wp = wp->next;
   }
 }
