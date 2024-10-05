@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-04 18:42:46
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-10-05 19:56:18
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -83,14 +83,20 @@ static void trace_and_difftest() {
 		log_write("f %#X: ", npc_pc);
 		ftrace_call_depth ++;
 		for (uint32_t i = 0; i < ftrace_call_depth; i++) { log_write("  "); }
-		log_write("call [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);	
+		if(ftrace_function_symbol != NULL)
+		  	log_write("call [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);
+		else
+			log_write("call [UNKOWN@%#X]\n", npc_dnpc);
 	} else if (ftrace_ret_flag == true) {
 		ftrace_ret_flag = false;
 		ftrace_function_symbol = find_func_call(npc_dnpc);
 		log_write("f %#X: ", npc_pc);
 		if(ftrace_call_depth >= 1) ftrace_call_depth --;
 		for (uint32_t i = 0; i < ftrace_call_depth; i++) { log_write("  "); }
-		log_write("ret [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);	
+		if(ftrace_function_symbol != NULL)
+		  	log_write("ret [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);
+		else
+			log_write("ret [UNKOWN@%#X]\n", npc_dnpc);
 	} else { }
 #endif
 }

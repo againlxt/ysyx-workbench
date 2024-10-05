@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-07-19 17:41:21
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-04 18:23:06
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-10-05 19:54:14
  * @FilePath: /ysyx-workbench/npc/csrc/utils/elf.c
  * @Description: Parsing ELF files
  * 
@@ -53,6 +53,8 @@ Elf32_Sym *find_func_call (vaddr_t next_pc) {
 }
 
 char *find_string (Elf32_Sym *func) {
+	if (func == NULL) return NULL;
+	
 	return &elf_string_table[func->st_name];
 }
 

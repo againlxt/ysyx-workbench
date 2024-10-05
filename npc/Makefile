@@ -32,6 +32,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 
 # project source
 VSRCS = $(shell find $(abspath $(NPC_HOME)/vsrc/$(PROJ_NAME)) -name "*.v" -or -name "*.sv")
+#CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c" -or -name "*.cpp")
 CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c" -or -name "*.cpp" ! -name "disasm.cpp")
 
 OBJS  = $(VSRCS) $(CSRCS)
