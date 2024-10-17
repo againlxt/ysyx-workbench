@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
- * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-10-05 19:56:18
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-10-17 17:14:24
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -107,6 +107,11 @@ static void exec_once() {
 
 	verilatorTop->clock = 0; step_and_dump_wave();
 	verilatorTop->io_memData = iaddr_read(npc_pc); verilatorTop->eval();
+	while (!(verilatorTop->rootp->top__DOT__wbu__DOT__validPC2Reg && verilatorTop->rootp->top__DOT__pc__DOT__wbu2PCReadyReg)) {
+		verilatorTop->clock = 1; step_and_dump_wave();
+		if(verilatorTop->io_npcState == 2) break;
+		verilatorTop->clock = 0; step_and_dump_wave();
+	}
 #ifdef CONFIG_ITRACE
 	char *p = logbuf;
 	p += snprintf(p, sizeof(logbuf), FMT_WORD ":", npc_curPC);
@@ -131,8 +136,7 @@ static void exec_once() {
     	npc_pc, (uint8_t *) &npcCurCmd, ilen);
 
 	new_irbn(logbuf);
-#endif	
-	
+#endif
 	verilatorTop->clock = 1; step_and_dump_wave();
 	trace_and_difftest();
 

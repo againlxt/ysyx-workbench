@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-04 18:41:18
+ * @LastEditTime: 2024-10-14 19:22:16
  * @FilePath: /ysyx-workbench/npc/csrc/monitor/monitor.cpp
  * @Description: 
  * 
@@ -124,7 +124,7 @@ static void sim_init() {
 	verlatorTfp = new VerilatedVcdC;
     verlatorContextp->traceEverOn(true);
     verilatorTop->trace(verlatorTfp, 1000);
-    verlatorTfp->open("single_cycle_cpu.vcd");
+    verlatorTfp->open("bus_cpu.vcd");
 	#endif
 }
 
