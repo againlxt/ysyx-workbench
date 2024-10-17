@@ -12,7 +12,7 @@ VERILATOR_CFLAGS += $(if $(CONFIG_WAVE_TRACE),--trace,)
 GTKWAVE = gtkwave
 GTKWAVE_CFLAGS +=
 
-PROJ_NAME ?= bus_cpu
+PROJ_NAME ?= single_cycle_cpu
 
 BUILD_DIR = ./build/$(PROJ_NAME)
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -32,8 +32,8 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 
 # project source
 VSRCS = $(shell find $(abspath $(NPC_HOME)/vsrc/$(PROJ_NAME)) -name "*.v" -or -name "*.sv")
-CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c" -or -name "*.cpp")
-#CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c" -or -name "*.cpp" ! -name "disasm.cpp")
+#CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c" -or -name "*.cpp")
+CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c" -or -name "*.cpp" ! -name "disasm.cpp")
 
 OBJS  = $(VSRCS) $(CSRCS)
 VCDSRCS = $(shell find $(abspath ./) -name $(PROJ_NAME).vcd)
@@ -49,7 +49,7 @@ CC = $(call remove_quote,$(CONFIG_CC))
 CFLAGS_BUILD += $(call remove_quote,$(CONFIG_CC_OPT))
 CFLAGS_BUILD += $(if $(CONFIG_CC_LTO),-flto,)
 CFLAGS_BUILD += -Og -ggdb3
-CFLAGS_BUILD += -fsanitize=address
+#CFLAGS_BUILD += -fsanitize=address
 
 CFLAGS_TRACE += -DITRACE_COND=$(if $(CONFIG_ITRACE_COND),$(call remove_quote,$(CONFIG_ITRACE_COND)),true)
 CXXFLAGS  += $(CFLAGS_BUILD) $(CFLAGS_TRACE) 
