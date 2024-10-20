@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-17 13:27:08
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-04 18:38:09
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-10-20 19:31:05
  * @FilePath: /ysyx-workbench/npc/csrc/memory/paddr.c
  * @Description: 
  * 
@@ -80,8 +80,18 @@ int unsigned pmem_read(unsigned int addr)
 }
 
 extern "C" void pmem_write(unsigned int waddr, unsigned int wdata, unsigned char wmask);
+static unsigned int pre_waddr = 0;
+static unsigned int pre_wdata = 0;
+static unsigned int pre_wmask = 0;
+
 void pmem_write(unsigned int waddr, unsigned int wdata, unsigned char wmask) {
 	// 由于单周期处理器存在冒险问题且该存储器为异步读写存储器，会有一些瞬间的地址会不在正常地址范围内，需要忽略这些冒险的瞬间
+	if (pre_waddr != waddr || pre_wdata != wdata || pre_wmask != wmask) {
+		pre_waddr = waddr;
+		pre_wdata = wdata;
+		pre_wmask = wmask;
+	}
+	else return;
 	if (likely(in_pmem(waddr))) {
 		word_t data = 0;
 		size_t len = 0;

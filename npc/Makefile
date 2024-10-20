@@ -12,7 +12,7 @@ VERILATOR_CFLAGS += $(if $(CONFIG_WAVE_TRACE),--trace,)
 GTKWAVE = gtkwave
 GTKWAVE_CFLAGS +=
 
-PROJ_NAME ?= single_cycle_cpu
+PROJ_NAME ?= bus_cpu
 
 BUILD_DIR = ./build/$(PROJ_NAME)
 OBJ_DIR = $(BUILD_DIR)/obj_dir
