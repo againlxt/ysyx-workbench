@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-23 10:50:10
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-23 10:54:46
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-10-21 16:51:59
  * @FilePath: /ysyx-workbench/npc/include/memory/iaddr.h
  * @Description: 
  * 
@@ -13,6 +13,6 @@
 
 #include <common.h>
 
-word_t iaddr_read(iaddr_t iaddr);
+int unsigned iaddr_read(iaddr_t iaddr);
 
 #endif
