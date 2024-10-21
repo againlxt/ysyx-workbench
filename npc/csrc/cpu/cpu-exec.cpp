@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
- * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-10-20 18:40:37
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-10-21 19:23:54
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -12,7 +12,6 @@
 #include <cpu/difftest.h>
 #include <verilator.h>
 #include <utils.h>
-#include <memory/iaddr.h>
 #include <trace/trace.h>
 #include <isa/reg.h>
 #include <isa/isa-def.h>
@@ -106,7 +105,6 @@ static void exec_once() {
 	uint32_t npc_snpc 	= npc_curPC + 4;
 
 	verilatorTop->clock = 0; step_and_dump_wave();
-	verilatorTop->io_memData = iaddr_read(npc_pc); verilatorTop->eval();
 	while (!(verilatorTop->rootp->top__DOT__wbu__DOT__validPC2Reg && verilatorTop->rootp->top__DOT__pc__DOT__wbu2PCReadyReg)) {
 		verilatorTop->clock = 1; step_and_dump_wave();
 		if(verilatorTop->io_npcState == 2) break;

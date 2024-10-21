@@ -1,14 +1,13 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-23 10:23:00
- * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-10-21 16:53:03
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-10-21 19:24:14
  * @FilePath: /ysyx-workbench/npc/csrc/memory/iaddr.c
  * @Description: 
  * 
  * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
  */
-#include <memory/iaddr.h>
 #include <memory/paddr.h>
 
 
