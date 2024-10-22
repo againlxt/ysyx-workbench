@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-17 13:27:08
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-10-20 19:31:05
+ * @LastEditTime: 2024-10-22 16:11:41
  * @FilePath: /ysyx-workbench/npc/csrc/memory/paddr.c
  * @Description: 
  * 
@@ -62,8 +62,8 @@ void init_mem() {
 	Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 
-extern "C" int unsigned pmem_read(unsigned int addr);
-int unsigned pmem_read(unsigned int addr)
+extern "C" int unsigned pmem_read(unsigned int addr, unsigned char wmask);
+int unsigned pmem_read(unsigned int addr, unsigned char wmask)
 {
 	// 由于单周期处理器存在冒险问题且该存储器为异步读写存储器，会有一些瞬间的地址会不在正常地址范围内，需要忽略这些冒险的瞬间
 	if (likely(in_pmem(addr))) {
@@ -71,6 +71,14 @@ int unsigned pmem_read(unsigned int addr)
 		#ifdef CONFIG_MTRACE
 		if(mtrace_begin <= addr && addr <= mtrace_end)	MTRACE_LOG(addr, 4, "read", ret);
 		#endif
+		switch (wmask) { 
+			case 0b00000001: ret = ret & 0xFF; break;
+			case 0b00000011: ret = ret & 0xFFFF; break;
+			case 0b00001111: ret = ret & 0xFFFFFFFF;; break;
+			case 0: break;
+			
+			default: break;
+		}
 		return ret;
 	}
 	if (addr == 0xa0000048) return get_time();
