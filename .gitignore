@@ -15,5 +15,5 @@
 /fceux-am
 /nvboard
 /am-kernels
-yosys-sta
-npc/chisel/chisel-empty
+yosys-sta/*
+npc/chisel/chisel-empty/*
