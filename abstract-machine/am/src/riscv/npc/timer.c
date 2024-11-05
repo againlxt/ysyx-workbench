@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:31
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-04 18:14:36
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-11-05 19:05:12
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/npc/timer.c
  * @Description: 
  * 
@@ -19,7 +19,7 @@ void __am_timer_init() {
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  	uptime->us = (uint64_t) inl(RTC_ADDR) + (((uint64_t) inl(RTC_ADDR + 4)) << 32);
+  	uptime->us = ((uint64_t) inl(RTC_ADDR) + (((uint64_t) inl(RTC_ADDR + 4)) << 32)) / 2;
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {

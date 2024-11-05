@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-17 13:27:08
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-10-22 16:11:41
+ * @LastEditTime: 2024-11-05 19:03:55
  * @FilePath: /ysyx-workbench/npc/csrc/memory/paddr.c
  * @Description: 
  * 
@@ -81,7 +81,9 @@ int unsigned pmem_read(unsigned int addr, unsigned char wmask)
 		}
 		return ret;
 	}
-	if (addr == 0xa0000048) return get_time();
+	if (addr == 0xa0000048) {
+		printf("time\n");
+	} 
 	
 	// out_of_bound(addr);
 	return 0;
