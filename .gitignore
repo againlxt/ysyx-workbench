@@ -16,4 +16,5 @@
 /nvboard
 /am-kernels
 yosys-sta/*
+ysyxSoC/*
 npc/chisel/chisel-empty/*
