@@ -25,6 +25,8 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 
 # project source
 VSRCS = $(shell find $(abspath $(NPC_HOME)/vsrc/$(PROJ_NAME)) -name "*.v" -or -name "*.sv")
+VSRCS_SOC = $(shell find $(abspath $(YSYX_HOME)/ysyxSoC/perip) -name "*.v")
+VSRCS += $(if $(CONFIG_SOC),$(VSRCS_SOC),)
 CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c")
 CXXSRC = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.cpp" ! -name "disasm.cpp")
 ifneq ($(CONFIG_ITRACE),)
@@ -32,7 +34,6 @@ CXXSRC += $(NPC_HOME)/csrc/utils/disasm.cpp
 CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
 LDFLAGS += $(shell llvm-config --libs)
 endif
-
 OBJS  = $(VSRCS) $(CSRCS) $(CXXSRC)
 VCDSRCS = $(shell find $(abspath ./) -name $(PROJ_NAME).vcd)
 
@@ -48,21 +49,23 @@ CFLAGS_BUILD += $(call remove_quote,$(CONFIG_CC_OPT))
 CFLAGS_BUILD += $(if $(CONFIG_CC_LTO),-flto,)
 CFLAGS_BUILD += $(if $(CONFIG_CC_DEBUG),-Og -ggdb3,)
 CFLAGS_BUILD += $(if $(CONFIG_CC_ASAN),-fsanitize=address,)
-
 CFLAGS_TRACE += -DITRACE_COND=$(if $(CONFIG_ITRACE_COND),$(call remove_quote,$(CONFIG_ITRACE_COND)),true)
 CXXFLAGS  += $(CFLAGS_BUILD) $(CFLAGS_TRACE) 
 LDFLAGS += $(CFLAGS_BUILD)
 
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
+INCFLAGS += $(if $(CONFIG_SOC),$(YSYX_HOME)/ysyxSoC/perip/uart16550/rtl,)
+INCFLAGS += $(if $(CONFIG_SOC),$(YSYX_HOME)/ysyxSoC/perip/spi/rtl,)
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 CXXFLAGS += $(HSRCS)
 LDFLAGS  += -lreadline
-
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc --x-initial fast --noassert
 VERILATOR_CFLAGS += $(if $(CONFIG_WAVE_TRACE),--trace,)
 VERILATOR_CFLAGS += $(call remove_quote,$(CONFIG_CC_OPT))
+VERILATOR_CFLAGS += $(if $(CONFIG_SOC),--timescale "1ns/1ns",)
+VERILATOR_CFLAGS += $(if $(CONFIG_SOC),--no-timing,)
 
 $(BIN): $(OBJS)
 	@rm -rf $(OBJ_DIR)

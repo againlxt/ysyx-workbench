@@ -117,4 +117,10 @@ config CC_DEBUG
 config CC_ASAN
   bool "Enable address sanitizer"
   default n
-  endmenu
+endmenu
+
+menu "SoC"
+config SOC
+  bool "Enable SoC"
+  default n
+endmenu
