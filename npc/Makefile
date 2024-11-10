@@ -5,10 +5,6 @@ TOPNAME = top
 NXDC_FILES = constr/Top.nxdc
 INC_PATH ?= $(NPC_HOME)/include
 
-VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc -O3 --x-initial fast --noassert --trace
-VERILATOR_CFLAGS += $(if $(CONFIG_WAVE_TRACE),--trace,)
-
 GTKWAVE = gtkwave
 GTKWAVE_CFLAGS +=
 
@@ -22,9 +18,6 @@ default: $(BIN)
 
 $(shell mkdir -p $(BUILD_DIR))
 
-FILELIST_MK = $(shell find -L $(NPC_HOME)/csrc -name "filelist.mk")
-include $(FILELIST_MK)
-
 # constraint file
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
@@ -32,10 +25,15 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 
 # project source
 VSRCS = $(shell find $(abspath $(NPC_HOME)/vsrc/$(PROJ_NAME)) -name "*.v" -or -name "*.sv")
-#CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c" -or -name "*.cpp")
-CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c" -or -name "*.cpp" ! -name "disasm.cpp")
+CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c")
+CXXSRC = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.cpp" ! -name "disasm.cpp")
+ifneq ($(CONFIG_ITRACE),)
+CXXSRC += $(NPC_HOME)/csrc/utils/disasm.cpp
+CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
+LDFLAGS += $(shell llvm-config --libs)
+endif
 
-OBJS  = $(VSRCS) $(CSRCS)
+OBJS  = $(VSRCS) $(CSRCS) $(CXXSRC)
 VCDSRCS = $(shell find $(abspath ./) -name $(PROJ_NAME).vcd)
 
 # Command to execute NPC
@@ -48,8 +46,8 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 CC = $(call remove_quote,$(CONFIG_CC))
 CFLAGS_BUILD += $(call remove_quote,$(CONFIG_CC_OPT))
 CFLAGS_BUILD += $(if $(CONFIG_CC_LTO),-flto,)
-CFLAGS_BUILD += -Og -ggdb3
-#CFLAGS_BUILD += -fsanitize=address
+CFLAGS_BUILD += $(if $(CONFIG_CC_DEBUG),-Og -ggdb3,)
+CFLAGS_BUILD += $(if $(CONFIG_CC_ASAN),-fsanitize=address,)
 
 CFLAGS_TRACE += -DITRACE_COND=$(if $(CONFIG_ITRACE_COND),$(call remove_quote,$(CONFIG_ITRACE_COND)),true)
 CXXFLAGS  += $(CFLAGS_BUILD) $(CFLAGS_TRACE) 
@@ -60,6 +58,11 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 CXXFLAGS += $(HSRCS)
 LDFLAGS  += -lreadline
+
+VERILATOR = verilator
+VERILATOR_CFLAGS += -MMD --build -cc --x-initial fast --noassert
+VERILATOR_CFLAGS += $(if $(CONFIG_WAVE_TRACE),--trace,)
+VERILATOR_CFLAGS += $(call remove_quote,$(CONFIG_CC_OPT))
 
 $(BIN): $(OBJS)
 	@rm -rf $(OBJ_DIR)
@@ -99,4 +102,4 @@ wave:
 # Include rules for menuconfig
 include $(NPC_HOME)/scripts/config.mk
 
-.PHONY: default all clean run wave
+.PHONY: default all clean run wave gdb val sim
