@@ -86,7 +86,7 @@ sim: $(OBJS)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) \
 		$(addprefix -LDFLAGS , $(LDFLAGS)) \
-		--top-module $(TOPNAME) $(OBJS) \
+		--top-module $(TOPNAME) $^ \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 	$(NPC_SIM)
 
