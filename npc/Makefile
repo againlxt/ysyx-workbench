@@ -1,14 +1,17 @@
 -include $(NPC_HOME)/include/config/auto.conf
 -include $(NPC_HOME)/include/config/auto.conf.cmd
 
-TOPNAME = top
+TOPNORMAL = top
+TOPSOC = ysyxSoCFull
+TOPNAME = $(if $(CONFIG_SOC),$(TOPSOC),$(TOPNORMAL))
 NXDC_FILES = constr/Top.nxdc
 INC_PATH ?= $(NPC_HOME)/include
+YSYX_HOME = $(NEMU_HOME)/..
 
 GTKWAVE = gtkwave
 GTKWAVE_CFLAGS +=
 
-PROJ_NAME ?= bus_cpu
+PROJ_NAME ?= soc_cpu
 
 BUILD_DIR = ./build/$(PROJ_NAME)
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -26,6 +29,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 # project source
 VSRCS = $(shell find $(abspath $(NPC_HOME)/vsrc/$(PROJ_NAME)) -name "*.v" -or -name "*.sv")
 VSRCS_SOC = $(shell find $(abspath $(YSYX_HOME)/ysyxSoC/perip) -name "*.v")
+VSRCS_SOC += $(YSYX_HOME)/ysyxSoC/build/ysyxSoCFull.v
 VSRCS += $(if $(CONFIG_SOC),$(VSRCS_SOC),)
 CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c")
 CXXSRC = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.cpp" ! -name "disasm.cpp")
@@ -54,9 +58,11 @@ CXXFLAGS  += $(CFLAGS_BUILD) $(CFLAGS_TRACE)
 LDFLAGS += $(CFLAGS_BUILD)
 
 # rules for verilator
+#INV_PATH = $(if $(CONFIG_SOC),$(YSYX_HOME)/ysyxSoC/perip/uart16550/rtl,)
+#INV_PATH += $(if $(CONFIG_SOC),$(YSYX_HOME)/ysyxSoC/perip/spi/rtl,)
 INCFLAGS = $(addprefix -I, $(INC_PATH))
-INCFLAGS += $(if $(CONFIG_SOC),$(YSYX_HOME)/ysyxSoC/perip/uart16550/rtl,)
-INCFLAGS += $(if $(CONFIG_SOC),$(YSYX_HOME)/ysyxSoC/perip/spi/rtl,)
+INVFLAGS = $(if $(CONFIG_SOC),-y $(YSYX_HOME)/ysyxSoC/perip/spi/rtl -y $(YSYX_HOME)/ysyxSoC/perip/uart16550/rtl,)
+
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 CXXFLAGS += $(HSRCS)
 LDFLAGS  += -lreadline
@@ -66,6 +72,7 @@ VERILATOR_CFLAGS += $(if $(CONFIG_WAVE_TRACE),--trace,)
 VERILATOR_CFLAGS += $(call remove_quote,$(CONFIG_CC_OPT))
 VERILATOR_CFLAGS += $(if $(CONFIG_SOC),--timescale "1ns/1ns",)
 VERILATOR_CFLAGS += $(if $(CONFIG_SOC),--no-timing,)
+VERILATOR_CFLAGS += $(if $(CONFIG_SOC),$(INVFLAGS)) 
 
 $(BIN): $(OBJS)
 	@rm -rf $(OBJ_DIR)
