@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-10-21 19:23:54
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-11-12 16:18:17
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -40,7 +40,7 @@ static void step_and_dump_wave();
 extern "C" void sim_exit();
 void sim_exit() {
 	NPCTRAP(npc_pc, gpr(10));
-	verilatorTop->io_npcState 		= npc_state.state; 
+	//verilatorTop->io_npcState 		= npc_state.state; 
 
     step_and_dump_wave(); // 确保最后一步被记录
 }
@@ -56,6 +56,8 @@ void set_ftrace_ret_flag() {
 }
 
 extern "C" svBitVecVal getCommond();
+extern "C" svBitVecVal get_cur_pc();
+extern "C" svBitVecVal get_next_pc();
 // DPI-C END
 
 // Simulate stepping and record waveform
@@ -105,9 +107,9 @@ static void exec_once() {
 	uint32_t npc_snpc 	= npc_curPC + 4;
 
 	verilatorTop->clock = 0; step_and_dump_wave();
-	while (!(verilatorTop->rootp->top__DOT__wbu__DOT__validPC2Reg && verilatorTop->rootp->top__DOT__pc__DOT__wbu2PCReadyReg)) {
+	while (!(verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__wbu__DOT__validPC2Reg && verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc__DOT__wbu2PCReadyReg)) {
 		verilatorTop->clock = 1; step_and_dump_wave();
-		if(verilatorTop->io_npcState == 2) break;
+		//if(verilatorTop->io_npcState == 2) break;
 		verilatorTop->clock = 0; step_and_dump_wave();
 	}
 #ifdef CONFIG_ITRACE
@@ -115,7 +117,7 @@ static void exec_once() {
 	p += snprintf(p, sizeof(logbuf), FMT_WORD ":", npc_curPC);
 	int ilen = npc_snpc - npc_curPC;
 	int i;
-	svSetScope(svGetScopeFromName("TOP.top.idu.contrGen.cgDPIC"));
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.idu.contrGen.cgDPIC"));
 	svBitVecVal cmd = getCommond();
 	uint32_t npcCurCmd = (uint32_t) cmd;
 	uint8_t *inst = reinterpret_cast<uint8_t*>(&npcCurCmd);
@@ -138,16 +140,20 @@ static void exec_once() {
 	verilatorTop->clock = 1; step_and_dump_wave();
 	trace_and_difftest();
 
-	npc_pc		= verilatorTop->io_curPC; 
-	npc_dnpc	= verilatorTop->io_nextPC;
-	verilatorTop->io_npcState = npc_state.state;
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
+	npc_pc		= get_cur_pc(); 
+	npc_dnpc	= get_next_pc();
+	//verilatorTop->io_npcState = npc_state.state;
 	verilatorTop->eval();
 }
 
 static void execute(uint64_t n) {
-	npc_pc		= verilatorTop->io_curPC; 
-	npc_dnpc	= verilatorTop->io_nextPC;
-	verilatorTop->io_npcState 		= npc_state.state;
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
+	npc_pc		= get_cur_pc(); 
+	npc_dnpc	= get_next_pc();	
+	//verilatorTop->io_npcState 		= npc_state.state;
 	verilatorTop->eval();
 
 	for(uint64_t i=0; i < n; i ++) {

@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-11-11 14:31:32
+ * @LastEditTime: 2024-11-12 16:19:33
  * @FilePath: /ysyx-workbench/npc/csrc/monitor/monitor.cpp
  * @Description: 
  * 
@@ -21,7 +21,7 @@ static char *elf_file = NULL;
 static int difftest_port = 1234;
 
 VerilatedContext* verlatorContextp = nullptr;
-Vtop* verilatorTop = nullptr;
+VysyxSoCFull* verilatorTop = nullptr;
 #ifdef CONFIG_WAVE_TRACE
 VerilatedVcdC* verlatorTfp = nullptr;
 #endif
@@ -108,7 +108,7 @@ static long load_img() {
 }
 
 static void init_npc() {
-	verilatorTop->io_npcState 	= NPC_INIT;
+	//verilatorTop->io_npcState 	= NPC_INIT;
 
 	verilatorTop->reset 			= 1;
 	verilatorTop->clock = 0; step_and_dump_wave();
@@ -119,7 +119,7 @@ static void init_npc() {
 
 static void sim_init() {
     verlatorContextp = new VerilatedContext;
-    verilatorTop = new Vtop(verlatorContextp);
+    verilatorTop = new VysyxSoCFull(verlatorContextp);
 	#ifdef CONFIG_WAVE_TRACE
 	verlatorTfp = new VerilatedVcdC;
     verlatorContextp->traceEverOn(true);

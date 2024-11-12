@@ -42,7 +42,7 @@ OBJS  = $(VSRCS) $(CSRCS) $(CXXSRC)
 VCDSRCS = $(shell find $(abspath ./) -name $(PROJ_NAME).vcd)
 
 # Command to execute NPC
-NPC_SIM := $(BUILD_DIR)/top $(ARGS) $(IMG)
+NPC_SIM := $(BUILD_DIR)/$(TOPNAME) $(ARGS) $(IMG)
 
 # rules for NVBoard
 include $(NVBOARD_HOME)/scripts/nvboard.mk
