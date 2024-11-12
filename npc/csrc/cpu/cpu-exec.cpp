@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-11-12 16:18:17
+ * @LastEditTime: 2024-11-12 16:51:57
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -141,8 +141,8 @@ static void exec_once() {
 	trace_and_difftest();
 
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
-	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
 	npc_pc		= get_cur_pc(); 
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
 	npc_dnpc	= get_next_pc();
 	//verilatorTop->io_npcState = npc_state.state;
 	verilatorTop->eval();
@@ -150,8 +150,8 @@ static void exec_once() {
 
 static void execute(uint64_t n) {
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
-	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
 	npc_pc		= get_cur_pc(); 
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
 	npc_dnpc	= get_next_pc();	
 	//verilatorTop->io_npcState 		= npc_state.state;
 	verilatorTop->eval();
