@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-11-12 16:58:15
+ * @LastEditTime: 2024-11-26 21:22:36
  * @FilePath: /ysyx-workbench/npc/csrc/monitor/monitor.cpp
  * @Description: 
  * 
@@ -13,6 +13,7 @@
 #include <verilator.h>
 #include <isa/reg.h>
 #include <memory/paddr.h>
+#include <memory/mrom.h>
 
 static char *img_file = NULL;
 static char *log_file = NULL;
@@ -102,6 +103,9 @@ static long load_img() {
 	fseek(fp, 0, SEEK_SET);
 	int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
 	assert(ret == 1);
+	fseek(fp, 0, SEEK_SET);
+	ret = fread(guest_to_host_mrom(RESET_VECTOR - (PMEM_LEFT - MROM_LEFT)), size, 1, fp);
+	assert(ret == 1);
 
 	fclose(fp);
 	return size;
@@ -136,6 +140,7 @@ void init_monitor(int argc, char *argv[]) {
 	init_elf(elf_file);
 
 	init_mem();
+	init_mrom();
 
 	long img_size = load_img();
 
