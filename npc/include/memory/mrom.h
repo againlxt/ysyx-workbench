@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-11-26 19:52:30
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-11-26 20:22:23
+ * @LastEditTime: 2024-11-29 21:07:27
  * @FilePath: /ysyx-workbench/npc/include/memory/mrom.h
  * @Description: 
  * 
@@ -19,7 +19,6 @@
 #define MROM_RIGHT ((paddr_t)CONFIG_MROMBASE + CONFIG_MROMSIZE - 1)
 
 void init_mrom();
-int32_t* guest_to_host_mrom(int32_t maddr);
-int32_t host_to_guest_mrom(int32_t *haddr);
+uint8_t* guest_to_host_mrom(int32_t maddr);
 
 #endif

@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-11-26 17:36:19
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-11-26 17:48:22
+ * @LastEditTime: 2024-11-29 21:02:19
  * @FilePath: /ysyx-workbench/npc/test/char_test.c
  * @Description: 
  * 

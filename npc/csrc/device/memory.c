@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-11-26 20:41:03
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-11-26 21:25:56
+ * @LastEditTime: 2024-11-29 21:06:09
  * @FilePath: /ysyx-workbench/npc/csrc/device/memory.c
  * @Description: 
  * 
@@ -10,17 +10,28 @@
  */
 #include <utils.h>
 #include <memory/mrom.h>
-static int32_t mrom[CONFIG_MROMSIZE] PG_ALIGN = {};
+#include <memory/paddr.h>
+static uint8_t mrom[CONFIG_MROMSIZE] PG_ALIGN = {};
 
 void init_mrom() {
     memset(mrom, 0, CONFIG_MROMSIZE);
 	Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", MROM_LEFT, MROM_RIGHT);
 }
 
-int32_t* guest_to_host_mrom(int32_t maddr) { return mrom + (maddr - CONFIG_MROMBASE)/4; }
+uint8_t* guest_to_host_mrom(int32_t maddr) { return mrom + (maddr - CONFIG_MROMBASE); }
 
-int32_t host_to_guest_mrom(int32_t *haddr) { return (haddr - mrom)*4 + CONFIG_MBASE; }
+static word_t host_read(void* addr, int len) {
+	switch (len) {
+		case 0: return 0;
+		case 1: return *(uint8_t  *)addr;
+		case 2: return *(uint16_t *)addr;
+		case 4: return *(uint32_t *)addr;
+		default: Assert(0, "Read Data Wrong");
+	}
+}
 
 extern "C" void mrom_read(int32_t addr, int32_t *data) { 
-    data = guest_to_host_mrom(addr);
+    *data = (int32_t) host_read(guest_to_host_mrom(addr), 4);
+    if (*data == 0) 
+        printf("%x\n", *data);
 }
