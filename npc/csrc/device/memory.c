@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-11-26 20:41:03
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-11-29 21:06:09
+ * @LastEditTime: 2024-11-30 19:56:41
  * @FilePath: /ysyx-workbench/npc/csrc/device/memory.c
  * @Description: 
  * 
@@ -32,6 +32,4 @@ static word_t host_read(void* addr, int len) {
 
 extern "C" void mrom_read(int32_t addr, int32_t *data) { 
     *data = (int32_t) host_read(guest_to_host_mrom(addr), 4);
-    if (*data == 0) 
-        printf("%x\n", *data);
 }

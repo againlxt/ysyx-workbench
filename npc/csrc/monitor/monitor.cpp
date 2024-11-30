@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-11-26 21:22:36
+ * @LastEditTime: 2024-11-30 20:51:56
  * @FilePath: /ysyx-workbench/npc/csrc/monitor/monitor.cpp
  * @Description: 
  * 
@@ -114,9 +114,7 @@ static long load_img() {
 static void init_npc() {
 	//verilatorTop->io_npcState 	= NPC_INIT;
 
-	verilatorTop->reset 			= 1;
-	verilatorTop->clock = 0; step_and_dump_wave();
-	verilatorTop->clock = 1; step_and_dump_wave();
+	verilatorTop->reset = 1; step_and_dump_wave();
 	verilatorTop->clock = 0; step_and_dump_wave();
 	verilatorTop->clock = 1; step_and_dump_wave();
 }

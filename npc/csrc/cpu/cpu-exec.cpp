@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-11-12 16:51:57
+ * @LastEditTime: 2024-11-30 20:52:17
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -194,7 +194,7 @@ void cpu_exec(uint64_t n) {
 
 	uint64_t timer_start = get_time();
 
-	verilatorTop->reset 			= 0;
+	verilatorTop->reset = 0; step_and_dump_wave();
 	execute(n);
 
 	uint64_t timer_end = get_time();
