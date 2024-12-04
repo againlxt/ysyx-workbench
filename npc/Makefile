@@ -67,7 +67,7 @@ CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 CXXFLAGS += $(HSRCS)
 LDFLAGS  += -lreadline
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc --x-initial fast --noassert
+VERILATOR_CFLAGS += -MMD --build -cc --x-initial fast --noassert --autoflush
 VERILATOR_CFLAGS += $(if $(CONFIG_WAVE_TRACE),--trace,)
 VERILATOR_CFLAGS += $(call remove_quote,$(CONFIG_CC_OPT))
 VERILATOR_CFLAGS += $(if $(CONFIG_SOC),--timescale "1ns/1ns",)
