@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-20 16:44:35
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-05 17:57:56
+ * @LastEditTime: 2024-12-05 21:10:39
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/difftest/dut.c
  * @Description: 
  * 
@@ -29,7 +29,6 @@ static int skip_dut_nr_inst = 0;
 
 extern "C" void difftest_skip_ref();
 void difftest_skip_ref() {
-	printf("Skip begin1!\n");
 	is_skip_ref = true;
 	skip_dut_nr_inst = 0;
 }
@@ -38,8 +37,8 @@ void difftest_skip_ref() {
  * @description: 同步硬件的寄存器到`CPU_state cpu`
  * @return {*}
  */
-static void set_dut_cpu_regs(vaddr_t npc) {
-  cpu.pc  = npc;
+static void set_dut_cpu_regs(vaddr_t pc) {
+  cpu.pc  = pc;
   for (size_t i = 0; i < REGS_SIZE; i++) {
     cpu.gpr[i] = gpr(i);
   }
@@ -107,7 +106,6 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
 
 void difftest_step(vaddr_t pc, vaddr_t npc) {
 	CPU_state ref_r;
-	set_dut_cpu_regs(npc);
 
 	if (skip_dut_nr_inst > 0) {
 		ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
@@ -124,7 +122,7 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
 
 	if (is_skip_ref) {
 		// to skip the checking of an instruction, just copy the reg state to reference design
-		printf("Skip begin2!\n");
+		set_dut_cpu_regs(pc);
 		ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 		is_skip_ref = false;
 		return;

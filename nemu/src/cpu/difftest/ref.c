@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:26
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-05 17:56:04
+ * @LastEditTime: 2024-12-05 21:11:04
  * @FilePath: /ysyx-workbench/nemu/src/cpu/difftest/ref.c
  * @Description: 
  * 
@@ -61,13 +61,11 @@ static void regcpy(CPU_state* src, CPU_state* dest) {
  */
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
 	assert(dut != NULL);
-	CPU_state* dut_buf = (CPU_state*) dut;
-
 	if (direction == DIFFTEST_TO_DUT) {
-		regcpy(&cpu, dut_buf);
+		regcpy(&cpu, (CPU_state*) dut);
 	}
 	else {
-		regcpy(dut_buf, &cpu);
+		regcpy((CPU_state*) dut, &cpu);
 	}
 }
 
