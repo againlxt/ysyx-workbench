@@ -33,9 +33,15 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 # project source
 VSRCS = $(shell find $(abspath $(NPC_HOME)/vsrc/$(PROJ_NAME)) -name "*.v" -or -name "*.sv")
 #CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c" -or -name "*.cpp")
-CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c" -or -name "*.cpp" ! -name "disasm.cpp")
+CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c")
+CXXSRC = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.cpp" ! -name "disasm.cpp")
+ifneq ($(CONFIG_ITRACE),)
+CXXSRC += $(NPC_HOME)/csrc/utils/disasm.cpp
+CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
+LDFLAGS += $(shell llvm-config --libs)
+endif
 
-OBJS  = $(VSRCS) $(CSRCS)
+OBJS  = $(VSRCS) $(CSRCS) $(CXXSRC)
 VCDSRCS = $(shell find $(abspath ./) -name $(PROJ_NAME).vcd)
 
 # Command to execute NPC
@@ -48,8 +54,8 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 CC = $(call remove_quote,$(CONFIG_CC))
 CFLAGS_BUILD += $(call remove_quote,$(CONFIG_CC_OPT))
 CFLAGS_BUILD += $(if $(CONFIG_CC_LTO),-flto,)
-CFLAGS_BUILD += -Og -ggdb3
-#CFLAGS_BUILD += -fsanitize=address
+CFLAGS_BUILD += $(if $(CONFIG_CC_DEBUG),-Og -ggdb3,)
+CFLAGS_BUILD += $(if $(CONFIG_CC_ASAN),-fsanitize=address,)
 
 CFLAGS_TRACE += -DITRACE_COND=$(if $(CONFIG_ITRACE_COND),$(call remove_quote,$(CONFIG_ITRACE_COND)),true)
 CXXFLAGS  += $(CFLAGS_BUILD) $(CFLAGS_TRACE) 

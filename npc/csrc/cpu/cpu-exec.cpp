@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-10-21 19:23:54
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-12-05 21:10:15
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -136,11 +136,11 @@ static void exec_once() {
 	new_irbn(logbuf);
 #endif
 	verilatorTop->clock = 1; step_and_dump_wave();
-	trace_and_difftest();
 
 	npc_pc		= verilatorTop->io_curPC; 
 	npc_dnpc	= verilatorTop->io_nextPC;
 	verilatorTop->io_npcState = npc_state.state;
+	trace_and_difftest();
 	verilatorTop->eval();
 }
 
