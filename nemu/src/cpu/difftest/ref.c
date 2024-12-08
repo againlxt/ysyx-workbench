@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:26
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-24 15:35:47
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-12-08 10:53:20
  * @FilePath: /ysyx-workbench/nemu/src/cpu/difftest/ref.c
  * @Description: 
  * 
@@ -28,6 +28,11 @@
 #include <difftest-def.h>
 #include <memory/paddr.h>
 
+#define MSTATUS 0x300
+#define MCAUSE  0x342
+#define MEPC    0x341
+#define MTVEC   0x305
+
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
 	assert(buf != NULL);
 	uint8_t* dut = (uint8_t*) buf;
@@ -40,6 +45,16 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 	}
 }
 
+static void regcpy(CPU_state* src, CPU_state* dest) {
+	size_t size = MUXDEF(CONFIG_RVE, 16, 32);
+	dest->pc = src->pc;
+	for (size_t i = 0; i < size; i++) { dest->gpr[i] = src->gpr[i]; }
+	dest->csr[MSTATUS] 	= src->csr[MSTATUS];
+	dest->csr[MCAUSE]	= src->csr[MCAUSE];
+	dest->csr[MEPC]		= src->csr[MEPC];
+	dest->csr[MTVEC]	= src->csr[MTVEC];
+}
+
 /**
  * @description: 
  * @param {void} *dut 该参数为寄存器指针数组的指针
@@ -48,14 +63,11 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
  */
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
 	assert(dut != NULL);
-	CPU_state* dut_buf = (CPU_state*) dut;
-
-	size_t size = MUXDEF(CONFIG_RVE, 16, 32);
 	if (direction == DIFFTEST_TO_DUT) {
-		for (size_t i = 0; i < size; i++) { dut_buf->gpr[i] = cpu.gpr[i]; }
+		regcpy(&cpu, (CPU_state*) dut);
 	}
 	else {
-		for (size_t i = 0; i < size; i++) { cpu.gpr[i] = dut_buf->gpr[i]; }		
+		regcpy((CPU_state*) dut, &cpu);
 	}
 }
 

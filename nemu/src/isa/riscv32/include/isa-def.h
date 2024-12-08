@@ -1,3 +1,13 @@
+/*
+ * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @Date: 2024-12-05 21:26:45
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-12-08 10:39:56
+ * @FilePath: /ysyx-workbench/nemu/src/isa/riscv32/include/isa-def.h
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 /***************************************************************************************
 * Copyright (c) 2014-2022 Zihao Yu, Nanjing University
 *
@@ -21,6 +31,7 @@
 typedef struct {
   word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)];
   vaddr_t pc;
+  word_t csr[4092];
 } MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state);
 
 // decode

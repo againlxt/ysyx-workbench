@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-09-15 15:43:43
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-16 15:33:32
+ * @LastEditTime: 2024-12-08 10:40:06
  * @FilePath: /ysyx-workbench/nemu/src/isa/riscv32/local-include/reg.h
  * @Description: 
  * 
@@ -43,8 +43,7 @@ static inline int check_csrs_idx(int idx) {
 }
 
 #define gpr(idx) (cpu.gpr[check_reg_idx(idx)])
-extern uint32_t csrs[4096];
-#define csr(idx) (csrs[check_csrs_idx(idx)])
+#define csr(idx) (cpu.csr[check_csrs_idx(idx)])
 
 static inline const char* reg_name(int idx) {
   extern const char* regs[];

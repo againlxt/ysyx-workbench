@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-16 17:05:21
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-11-12 15:19:02
+ * @LastEditTime: 2024-12-08 10:37:30
  * @FilePath: /ysyx-workbench/npc/include/isa/reg.h
  * @Description: 
  * 
@@ -12,6 +12,11 @@
 #define __REG_H__
 #include <macro.h>
 #include <verilator.h>
+
+#define MSTATUS 0x300
+#define MCAUSE  0x342
+#define MEPC    0x341
+#define MTVEC   0x305
 
 #define REGS_SIZE 16
 
@@ -32,6 +37,12 @@
     (i) == 13 ? verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__riscv32BaseReg__DOT__riscv32BaseReg_13 : \
     (i) == 14 ? verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__riscv32BaseReg__DOT__riscv32BaseReg_14 : \
     (i) == 15 ? verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__riscv32BaseReg__DOT__riscv32BaseReg_15 : 0)
+
+#define csr(i) \
+    ((i) == MEPC    ? verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csrReg__DOT__mepcReg    : \
+    (i) == MSTATUS  ? verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csrReg__DOT__mstatusReg : \
+    (i) == MCAUSE   ? verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csrReg__DOT__mcauseReg  : \
+    (i) == MTVEC    ? verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csrReg__DOT__mtvecReg   : 0)
 
 void isa_reg_display();
 
