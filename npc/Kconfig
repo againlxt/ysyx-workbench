@@ -85,6 +85,19 @@ config PC_RESET_OFFSET
   default 0x100000 if ISA_x86
   default 0
 
+menuconfig HAS_MROM
+  bool "Enable MROM"
+  default y
+
+if HAS_MROM
+config MROMBASE
+  hex "MROM base address"
+  default 0x20000000
+config MROMSIZE
+  hex "MROM size"
+  default 0x1000
+endif # HAS_MROM
+
 endmenu
 
 menu "Build Options"

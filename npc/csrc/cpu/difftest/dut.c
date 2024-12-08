@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-20 16:44:35
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-08 10:45:38
+ * @LastEditTime: 2024-12-08 13:33:23
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/difftest/dut.c
  * @Description: 
  * 
@@ -13,6 +13,7 @@
 
 #include <utils.h>
 #include <memory/paddr.h>
+#include <memory/mrom.h>
 #include <isa/reg.h>
 #include <isa/isa-def.h>
 #include <difftest-def.h>
@@ -84,16 +85,17 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
 
 	ref_difftest_init(port);
 	ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF);
+	ref_difftest_memcpy(CONFIG_MROMBASE, guest_to_host_mrom(CONFIG_MROMBASE), img_size, DIFFTEST_TO_REF);
 	ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
 	for (size_t i = 0; i < REGS_SIZE; i++) {
-		if (ref_r->gpr[check_reg_idx(i)] != gpr(i)){
+		if (ref_r->gpr[check_reg_idx(i)] != cpu.gpr[i]){
 			printf("------- Difftest begin -------\n");
 			printf("Diff %#X\t\n", pc);
 			printf("ref-reg:\t%#X\n", ref_r->gpr[check_reg_idx(i)]);
-			printf("reg  %s:\t%#X\n", reg_name(i), gpr(i));
+			printf("reg  %s:\t%#X\n", reg_name(i), cpu.gpr[i]);
 			printf("------------- end ------------\n");
 			return false;
 		}
@@ -112,6 +114,7 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
 
 void difftest_step(vaddr_t pc, vaddr_t npc) {
 	CPU_state ref_r;
+	set_dut_cpu_regs(pc);
 
 	if (skip_dut_nr_inst > 0) {
 		ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
@@ -128,7 +131,6 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
 
 	if (is_skip_ref) {
 		// to skip the checking of an instruction, just copy the reg state to reference design
-		set_dut_cpu_regs(pc);
 		ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 		is_skip_ref = false;
 		return;

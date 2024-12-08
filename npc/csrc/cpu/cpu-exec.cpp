@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-08 10:43:55
+ * @LastEditTime: 2024-12-08 13:51:08
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -26,9 +26,9 @@ static bool g_print_step = false;
 CPU_state cpu = {};
 
 char logbuf[128] = "";
-uint32_t npc_dnpc 	= 0x80000000;
-uint32_t npc_pc 	= 0x80000000;
-uint32_t base_addr 	= 0x80000000;
+uint32_t npc_dnpc 	= 0x20000000;
+uint32_t npc_pc 	= 0x20000000;
+uint32_t base_addr 	= 0x20000000;
 
 word_t ftrace_function_call_flag;
 word_t ftrace_ret_flag;
@@ -102,6 +102,17 @@ static void trace_and_difftest() {
 #endif
 }
 
+static void set_dut_cpu_regs(vaddr_t pc) {
+  cpu.pc  = pc;
+  for (size_t i = 0; i < REGS_SIZE; i++) {
+    cpu.gpr[i] = gpr(i);
+  }
+  cpu.csr[MSTATUS]  = csr(MSTATUS);
+  cpu.csr[MCAUSE]   = csr(MCAUSE);
+  cpu.csr[MEPC]     = csr(MEPC);
+  cpu.csr[MTVEC]    = csr(MTVEC);
+}
+
 static void exec_once() {
 	uint32_t npc_curPC  = npc_pc;
 	uint32_t npc_snpc 	= npc_curPC + 4;
@@ -109,7 +120,6 @@ static void exec_once() {
 	verilatorTop->clock = 0; step_and_dump_wave();
 	while (!(verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__wbu__DOT__validPC2Reg && verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc__DOT__wbu2PCReadyReg)) {
 		verilatorTop->clock = 1; step_and_dump_wave();
-		//if(verilatorTop->io_npcState == 2) break;
 		verilatorTop->clock = 0; step_and_dump_wave();
 	}
 #ifdef CONFIG_ITRACE
@@ -142,8 +152,8 @@ static void exec_once() {
 	npc_pc		= get_cur_pc(); 
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
 	npc_dnpc	= get_next_pc();
+	printf("sp :%x\n", gpr(2));
 	trace_and_difftest();
-	verilatorTop->eval();
 }
 
 static void execute(uint64_t n) {

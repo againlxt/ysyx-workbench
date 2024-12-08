@@ -9,6 +9,7 @@ LDFLAGS   += --gc-sections -e _start # 启用链接器的垃圾回收功能（GC
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 NPCFLAGS  += -l $(NPC_HOME)/build/npc-log.txt
 NPCFLAGS  += -e $(IMAGE).elf
+NPCFLAGS  += --diff $(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 .PHONY: $(AM_HOME)/am/src/riscv/ysyxsoc/trm.c
 
 image: $(IMAGE).elf
