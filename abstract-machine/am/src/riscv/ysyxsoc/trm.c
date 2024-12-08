@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-12-04 14:11:25
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-04 15:43:49
+ * @LastEditTime: 2024-12-08 19:53:33
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/ysyxsoc/trm.c
  * @Description: 
  * 
@@ -23,7 +23,7 @@ Area heap = RANGE(&_heap_start, MROM_END);
 #define MAINARGS ""
 #endif
 # define npc_trap(code) asm volatile("mv a0, %0; ebreak" : :"r"(code))
-// static const char mainargs[] = MAINARGS;
+static const char mainargs[] = MAINARGS;
 
 #define UART_BASE 0x10000000L
 #define UART_TX   0x0
@@ -37,7 +37,6 @@ void halt(int code) {
 }
 
 void _trm_init() {
-    const char mainargs[] = MAINARGS;
     int ret = main(mainargs);
     halt(ret);
 }
