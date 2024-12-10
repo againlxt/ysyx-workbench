@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-08 19:33:22
+ * @LastEditTime: 2024-12-10 16:16:23
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -127,7 +127,7 @@ static void exec_once() {
 	p += snprintf(p, sizeof(logbuf), FMT_WORD ":", npc_curPC);
 	int ilen = npc_snpc - npc_curPC;
 	int i;
-	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.idu.contrGen.cgDPIC"));
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.wbu.getCmd"));
 	svBitVecVal cmd = getCommond();
 	uint32_t npcCurCmd = (uint32_t) cmd;
 	uint8_t *inst = reinterpret_cast<uint8_t*>(&npcCurCmd);
