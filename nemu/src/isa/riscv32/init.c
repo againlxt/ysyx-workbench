@@ -1,3 +1,13 @@
+/*
+ * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @Date: 2024-10-02 10:52:03
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-12-05 17:13:12
+ * @FilePath: /ysyx-workbench/nemu/src/isa/riscv32/init.c
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 /***************************************************************************************
 * Copyright (c) 2014-2022 Zihao Yu, Nanjing University
 *
@@ -32,6 +42,9 @@ static void restart() {
 
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
+
+  /* Init mstatus to 0x1800 to support difftest */
+  cpu.csr[0x300] = 0x1800;
 }
 
 void init_isa() {

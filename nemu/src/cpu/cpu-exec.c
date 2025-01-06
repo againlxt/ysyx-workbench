@@ -17,6 +17,7 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
+#include <elf.h>
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -27,10 +28,106 @@
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
+uint64_t log_write_n = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
+// my design of iringbufnode
+#ifdef CONFIG_ITRACE
+
+#define LOG_LENGTH 128
+#define LOG_POOL_SIZE 200
+
+typedef struct iringbufnode {
+    char log[LOG_LENGTH];
+    struct iringbufnode *next;
+} IRBN;
+
+static IRBN *log_pool[LOG_POOL_SIZE] = {};
+static IRBN *head = NULL, *last = NULL;
+static size_t ringbufcount = 0;
+
+void new_irbn(const char *str) {
+    char buf[LOG_LENGTH] = "";
+    if (strlen(str) > LOG_LENGTH - 5) {
+        fprintf(stderr, "Error: Log entry too long\n");
+        return;
+    }
+    strcpy(buf, str);
+
+    IRBN *node = (IRBN *)calloc(1, sizeof(IRBN));
+    if (!node) {
+        fprintf(stderr, "Error: Memory allocation failed\n");
+        return;
+    }
+    strcpy(node->log, buf);
+
+    if (ringbufcount == 0) {
+        node->next = node;  // 初始环
+        head = node;
+        last = node;
+        log_pool[0] = node;
+    } else if (ringbufcount >= LOG_POOL_SIZE) {
+        head = head->next;
+        last->next = node;
+        node->next = head;
+        last = node;
+
+        free(log_pool[ringbufcount % LOG_POOL_SIZE]);
+        log_pool[ringbufcount % LOG_POOL_SIZE] = node;
+    } else {
+        last->next = node;
+        node->next = head;
+        last = node;
+        log_pool[ringbufcount] = node;
+    }
+
+    ringbufcount++;
+}
+
+static void iringbuf_log() {
+    if (ringbufcount == 0) return;
+    log_write("---------- Instruction Trace ----------\n");
+    
+    IRBN *node = head;
+    size_t count = ringbufcount > LOG_POOL_SIZE ? LOG_POOL_SIZE : ringbufcount;
+    
+    for (size_t i = 0; i < count; i++) {
+        log_write("%s\n", node->log);
+        node = node->next;
+    }
+    log_write("----------------- End -----------------\n");
+
+    // 释放内存
+    for (size_t i = 0; i < count; i++) {
+        IRBN *temp = head;
+        head = head->next;
+        free(temp);
+    }
+
+    // 重置指针
+    head = NULL;
+    last = NULL;
+    ringbufcount = 0;
+}
+
+#endif
+
+//design end
+
 void device_update();
+/**
+ * @description: define in utils/elf.c, used to check whether call a function.
+ * @param {vaddr_t} next_pc
+ * @return {*}
+ */
+#ifdef CONFIG_FTRACE
+extern Elf32_Sym *find_func_call (vaddr_t next_pc);
+extern char *find_string (Elf32_Sym *func);
+extern word_t ftrace_function_call_flag;
+extern word_t ftrace_ret_flag;
+extern uint32_t ftrace_call_depth;
+#endif
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
@@ -38,6 +135,33 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #endif
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
+  extern void traverse_watchpoints();
+  traverse_watchpoints();
+
+#ifdef CONFIG_FTRACE
+	Elf32_Sym *ftrace_function_symbol = NULL;
+	if(ftrace_function_call_flag == true) {
+		ftrace_function_call_flag = false;
+		ftrace_function_symbol = find_func_call(dnpc);
+		log_write("f %#X: ", _this->pc);
+		ftrace_call_depth ++;
+		for (uint32_t i = 0; i < ftrace_call_depth; i++) { log_write("  "); }
+    if(ftrace_function_symbol != NULL)
+		  log_write("call [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);
+    else
+      log_write("call [UNKOWN@%#X]\n", dnpc);
+	} else if (ftrace_ret_flag == true) {
+		ftrace_ret_flag = false;
+		ftrace_function_symbol = find_func_call(dnpc);
+		log_write("f %#X: ", _this->pc);
+		for (uint32_t i = 0; i < ftrace_call_depth; i++) { log_write("  "); }
+    if(ftrace_function_symbol != NULL)
+		  log_write("ret [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);
+    else
+      log_write("ret [UNKOWN@%#X]\n", dnpc);
+    if(ftrace_call_depth >= 1) ftrace_call_depth --;
+	} else { }
+#endif
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {
@@ -75,6 +199,9 @@ static void execute(uint64_t n) {
   Decode s;
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
+	#ifdef CONFIG_ITRACE
+	new_irbn(s.logbuf);
+	#endif
     g_nr_guest_inst ++;
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING) break;
@@ -92,8 +219,11 @@ static void statistic() {
 }
 
 void assert_fail_msg() {
-  isa_reg_display();
-  statistic();
+#ifdef CONFIG_ITRACE
+	iringbuf_log();
+#endif
+  	isa_reg_display();
+  	statistic();
 }
 
 /* Simulate how the CPU works. */

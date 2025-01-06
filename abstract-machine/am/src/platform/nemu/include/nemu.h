@@ -1,3 +1,13 @@
+/*
+ * @Author: lxt leixiaotian434@gmail.com
+ * @Date: 2024-01-15 09:47:31
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-07-09 11:17:23
+ * @FilePath: /ysyx-workbench/abstract-machine/am/src/platform/nemu/include/nemu.h
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #ifndef NEMU_H__
 #define NEMU_H__
 

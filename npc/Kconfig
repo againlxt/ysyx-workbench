@@ -1,0 +1,121 @@
+mainmenu "NPC Configuration Menu"
+
+menu "ISA-dependent Options for riscv"
+
+config RVE
+  bool "Use E extension"
+  default n
+endmenu
+
+choice
+	prompt "Running mode"
+	default BATCH_MODE
+config BATCH_MODE
+	bool "Running with batch mode"
+config SDB_MODE
+	bool "Running with sdb mode"
+endchoice
+
+menu "Verilator"
+
+config WAVE_TRACE
+	bool "Enable Wave tracer"
+	default y
+endmenu
+
+menu "Testing and Debugging"
+
+
+config TRACE
+  bool "Enable tracer"
+  default y
+
+config TRACE_START
+  depends on TRACE
+  int "When tracing is enabled (unit: number of instructions)"
+  default 0
+
+config TRACE_END
+  depends on TRACE
+  int "When tracing is disabled (unit: number of instructions)"
+  default 10000
+
+config ITRACE
+  depends on TRACE
+  bool "Enable instruction tracer"
+  default y
+
+config ITRACE_COND
+  depends on ITRACE
+  string "Only trace instructions when the condition is true"
+  default "true"
+
+config MTRACE
+  depends on TRACE
+  bool "Enable memorary tracer"
+  default n
+
+config FTRACE
+  depends on TRACE
+  bool "Enable function tracer"
+  default y
+
+
+config DIFFTEST
+  bool "Enable differential testing"
+  default n
+  help
+    Enable differential testing with a reference design.
+    Note that this will significantly reduce the performance of NEMU.
+endmenu
+
+menu "Memory Configuration"
+
+config MBASE
+  hex "Memory base address"
+  default 0x0
+  default 0x80000000
+
+config MSIZE
+  hex "Memory size"
+  default 0x8000000
+
+config PC_RESET_OFFSET
+  hex "Offset of reset vector from the base of memory"
+  default 0x100000 if ISA_x86
+  default 0
+
+endmenu
+
+menu "Build Options"
+
+choice
+  prompt "Optimization Level"
+  default CC_O2
+config CC_O0
+  bool "O0"
+config CC_O1
+  bool "O1"
+config CC_O2
+  bool "O2"
+config CC_O3
+  bool "O3"
+endchoice
+
+config CC_OPT
+  string
+  default "-O0" if CC_O0
+  default "-O1" if CC_O1
+  default "-O2" if CC_O2
+  default "-O3" if CC_O3
+  default "none"
+
+config CC_DEBUG
+  bool "Enable debug information"
+  default n
+
+config CC_ASAN
+  depends on MODE_SYSTEM
+  bool "Enable address sanitizer"
+  default n
+endmenu

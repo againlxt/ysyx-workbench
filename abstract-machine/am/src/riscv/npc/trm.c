@@ -1,5 +1,17 @@
+/*
+ * @Author: lxt leixiaotian434@gmail.com
+ * @Date: 2024-01-15 09:47:31
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-09-04 15:20:32
+ * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/npc/trm.c
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #include <am.h>
+#include <stdio.h>
 #include <klib-macros.h>
+#include <riscv/riscv.h>
 
 extern char _heap_start;
 int main(const char *args);
@@ -12,13 +24,16 @@ Area heap = RANGE(&_heap_start, PMEM_END);
 #ifndef MAINARGS
 #define MAINARGS ""
 #endif
+# define npc_trap(code) asm volatile("mv a0, %0; ebreak" : :"r"(code))
 static const char mainargs[] = MAINARGS;
 
 void putch(char ch) {
+	outb((uintptr_t) 0xa00003f8, ch);
 }
 
 void halt(int code) {
-  while (1);
+	npc_trap(code);
+	while (1);
 }
 
 void _trm_init() {

@@ -1,3 +1,13 @@
+/*
+ * @Author: lxt leixiaotian434@gmail.com
+ * @Date: 2024-01-15 09:47:26
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-08-31 09:59:06
+ * @FilePath: /ysyx-workbench/nemu/src/device/timer.c
+ * @Description: 添加了函数`void timer_update()`，用于更新rtc
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 /***************************************************************************************
 * Copyright (c) 2014-2022 Zihao Yu, Nanjing University
 *
@@ -36,6 +46,10 @@ static void timer_intr() {
   }
 }
 #endif
+
+void timer_update() {
+	rtc_io_handler(4, 2, false);
+}
 
 void init_timer() {
   rtc_port_base = (uint32_t *)new_space(8);

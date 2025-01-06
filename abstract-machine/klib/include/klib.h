@@ -1,3 +1,13 @@
+/*
+ * @Author: lxt leixiaotian434@gmail.com
+ * @Date: 2024-01-15 09:47:31
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-08-31 20:02:28
+ * @FilePath: /ysyx-workbench/abstract-machine/klib/include/klib.h
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #ifndef KLIB_H__
 #define KLIB_H__
 
@@ -9,7 +19,7 @@
 extern "C" {
 #endif
 
-//#define __NATIVE_USE_KLIB__
+#define __NATIVE_USE_KLIB__
 
 // string.h
 void  *memset    (void *s, int c, size_t n);

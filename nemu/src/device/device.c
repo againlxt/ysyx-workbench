@@ -1,3 +1,13 @@
+/*
+ * @Author: lxt leixiaotian434@gmail.com
+ * @Date: 2024-01-15 09:47:26
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-08-31 09:58:08
+ * @FilePath: /ysyx-workbench/nemu/src/device/device.c
+ * @Description: 修复了device_update不更新rtc的bug
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 /***************************************************************************************
 * Copyright (c) 2014-2022 Zihao Yu, Nanjing University
 *
@@ -31,9 +41,12 @@ void init_sdcard();
 void init_alarm();
 
 void send_key(uint8_t, bool);
+void timer_update();
 void vga_update_screen();
 
 void device_update() {
+  IFDEF(CONFIG_HAS_TIMER, timer_update());
+
   static uint64_t last = 0;
   uint64_t now = get_time();
   if (now - last < 1000000 / TIMER_HZ) {

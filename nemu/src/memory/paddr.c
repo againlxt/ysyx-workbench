@@ -1,3 +1,13 @@
+/*
+ * @Author: lxt leixiaotian434@gmail.com
+ * @Date: 2024-01-15 09:47:26
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-07-21 14:17:32
+ * @FilePath: /ysyx-workbench/nemu/src/memory/paddr.c
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 /***************************************************************************************
 * Copyright (c) 2014-2022 Zihao Yu, Nanjing University
 *
@@ -24,8 +34,21 @@ static uint8_t *pmem = NULL;
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #endif
 
+#ifdef CONFIG_MTRACE
+static word_t mtrace_begin   = PMEM_LEFT;
+static word_t mtrace_end	 = PMEM_RIGHT;
+#endif
+
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
+
+// my design of mtrace
+#ifdef CONFIG_MTRACE
+#define MTRACE_LOG(mtrace_address, mtrace_length, mtrace_operation, mtrace_value) do { \
+    log_write("m %#X\t%u\t%s\t%#X\n", mtrace_address, mtrace_length, mtrace_operation, mtrace_value); \
+} while(0);
+#endif
+// design end
 
 static word_t pmem_read(paddr_t addr, int len) {
   word_t ret = host_read(guest_to_host(addr), len);
@@ -51,14 +74,26 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
-  if (likely(in_pmem(addr))) return pmem_read(addr, len);
+  if (likely(in_pmem(addr))) {
+    word_t value = pmem_read(addr, len);
+    #ifdef CONFIG_MTRACE
+    if(mtrace_begin <= addr && addr <= mtrace_end)	MTRACE_LOG(addr, len, "read", value);
+    #endif
+	return value;
+  }
   IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
   out_of_bound(addr);
   return 0;
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
+  if (likely(in_pmem(addr))) { 
+	pmem_write(addr, len, data); 
+    #ifdef CONFIG_MTRACE
+    if(mtrace_begin <= addr && addr <= mtrace_end)	MTRACE_LOG(addr, len, "write", data);
+    #endif
+	return; 
+  }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
   out_of_bound(addr);
 }

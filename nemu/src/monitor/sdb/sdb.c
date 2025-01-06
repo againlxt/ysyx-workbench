@@ -17,41 +17,50 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
-#include "sdb.h"
+#include <memory/paddr.h>
+#include <math.h>
+#include <sdb.h>
 
 static int is_batch_mode = false;
 
 void init_regex();
 void init_wp_pool();
 
-/* We use the `readline' library to provide more flexibility to read from stdin. */
-static char* rl_gets() {
-  static char *line_read = NULL;
-
-  if (line_read) {
-    free(line_read);
-    line_read = NULL;
+static int str2int(char *str) {
+  int result = 0;
+  int len = strlen(str);
+  for (int i = 0; i < len; i++)
+  {
+    result = (*(str + i) - 48) * pow(10, len - i - 1) + result;
   }
+  return result;
+}
 
-  line_read = readline("(nemu) ");
-
-  if (line_read && *line_read) {
-    add_history(line_read);
+static uint32_t str2uint(char *str) {
+  uint result = 0;
+  uint len = strlen(str);
+  for (uint i = 0; i < len; i++)
+  {
+    result = (*(str + i) - 48) * pow(10, len - i - 1) + result;
   }
-
-  return line_read;
+  return result;
 }
 
-static int cmd_c(char *args) {
-  cpu_exec(-1);
-  return 0;
+static bool check_success(bool *success) {
+  if(*success == false) log_err("Program execution error");
+  return *success;
 }
 
-
-static int cmd_q(char *args) {
-  return -1;
-}
-
+static char* rl_gets();
+static int cmd_c(char *args);
+static int cmd_q(char *args);
+static int cmd_si(char *args);
+static int cmd_info(char *args);
+static int cmd_x(char *args);
+static int cmd_w(char *args);
+static int cmd_test(char *args);
+static int cmd_d(char *args);
+static int cmd_p(char *args);
 static int cmd_help(char *args);
 
 static struct {
@@ -63,7 +72,17 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
 
-  /* TODO: Add more commands */
+  { "si", "Followed by parameter n, Execute n times", cmd_si},
+  { "info", "Print program status, followed with parameter. If parameter \
+  is r, printing register status. If parameter is w, print monitoring point information", cmd_info},
+  { "x", "Find the value of the expression EXPR and use the result as the starting memory \
+  Address, output N consecutive 4 bytes in hexadecimal form", cmd_x},
+  { "w", "Set a watchpoint. When the value of expression EXPR changes, program execution is paused.", cmd_w},
+  { "d", "Delete the monitoring point with serial number N", cmd_d},
+  { "p", "Expression evaluation, followed with a expression", cmd_p},
+
+  // test
+  { "test", "test the current cmd", cmd_test},
 
 };
 
@@ -92,6 +111,164 @@ static int cmd_help(char *args) {
   return 0;
 }
 
+/* We use the `readline' library to provide more flexibility to read from stdin. */
+static char* rl_gets() {
+  static char *line_read = NULL;
+
+  if (line_read) {
+    free(line_read);
+    line_read = NULL;
+  }
+
+  line_read = readline("(nemu) ");
+
+  if (line_read && *line_read) {
+    add_history(line_read);
+  }
+
+  return line_read;
+}
+
+static int cmd_c(char *args) {
+  cpu_exec(-1);
+  return 0;
+}
+
+static int cmd_q(char *args) {
+  nemu_state.state = NEMU_QUIT;
+  return -1;
+}
+
+static int cmd_si(char *args) {
+	args = strtok(NULL, " ");
+	uint64_t n;
+	if (args == NULL) n = 1;
+	else n = (uint64_t) strtoull(args, NULL, 10);
+	
+	cpu_exec(n);
+	return 0;
+}
+
+static int cmd_info(char *args) {
+  args = strtok(NULL, " ");
+  if (args == NULL) {
+    printf("Please enter subcmd.(r or w)\n");
+    return 0;
+  }
+  else {
+    if (strcmp(args, "r") == 0) {
+      isa_reg_display();
+    }
+    else if (strcmp(args, "w") == 0) {
+      print_wp_pool();
+    }
+    else {
+      printf("Subcmd wrong, please enter r or w.\n");
+    }
+  }
+  return 0;
+}
+
+static int cmd_x(char *args) {
+  char cmd[128] = {};
+  strcpy(cmd, args);
+  char *num = strtok(NULL, " ");
+  int n = str2int(num);
+  char* expression = strchr(cmd, ' ');
+  
+  bool* success = calloc(sizeof(bool), 1);
+  *success = false;
+  paddr_t addr = (paddr_t) expr(expression, success);
+  if(check_success(success)) {
+    for (int i = 0; i < n; i++) {
+      paddr_t value = paddr_read(addr + 4*i, 4);
+      printf("%#x:\t%#X\n", addr + 4*i, value);
+    }
+  }
+  else {
+    free(success);
+    return 1;
+  }
+  free(success);
+  return 0;
+}
+
+static int cmd_w(char *args) {
+  char *expr = strtok(NULL, " ");
+  new_wp(expr);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  char *num = strtok(NULL, " ");
+  uint32_t n = (uint32_t) strtol(num, NULL, 10);
+  free_wp(n);
+  return 0;
+}
+
+static int cmd_p(char *args) {
+  bool* success = calloc(sizeof(bool), 1);
+  *success = false;
+  word_t val = expr(args, success);
+  if(check_success(success)) {
+    printf("Expr:%s\t\tval:%d\n", args, val);
+    free(success);
+    return 0;
+  }
+  else {
+    free(success);
+    return 1;
+  }
+  free(success);
+  return 0;
+}
+
+static int cmd_test(char *args) {
+  char *cmd;
+  cmd = strtok(NULL, " ");
+  if (strcmp(cmd, "exprtest") == 0) {
+    FILE *file = fopen("/home/lxt/ysyx-workbench/nemu/src/monitor/sdb/input", "r");
+    assert(file != NULL);
+    char line_buf[1024];
+    int l = 0;
+    while (fgets(line_buf, sizeof(line_buf), file) != NULL) {
+      l ++;
+      uint32_t answer = str2uint(strtok(line_buf, " "));
+      char *str = strtok(NULL, " \n\t");
+      bool *success = calloc(1, sizeof(bool));
+      *success = true;
+      bool *correct = calloc(1, sizeof(bool));
+      *correct = false;
+
+      if (answer > 2147483647) {
+        free(success);
+        free(correct);
+        continue;
+      }
+      else {
+        uint32_t ans = (uint32_t) expr((str),success);
+        *correct = (ans == answer) ? true : false;
+        printf("Line%d\tAnswer:%u\t\tCorrect:%d\n", l, ans, *correct);
+      }
+      free(success);
+      free(correct);
+    }
+  }
+  else if(strcmp(cmd, "expr") == 0){
+    bool *success = calloc(1, sizeof(bool));
+    *success = true;
+    uint32_t val = expr(args+5, success);
+    if (*success == true) {
+      printf("result: %d\n", val);
+    }
+    else {
+      printf("Evaluate Wrong!\n");
+    }
+	free(success);
+  }
+  return 0;
+}
+
 void sdb_set_batch_mode() {
   is_batch_mode = true;
 }
@@ -113,7 +290,7 @@ void sdb_mainloop() {
      * which may need further parsing
      */
     char *args = cmd + strlen(cmd) + 1;
-    if (args >= str_end) {
+    if (args >= str_end) { 
       args = NULL;
     }
 

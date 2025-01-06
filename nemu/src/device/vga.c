@@ -1,3 +1,13 @@
+/*
+ * @Author: lxt leixiaotian434@gmail.com
+ * @Date: 2024-01-15 09:47:26
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2024-09-02 16:32:38
+ * @FilePath: /ysyx-workbench/nemu/src/device/vga.c
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 /***************************************************************************************
 * Copyright (c) 2014-2022 Zihao Yu, Nanjing University
 *
@@ -72,8 +82,12 @@ static inline void update_screen() {
 #endif
 
 void vga_update_screen() {
-  // TODO: call `update_screen()` when the sync register is non-zero,
-  // then zero out the sync register
+	// TODO: call `update_screen()` when the sync register is non-zero,
+	// then zero out the sync register
+	
+	if(vgactl_port_base[1] != 0) {
+		update_screen();
+	}
 }
 
 void init_vga() {
