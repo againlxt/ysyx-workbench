@@ -48,7 +48,7 @@ VCDSRCS = $(shell find $(abspath ./) -name $(PROJ_NAME).vcd)
 NPC_SIM := $(BUILD_DIR)/top $(ARGS) $(IMG)
 
 # rules for NVBoard
-include $(NVBOARD_HOME)/scripts/nvboard.mk
+#include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 # Extract compiler and options from menuconfig
 CC = $(call remove_quote,$(CONFIG_CC))
