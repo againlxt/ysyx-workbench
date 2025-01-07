@@ -45,7 +45,7 @@ VCDSRCS = $(shell find $(abspath ./) -name $(PROJ_NAME).vcd)
 NPC_SIM := $(BUILD_DIR)/$(TOPNAME) $(ARGS) $(IMG)
 
 # rules for NVBoard
-include $(NVBOARD_HOME)/scripts/nvboard.mk
+# include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 # Extract compiler and options from menuconfig
 CC = $(call remove_quote,$(CONFIG_CC))
@@ -58,8 +58,6 @@ CXXFLAGS  += $(CFLAGS_BUILD) $(CFLAGS_TRACE)
 LDFLAGS += $(CFLAGS_BUILD)
 
 # rules for verilator
-#INV_PATH = $(if $(CONFIG_SOC),$(YSYX_HOME)/ysyxSoC/perip/uart16550/rtl,)
-#INV_PATH += $(if $(CONFIG_SOC),$(YSYX_HOME)/ysyxSoC/perip/spi/rtl,)
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 INVFLAGS = $(if $(CONFIG_SOC),-y $(YSYX_HOME)/ysyxSoC/perip/spi/rtl -y $(YSYX_HOME)/ysyxSoC/perip/uart16550/rtl,)
 
