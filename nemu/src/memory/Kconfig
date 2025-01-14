@@ -31,4 +31,30 @@ config MEM_RANDOM
   help
     This may help to find undefined behaviors.
 
+menuconfig HAS_MROM
+  bool "Enable MROM"
+  default y
+
+if HAS_MROM
+config MROMBASE
+  hex "MROM base address"
+  default 0x20000000
+config MROMSIZE
+  hex "MROM size"
+  default 0x1000
+endif # HAS_MROM
+
+menuconfig HAS_SRAM
+  bool "Enable SRAM"
+  default y
+
+if HAS_SRAM
+config SRAMBASE
+  hex "SRAM base address"
+  default 0x0f000000
+config SRAMSIZE
+  hex "SRAM size"
+  default 0x01000000
+endif # HAS_SRAM
+
 endmenu #MEMORY

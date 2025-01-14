@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:26
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-05 21:11:04
+ * @LastEditTime: 2024-12-08 10:53:20
  * @FilePath: /ysyx-workbench/nemu/src/cpu/difftest/ref.c
  * @Description: 
  * 
@@ -27,6 +27,7 @@
 #include <cpu/cpu.h>
 #include <difftest-def.h>
 #include <memory/paddr.h>
+
 #define MSTATUS 0x300
 #define MCAUSE  0x342
 #define MEPC    0x341
@@ -53,6 +54,7 @@ static void regcpy(CPU_state* src, CPU_state* dest) {
 	dest->csr[MEPC]		= src->csr[MEPC];
 	dest->csr[MTVEC]	= src->csr[MTVEC];
 }
+
 /**
  * @description: 
  * @param {void} *dut 该参数为寄存器指针数组的指针

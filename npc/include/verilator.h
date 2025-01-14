@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-11 10:38:36
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-09-04 18:42:18
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-11-11 16:45:57
  * @FilePath: /ysyx-workbench/npc/include/verilator.h
  * @Description: 
  * 
@@ -15,10 +15,10 @@
 #include <verilated_vcd_c.h>
 #include <svdpi.h>
 #include <iostream>
-#include "Vtop.h"
-#include "Vtop___024root.h"
+#include "VysyxSoCFull.h"
+#include "VysyxSoCFull___024root.h"
 
-extern Vtop* verilatorTop;
+extern VysyxSoCFull* verilatorTop;
 
 extern VerilatedContext* verlatorContextp;
 #ifdef CONFIG_WAVE_TRACE

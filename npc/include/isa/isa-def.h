@@ -1,8 +1,8 @@
 /*
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @Date: 2024-10-02 10:52:03
+ * @Date: 2024-12-05 21:20:16
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-05 17:12:44
+ * @LastEditTime: 2024-12-08 10:39:38
  * @FilePath: /ysyx-workbench/npc/include/isa/isa-def.h
  * @Description: 
  * 
@@ -31,7 +31,7 @@
 typedef struct {
   word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)];
   vaddr_t pc;
-  word_t csr[4096];
+  word_t csr[4092];
 } MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state);
 
 typedef riscv32_CPU_state CPU_state;

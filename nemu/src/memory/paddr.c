@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:26
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-07-21 14:17:32
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-12-08 12:46:58
  * @FilePath: /ysyx-workbench/nemu/src/memory/paddr.c
  * @Description: 
  * 
@@ -25,6 +25,8 @@
 
 #include <memory/host.h>
 #include <memory/paddr.h>
+#include <memory/sram.h>
+#include <memory/mrom.h>
 #include <device/mmio.h>
 #include <isa.h>
 
@@ -81,6 +83,19 @@ word_t paddr_read(paddr_t addr, int len) {
     #endif
 	return value;
   }
+  #ifdef CONFIG_HAS_MROM
+  else if (in_mrom(addr)) {
+    word_t value = mrom_read(addr);
+    return value;
+  }
+  #endif
+  #ifdef CONFIG_HAS_SRAM
+  else if (in_sram(addr)) {
+    word_t value = sram_read(addr);
+    return value;
+  }
+  #endif
+  
   IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
   out_of_bound(addr);
   return 0;
@@ -94,6 +109,18 @@ void paddr_write(paddr_t addr, int len, word_t data) {
     #endif
 	return; 
   }
+  #ifdef CONFIG_HAS_MROM 
+  else if (in_mrom(addr)) {
+    mrom_write(addr, len, data);
+    return;
+  }
+  #endif
+  #ifdef CONFIG_HAS_SRAM
+  else if (in_sram(addr)) {
+    sram_write(addr, len, data);
+    return;
+  }
+  #endif
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
   out_of_bound(addr);
 }

@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-10-14 19:22:16
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-12-08 13:49:33
  * @FilePath: /ysyx-workbench/npc/csrc/monitor/monitor.cpp
  * @Description: 
  * 
@@ -13,6 +13,7 @@
 #include <verilator.h>
 #include <isa/reg.h>
 #include <memory/paddr.h>
+#include <memory/mrom.h>
 
 static char *img_file = NULL;
 static char *log_file = NULL;
@@ -21,7 +22,7 @@ static char *elf_file = NULL;
 static int difftest_port = 1234;
 
 VerilatedContext* verlatorContextp = nullptr;
-Vtop* verilatorTop = nullptr;
+VysyxSoCFull* verilatorTop = nullptr;
 #ifdef CONFIG_WAVE_TRACE
 VerilatedVcdC* verlatorTfp = nullptr;
 #endif
@@ -102,29 +103,30 @@ static long load_img() {
 	fseek(fp, 0, SEEK_SET);
 	int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
 	assert(ret == 1);
+	fseek(fp, 0, SEEK_SET);
+	ret = fread(guest_to_host_mrom(RESET_VECTOR - (PMEM_LEFT - MROM_LEFT)), size, 1, fp);
+	assert(ret == 1);
 
 	fclose(fp);
 	return size;
 }
 
 static void init_npc() {
-	verilatorTop->io_npcState 	= NPC_INIT;
-
-	verilatorTop->reset 			= 1;
-	verilatorTop->clock = 0; step_and_dump_wave();
-	verilatorTop->clock = 1; step_and_dump_wave();
-	verilatorTop->clock = 0; step_and_dump_wave();
-	verilatorTop->clock = 1; step_and_dump_wave();
+	verilatorTop->reset = 1; step_and_dump_wave();
+	for (size_t i = 0; i < 10; i++) {
+		verilatorTop->clock = 0; step_and_dump_wave();
+		verilatorTop->clock = 1; step_and_dump_wave();
+	}
 }
 
 static void sim_init() {
     verlatorContextp = new VerilatedContext;
-    verilatorTop = new Vtop(verlatorContextp);
+    verilatorTop = new VysyxSoCFull(verlatorContextp);
 	#ifdef CONFIG_WAVE_TRACE
 	verlatorTfp = new VerilatedVcdC;
     verlatorContextp->traceEverOn(true);
     verilatorTop->trace(verlatorTfp, 1000);
-    verlatorTfp->open("bus_cpu.vcd");
+    verlatorTfp->open("soc_cpu.vcd");
 	#endif
 }
 
@@ -136,6 +138,7 @@ void init_monitor(int argc, char *argv[]) {
 	init_elf(elf_file);
 
 	init_mem();
+	init_mrom();
 
 	long img_size = load_img();
 
