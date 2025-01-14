@@ -10,6 +10,7 @@
  */
 #include <am.h>
 #include <klib-macros.h>
+#include <string.h>
 
 extern char _heap_start;
 int main(const char *args);
@@ -34,6 +35,15 @@ void putch(char ch) {
 void halt(int code) {
 	npc_trap(code);
 	while (1);
+}
+
+extern char _data_start [];
+extern char _data_size [];
+extern char _data_load_start [];
+
+void _bootloader() {
+    if (_data_start != _data_load_start)
+        memcpy(_data_load_start, _data_start, (size_t) _data_size);
 }
 
 void _trm_init() {
