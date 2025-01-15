@@ -24,8 +24,8 @@ bool in_mrom(word_t addr) {
 uint8_t* guest_to_host_mrom(word_t maddr) { return mrom + maddr - CONFIG_MROMBASE; }
 
 static word_t host_read(void* addr, int len) {
+  printf("1");
 	switch (len) {
-		case 0: return 0;
 		case 1: return *(uint8_t  *)addr;
 		case 2: return *(uint16_t *)addr;
 		case 4: return *(word_t *)addr;
