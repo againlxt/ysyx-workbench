@@ -25,7 +25,6 @@ uint8_t* guest_to_host_mrom(word_t maddr) { return mrom + maddr - CONFIG_MROMBAS
 
 static word_t host_read(void* addr, int len) {
 	switch (len) {
-		case 0: return 0;
 		case 1: return *(uint8_t  *)addr;
 		case 2: return *(uint16_t *)addr;
 		case 4: return *(word_t *)addr;
@@ -42,8 +41,8 @@ static inline void host_write(void *addr, int len, word_t data) {
   }
 }
 
-word_t mrom_read(word_t addr) { 
-    word_t data = host_read(guest_to_host_mrom(addr), 4);
+word_t mrom_read(word_t addr, int len) { 
+    word_t data = host_read(guest_to_host_mrom(addr), len);
     return data;
 }
 

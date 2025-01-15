@@ -25,7 +25,6 @@ word_t host_to_guest_sram(uint8_t *saddr) { return saddr - sram + CONFIG_SRAMBAS
 
 static inline word_t host_read(void* addr, int len) {
 	switch (len) {
-		case 0: return 0;
 		case 1: return *(uint8_t  *)addr;
 		case 2: return *(uint16_t *)addr;
 		case 4: return *(uint32_t *)addr;
@@ -42,8 +41,8 @@ static inline void host_write(void *addr, int len, word_t data) {
   }
 }
 
-word_t sram_read(word_t addr) { 
-    word_t data = host_read(guest_to_host_sram(addr), 4);
+word_t sram_read(word_t addr, int len) { 
+    word_t data = host_read(guest_to_host_sram(addr), len);
     return data;
 }
 
