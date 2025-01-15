@@ -85,13 +85,13 @@ word_t paddr_read(paddr_t addr, int len) {
   }
   #ifdef CONFIG_HAS_MROM
   else if (in_mrom(addr)) {
-    word_t value = mrom_read(addr);
+    word_t value = mrom_read(addr, len);
     return value;
   }
   #endif
   #ifdef CONFIG_HAS_SRAM
   else if (in_sram(addr)) {
-    word_t value = sram_read(addr);
+    word_t value = sram_read(addr, len);
     return value;
   }
   #endif

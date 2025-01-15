@@ -19,7 +19,7 @@
 void init_mrom();
 bool in_mrom(word_t addr);
 uint8_t* guest_to_host_mrom(word_t maddr);
-word_t mrom_read(word_t addr);
+word_t mrom_read(word_t addr, int len);
 void mrom_write(paddr_t addr, int len, word_t data);
 
 #endif

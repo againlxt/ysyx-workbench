@@ -42,8 +42,8 @@ static inline void host_write(void *addr, int len, word_t data) {
   }
 }
 
-word_t sram_read(word_t addr) { 
-    word_t data = host_read(guest_to_host_sram(addr), 4);
+word_t sram_read(word_t addr, int len) { 
+    word_t data = host_read(guest_to_host_sram(addr), len);
     return data;
 }
 
