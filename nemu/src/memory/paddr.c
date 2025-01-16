@@ -132,15 +132,15 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   if (in_pmem(addr)) { 
 	  pmem_write(addr, len, data); 
     #ifdef CONFIG_MTRACE
-    if(mtrace_begin <= addr && addr <= mtrace_end)	MTRACE_LOG(addr, len, "write", data);
+    MTRACE_LOG(addr, len, "write", data);
     #endif
-	return; 
+	  return; 
   }
   #else
   if (likely(in_pmem(addr))) { 
 	  pmem_write(addr, len, data); 
     #ifdef CONFIG_MTRACE
-    if(mtrace_begin <= addr && addr <= mtrace_end)	MTRACE_LOG(addr, len, "write", data);
+    MTRACE_LOG(addr, len, "write", data);
     #endif
 	  return; 
   }
@@ -148,11 +148,13 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   #ifdef CONFIG_HAS_MROM
   else if (in_mrom(addr)) {
     pmem_write(addr, len, data);
+    return;
   }
   #endif
   #ifdef CONFIG_HAS_SRAM
   else if (in_sram(addr)) {
     pmem_write(addr, len, data);
+    return;
   }
   #endif
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
