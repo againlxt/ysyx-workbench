@@ -118,23 +118,33 @@ word_t paddr_read(paddr_t addr, int len) {
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  #ifdef CONFIG_HAS_MROM
-  if (in_mrom(addr)) {
-    pmem_write(addr, len, data);
-  }
-  #endif
-  #ifdef CONFIG_HAS_SRAM
-  if (in_sram(addr)) {
-    pmem_write(addr, len, data);
-  }
-  #endif
-  if (likely(in_pmem(addr))) { 
+  #if defined(CONFIG_HAS_MROM) || defined(CONFIG_HAS_SRAM)
+  if (in_pmem(addr)) { 
 	  pmem_write(addr, len, data); 
     #ifdef CONFIG_MTRACE
     if(mtrace_begin <= addr && addr <= mtrace_end)	MTRACE_LOG(addr, len, "write", data);
     #endif
 	return; 
   }
+  #else
+  if (likely(in_pmem(addr))) { 
+	  pmem_write(addr, len, data); 
+    #ifdef CONFIG_MTRACE
+    if(mtrace_begin <= addr && addr <= mtrace_end)	MTRACE_LOG(addr, len, "write", data);
+    #endif
+	  return; 
+  }
+  #endif
+  #ifdef CONFIG_HAS_MROM
+  else if (in_mrom(addr)) {
+    pmem_write(addr, len, data);
+  }
+  #endif
+  #ifdef CONFIG_HAS_SRAM
+  else if (in_sram(addr)) {
+    pmem_write(addr, len, data);
+  }
+  #endif
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
   out_of_bound(addr);
 }
