@@ -92,13 +92,23 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
+  #if defined(CONFIG_HAS_MROM) || defined(CONFIG_HAS_SRAM)
+  if (in_pmem(addr)) {
+    word_t value = pmem_read(addr, len);
+    #ifdef CONFIG_MTRACE
+    if(mtrace_begin <= addr && addr <= mtrace_end)	MTRACE_LOG(addr, len, "read", value);
+    #endif
+	  return value;
+  }
+  #else
   if (likely(in_pmem(addr))) {
     word_t value = pmem_read(addr, len);
     #ifdef CONFIG_MTRACE
     if(mtrace_begin <= addr && addr <= mtrace_end)	MTRACE_LOG(addr, len, "read", value);
     #endif
-	return value;
+	  return value;
   }
+  #endif
   #ifdef CONFIG_HAS_MROM
   else if (in_mrom(addr)) {
     word_t value = pmem_read(addr, len);
