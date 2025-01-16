@@ -20,8 +20,11 @@ SECTIONS {
     .bss : ALIGN(4) {
         *(.bss*)
     } > sram
-    _stack_top = ORIGIN(sram) + LENGTH(sram) - 0x200;
-    _heap_start = ALIGN(4, _stack_top - 0x200);
-    . = _stack_top + 0x200;
+      _stack_top = ALIGN(0x10);
+    . = _stack_top + 0x800;
     _stack_pointer = .;
+    end = .;
+    _end = .;
+    _heap_start = ALIGN(0x10);
+    _heap_end = _heap_start + 0x400; 
 }

@@ -25,8 +25,6 @@
 
 #include <memory/host.h>
 #include <memory/paddr.h>
-#include <memory/sram.h>
-#include <memory/mrom.h>
 #include <device/mmio.h>
 #include <isa.h>
 
@@ -36,12 +34,30 @@ static uint8_t *pmem = NULL;
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #endif
 
+#ifdef CONFIG_HAS_MROM
+static uint8_t mrom[CONFIG_MROMSIZE] PG_ALIGN = {};
+#endif
+
+#ifdef CONFIG_HAS_SRAM
+static uint8_t sram[CONFIG_SRAMSIZE] PG_ALIGN = {};
+#endif
+
 #ifdef CONFIG_MTRACE
 static word_t mtrace_begin   = PMEM_LEFT;
 static word_t mtrace_end	 = PMEM_RIGHT;
 #endif
 
-uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
+uint8_t* guest_to_host(paddr_t paddr) {
+  #ifdef CONFIG_HAS_MROM
+  if (in_mrom(paddr))
+    return mrom + paddr - CONFIG_MROMBASE;
+  #endif
+  #ifdef CONFIG_HAS_SRAM
+  if (in_sram(paddr))
+    return sram + paddr - CONFIG_SRAMBASE;
+  #endif
+  return pmem + paddr - CONFIG_MBASE; 
+}
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
 // my design of mtrace
@@ -76,22 +92,32 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
+  #if defined(CONFIG_HAS_MROM) || defined(CONFIG_HAS_SRAM)
+  if (in_pmem(addr)) {
+    word_t value = pmem_read(addr, len);
+    #ifdef CONFIG_MTRACE
+    if(mtrace_begin <= addr && addr <= mtrace_end)	MTRACE_LOG(addr, len, "read", value);
+    #endif
+	  return value;
+  }
+  #else
   if (likely(in_pmem(addr))) {
     word_t value = pmem_read(addr, len);
     #ifdef CONFIG_MTRACE
     if(mtrace_begin <= addr && addr <= mtrace_end)	MTRACE_LOG(addr, len, "read", value);
     #endif
-	return value;
+	  return value;
   }
+  #endif
   #ifdef CONFIG_HAS_MROM
   else if (in_mrom(addr)) {
-    word_t value = mrom_read(addr, len);
+    word_t value = pmem_read(addr, len);
     return value;
   }
   #endif
   #ifdef CONFIG_HAS_SRAM
   else if (in_sram(addr)) {
-    word_t value = sram_read(addr, len);
+    word_t value = pmem_read(addr, len);
     return value;
   }
   #endif
@@ -102,22 +128,32 @@ word_t paddr_read(paddr_t addr, int len) {
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  if (likely(in_pmem(addr))) { 
-	pmem_write(addr, len, data); 
+  #if defined(CONFIG_HAS_MROM) || defined(CONFIG_HAS_SRAM)
+  if (in_pmem(addr)) { 
+	  pmem_write(addr, len, data); 
     #ifdef CONFIG_MTRACE
-    if(mtrace_begin <= addr && addr <= mtrace_end)	MTRACE_LOG(addr, len, "write", data);
+    MTRACE_LOG(addr, len, "write", data);
     #endif
-	return; 
+	  return; 
   }
-  #ifdef CONFIG_HAS_MROM 
+  #else
+  if (likely(in_pmem(addr))) { 
+	  pmem_write(addr, len, data); 
+    #ifdef CONFIG_MTRACE
+    MTRACE_LOG(addr, len, "write", data);
+    #endif
+	  return; 
+  }
+  #endif
+  #ifdef CONFIG_HAS_MROM
   else if (in_mrom(addr)) {
-    mrom_write(addr, len, data);
+    pmem_write(addr, len, data);
     return;
   }
   #endif
   #ifdef CONFIG_HAS_SRAM
   else if (in_sram(addr)) {
-    sram_write(addr, len, data);
+    pmem_write(addr, len, data);
     return;
   }
   #endif

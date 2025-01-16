@@ -148,11 +148,12 @@ static void exec_once() {
 	new_irbn(logbuf);
 #endif
 	verilatorTop->clock = 1; step_and_dump_wave();
+	trace_and_difftest();
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
 	npc_pc		= get_cur_pc(); 
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
 	npc_dnpc	= get_next_pc();
-	trace_and_difftest();
+	
 }
 
 static void execute(uint64_t n) {
