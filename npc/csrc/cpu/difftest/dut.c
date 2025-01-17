@@ -119,9 +119,9 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
 	if (skip_dut_nr_inst > 0) {
 		ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
 		if (ref_r.pc == npc) {
-		skip_dut_nr_inst = 0;
-		checkregs(&ref_r, npc);
-		return;
+			skip_dut_nr_inst = 0;
+			checkregs(&ref_r, npc);
+			return;
 		}
 		skip_dut_nr_inst --;
 		if (skip_dut_nr_inst == 0)
