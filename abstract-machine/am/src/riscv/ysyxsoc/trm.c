@@ -37,16 +37,20 @@ void halt(int code) {
 	while (1);
 }
 
-extern char _data_start [];
-extern char _data_size [];
-extern char _data_load_start [];
+extern uint8_t _data_load_start;  // .data 段加载地址（ROM 中）
+extern uint8_t _data_start;       // .data 段运行地址（RAM 中）
+extern uint8_t _data_end;         // .data 段结束地址（RAM 中）
+
+extern uint8_t _bss_start;        /* .bss 段起始地址 */
+extern uint8_t _bss_end;          /* .bss 段结束地址 */
 
 void _bootloader() {
-    if (_data_start != _data_load_start)
-        memcpy(_data_load_start, _data_start, (size_t) _data_size);
+    if (&_data_start != &_data_load_start)
+        memcpy(&_data_start, &_data_load_start, &_data_end - &_data_start);
 }
 
 void _trm_init() {
+    _bootloader();
     int ret = main(mainargs);
     halt(ret);
 }

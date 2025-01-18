@@ -1,4 +1,5 @@
 ENTRY(_start)
+PHDRS { text PT_LOAD; data PT_LOAD; }
 
 MEMORY {
   mrom : ORIGIN = 0x20000000, LENGTH = 4K
@@ -10,17 +11,30 @@ SECTIONS {
     .text : ALIGN(4) {
         *(entry)
         *(.text*)
-    } > mrom AT> mrom
+    } > mrom AT> mrom : text
+    .rodata : 
+    {
+        _rodata = .;
+        *(.rodata*)
+        *(.srodata*)
+        _erodata = .;
+    } > mrom
     .data : ALIGN(4) {
         _data_start = .;
-        *(.data)
-    } > sram AT> mrom
+        *(.data*)
+        *(.sdata*)
+        _data_end = .;
+    } > sram AT> mrom : data
     _data_size = SIZEOF(.data);
     _data_load_start = LOADADDR(.data);
     .bss : ALIGN(4) {
+        _bss_start = .;
         *(.bss*)
+        *(.sbss*)
+        *(.scommon)
+        _bss_end = .;
     } > sram
-      _stack_top = ALIGN(0x10);
+    _stack_top = ALIGN(0x10);
     . = _stack_top + 0x800;
     _stack_pointer = .;
     end = .;
