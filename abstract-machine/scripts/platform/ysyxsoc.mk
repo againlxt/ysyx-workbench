@@ -1,5 +1,12 @@
 AM_SRCS :=	riscv/ysyxsoc/trm.c \
-			riscv/ysyxsoc/start.S
+			riscv/ysyxsoc/start.S \
+			riscv/npc/ioe.c \
+            riscv/npc/timer.c \
+            riscv/npc/input.c \
+            riscv/npc/cte.c \
+            riscv/npc/trap.S \
+            platform/dummy/vme.c \
+            platform/dummy/mpe.c
 
 CFLAGS    += -fdata-sections -ffunction-sections -O2
 LDFLAGS   += -T $(AM_HOME)/scripts/platform/ysyxsoclinker.ld \
