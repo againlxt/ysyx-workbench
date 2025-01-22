@@ -98,6 +98,19 @@ config MROMSIZE
   default 0x1000
 endif # HAS_MROM
 
+menuconfig HAS_FLASH
+  bool "Enable FLASH"
+  default y
+
+if HAS_FLASH
+config FLASHBASE
+  hex "FLASH base address"
+  default 0x30000000
+config FLASHSIZE
+  hex "FLASH size"
+  default 0x10000000
+endif # HAS_FLASH
+
 endmenu
 
 menu "Build Options"

@@ -12,6 +12,7 @@
 #include <memory/mrom.h>
 #include <memory/paddr.h>
 static uint8_t mrom[CONFIG_MROMSIZE] PG_ALIGN = {};
+static uint8_t flash[CONFIG_FLASHSIZE] PG_ALIGN = {};
 
 void init_mrom() {
     memset(mrom, 0, CONFIG_MROMSIZE);
@@ -19,6 +20,8 @@ void init_mrom() {
 }
 
 uint8_t* guest_to_host_mrom(int32_t maddr) { return mrom + (maddr - CONFIG_MROMBASE); }
+uint8_t* guest_to_host_flash(int32_t faddr) { return flash + (faddr - CONFIG_FLASHBASE); }
+
 
 static word_t host_read(void* addr, int len) {
 	switch (len) {
@@ -32,4 +35,8 @@ static word_t host_read(void* addr, int len) {
 
 extern "C" void mrom_read(int32_t addr, int32_t *data) { 
     *data = (int32_t) host_read(guest_to_host_mrom(addr), 4);
+}
+
+extern "C" void flash_read(int32_t addr, int32_t *data) {
+	*data = (int32_t) host_read(guest_to_host_flash(addr), 4);
 }
