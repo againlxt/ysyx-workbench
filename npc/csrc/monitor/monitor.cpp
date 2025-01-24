@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
- * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-08 13:49:33
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2025-01-24 16:58:52
  * @FilePath: /ysyx-workbench/npc/csrc/monitor/monitor.cpp
  * @Description: 
  * 
@@ -139,6 +139,7 @@ void init_monitor(int argc, char *argv[]) {
 
 	init_mem();
 	init_mrom();
+	init_flash();
 
 	long img_size = load_img();
 

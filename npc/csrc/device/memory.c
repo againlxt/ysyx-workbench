@@ -1,8 +1,8 @@
 /*
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-11-26 20:41:03
- * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-11-30 19:56:41
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2025-01-24 17:25:23
  * @FilePath: /ysyx-workbench/npc/csrc/device/memory.c
  * @Description: 
  * 
@@ -19,8 +19,15 @@ void init_mrom() {
 	Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", MROM_LEFT, MROM_RIGHT);
 }
 
+/* Test */
+void init_flash() {
+	for (size_t i = 0; i < 100; i++) {
+		flash[4*i] = i;
+	}
+}
+
 uint8_t* guest_to_host_mrom(int32_t maddr) { return mrom + (maddr - CONFIG_MROMBASE); }
-uint8_t* guest_to_host_flash(int32_t faddr) { return flash + (faddr - CONFIG_FLASHBASE); }
+uint8_t* guest_to_host_flash(int32_t faddr) { return flash + faddr; }
 
 
 static word_t host_read(void* addr, int len) {
