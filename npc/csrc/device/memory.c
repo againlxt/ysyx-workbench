@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-11-26 20:41:03
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-01-24 17:25:23
+ * @LastEditTime: 2025-02-02 16:06:48
  * @FilePath: /ysyx-workbench/npc/csrc/device/memory.c
  * @Description: 
  * 
@@ -11,6 +11,9 @@
 #include <utils.h>
 #include <memory/mrom.h>
 #include <memory/paddr.h>
+#define FLASH_CTRL 0x10
+#define FLASH_DIV 0x14
+#define FLASH_SS 0x18
 static uint8_t mrom[CONFIG_MROMSIZE] PG_ALIGN = {};
 static uint8_t flash[CONFIG_FLASHSIZE] PG_ALIGN = {};
 
@@ -21,8 +24,8 @@ void init_mrom() {
 
 /* Test */
 void init_flash() {
-	for (size_t i = 0; i < 100; i++) {
-		flash[4*i] = i;
+	for (size_t i = 0; i < 4; i++) {
+		flash[i] = 0x55;
 	}
 }
 

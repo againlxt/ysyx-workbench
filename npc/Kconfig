@@ -103,6 +103,9 @@ menuconfig HAS_FLASH
   default y
 
 if HAS_FLASH
+config FLASHCTRLBASE
+  hex "FLASH base address"
+  default 0x10001000
 config FLASHBASE
   hex "FLASH base address"
   default 0x30000000
