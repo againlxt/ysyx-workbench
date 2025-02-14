@@ -2,14 +2,14 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-11-26 20:41:03
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-14 21:09:00
+ * @LastEditTime: 2025-02-14 21:51:52
  * @FilePath: /ysyx-workbench/npc/csrc/device/memory.c
  * @Description: 
  * 
  * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
  */
 #include <utils.h>
-#include <memory/mrom.h>
+#include <memory/memory.h>
 #include <memory/paddr.h>
 #define FLASH_CTRL 0x10
 #define FLASH_DIV 0x14
@@ -22,21 +22,9 @@ void init_mrom() {
 	Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", MROM_LEFT, MROM_RIGHT);
 }
 
-/* Test */
 void init_flash() {
-	char filename[50] = "";
-	strcpy(filename, "char_test-riscv32e-ysyxsoc.bin");
-	FILE *fp = fopen(filename, "rb");
-	Assert(fp, "Can not open '%s'", filename);
-	
-	fseek(fp, 0, SEEK_END);
-	long size = ftell(fp);
-
-	fseek(fp, 0, SEEK_SET);
-	int ret = fread(flash, size, 1, fp);
-	assert(ret == 1);
-
-	fclose(fp);
+	memset(flash, 0, CONFIG_FLASHSIZE);
+	Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", FLASH_LEFT, FLASH_RIGHT);
 }
 
 uint8_t* guest_to_host_mrom(int32_t maddr) { return mrom + (maddr - CONFIG_MROMBASE); }
@@ -69,6 +57,5 @@ extern "C" void mrom_read(int32_t addr, int32_t *data) {
 }
 
 extern "C" void flash_read(int32_t addr, int32_t *data) {
-	*data = (int32_t) flash_host_read(guest_to_host_flash(addr), 4);
-	printf("addr: 0x%x data: 0x%x\n", addr, *data);
+	*data = flash_host_read(guest_to_host_flash(addr), 4);
 }

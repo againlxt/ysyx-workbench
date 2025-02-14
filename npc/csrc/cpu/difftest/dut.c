@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-20 16:44:35
- * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-08 13:33:23
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2025-02-14 22:03:28
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/difftest/dut.c
  * @Description: 
  * 
@@ -13,7 +13,7 @@
 
 #include <utils.h>
 #include <memory/paddr.h>
-#include <memory/mrom.h>
+#include <memory/memory.h>
 #include <isa/reg.h>
 #include <isa/isa-def.h>
 #include <difftest-def.h>
@@ -85,7 +85,7 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
 
 	ref_difftest_init(port);
 	ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF);
-	ref_difftest_memcpy(CONFIG_MROMBASE, guest_to_host_mrom(CONFIG_MROMBASE), img_size, DIFFTEST_TO_REF);
+	ref_difftest_memcpy(CONFIG_FLASHBASE, guest_to_host_flash(0), img_size, DIFFTEST_TO_REF);
 	ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
 
