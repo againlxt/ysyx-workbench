@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-11-26 20:41:03
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-02 16:06:48
+ * @LastEditTime: 2025-02-14 21:09:00
  * @FilePath: /ysyx-workbench/npc/csrc/device/memory.c
  * @Description: 
  * 
@@ -24,16 +24,26 @@ void init_mrom() {
 
 /* Test */
 void init_flash() {
-	for (size_t i = 0; i < 4; i++) {
-		flash[i] = 0x55;
-	}
+	char filename[50] = "";
+	strcpy(filename, "char_test-riscv32e-ysyxsoc.bin");
+	FILE *fp = fopen(filename, "rb");
+	Assert(fp, "Can not open '%s'", filename);
+	
+	fseek(fp, 0, SEEK_END);
+	long size = ftell(fp);
+
+	fseek(fp, 0, SEEK_SET);
+	int ret = fread(flash, size, 1, fp);
+	assert(ret == 1);
+
+	fclose(fp);
 }
 
 uint8_t* guest_to_host_mrom(int32_t maddr) { return mrom + (maddr - CONFIG_MROMBASE); }
 uint8_t* guest_to_host_flash(int32_t faddr) { return flash + faddr; }
 
 
-static word_t host_read(void* addr, int len) {
+static word_t mrom_host_read(void* addr, int len) {
 	switch (len) {
 		case 0: return 0;
 		case 1: return *(uint8_t  *)addr;
@@ -43,10 +53,22 @@ static word_t host_read(void* addr, int len) {
 	}
 }
 
+static word_t flash_host_read(void* addr, int len) {
+	switch (len) {
+		case 0: return 0;
+		case 1: return *(uint8_t *)addr;
+		case 2: return (*(uint8_t *) addr << 8) + *((uint8_t *) addr + 1);
+		case 4: return (*(uint8_t *) addr << 24) + (*((uint8_t *) addr + 1) << 16)
+		+ (*((uint8_t *) addr + 2) << 8) + *((uint8_t *) addr + 3); 
+		default: Assert(0, "Read Data Wrong");
+	}
+}
+
 extern "C" void mrom_read(int32_t addr, int32_t *data) { 
-    *data = (int32_t) host_read(guest_to_host_mrom(addr), 4);
+    *data = (int32_t) mrom_host_read(guest_to_host_mrom(addr), 4);
 }
 
 extern "C" void flash_read(int32_t addr, int32_t *data) {
-	*data = (int32_t) host_read(guest_to_host_flash(addr), 4);
+	*data = (int32_t) flash_host_read(guest_to_host_flash(addr), 4);
+	printf("addr: 0x%x data: 0x%x\n", addr, *data);
 }
