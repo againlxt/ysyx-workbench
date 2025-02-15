@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-20 16:44:35
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-14 22:03:28
+ * @LastEditTime: 2025-02-15 22:07:53
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/difftest/dut.c
  * @Description: 
  * 
@@ -33,6 +33,7 @@ static int skip_dut_nr_inst = 0;
 extern "C" void difftest_skip_ref();
 void difftest_skip_ref() {
 	is_skip_ref = true;
+	printf("PC: %x\n", cpu.pc);
 	// If such an instruction is one of the instruction packing in QEMU
 	// (see below), we end the process of catching up with QEMU's pc to
 	// keep the consistent behavior in our best.

@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:26
- * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-08 12:46:58
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2025-02-14 22:26:27
  * @FilePath: /ysyx-workbench/nemu/src/memory/paddr.c
  * @Description: 
  * 
@@ -42,6 +42,10 @@ static uint8_t mrom[CONFIG_MROMSIZE] PG_ALIGN = {};
 static uint8_t sram[CONFIG_SRAMSIZE] PG_ALIGN = {};
 #endif
 
+#ifdef CONFIG_HAS_FLASH
+static uint8_t flash[CONFIG_FLASHSIZE] PG_ALIGN = {};
+#endif
+
 #ifdef CONFIG_MTRACE
 static word_t mtrace_begin   = PMEM_LEFT;
 static word_t mtrace_end	 = PMEM_RIGHT;
@@ -55,6 +59,10 @@ uint8_t* guest_to_host(paddr_t paddr) {
   #ifdef CONFIG_HAS_SRAM
   if (in_sram(paddr))
     return sram + paddr - CONFIG_SRAMBASE;
+  #endif
+  #ifdef CONFIG_HAS_FLASH
+  if (in_flash(paddr))
+    return flash + paddr - CONFIG_FLASHBASE;
   #endif
   return pmem + paddr - CONFIG_MBASE; 
 }
@@ -92,7 +100,7 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
-  #if defined(CONFIG_HAS_MROM) || defined(CONFIG_HAS_SRAM)
+  #if defined(CONFIG_HAS_MROM) || defined(CONFIG_HAS_SRAM) || defined(CONFIG_HAS_FLASH)
   if (in_pmem(addr)) {
     word_t value = pmem_read(addr, len);
     #ifdef CONFIG_MTRACE
@@ -117,6 +125,12 @@ word_t paddr_read(paddr_t addr, int len) {
   #endif
   #ifdef CONFIG_HAS_SRAM
   else if (in_sram(addr)) {
+    word_t value = pmem_read(addr, len);
+    return value;
+  }
+  #endif
+  #ifdef CONFIG_HAS_FLASH
+  else if (in_flash(addr)) {
     word_t value = pmem_read(addr, len);
     return value;
   }
@@ -153,6 +167,12 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   #endif
   #ifdef CONFIG_HAS_SRAM
   else if (in_sram(addr)) {
+    pmem_write(addr, len, data);
+    return;
+  }
+  #endif
+  #ifdef CONFIG_HAS_FLASH
+  else if (in_flash(addr)) {
     pmem_write(addr, len, data);
     return;
   }
