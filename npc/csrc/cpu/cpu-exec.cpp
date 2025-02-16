@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-15 22:07:22
+ * @LastEditTime: 2025-02-16 11:52:08
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -148,11 +148,11 @@ static void exec_once() {
 	new_irbn(logbuf);
 #endif
 	verilatorTop->clock = 1; step_and_dump_wave();
-	trace_and_difftest();
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
 	npc_pc		= get_cur_pc(); 
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
 	npc_dnpc	= get_next_pc();
+	trace_and_difftest();
 	
 }
 
