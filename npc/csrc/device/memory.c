@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-11-26 20:41:03
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-21 17:36:34
+ * @LastEditTime: 2025-02-21 19:58:17
  * @FilePath: /ysyx-workbench/npc/csrc/device/memory.c
  * @Description: 
  * 
@@ -60,16 +60,15 @@ static word_t psram_host_read(void* addr, int len) {
 		case 2: return *(uint16_t *)addr;
 		case 4: return *(uint32_t *)addr;
 		default: Assert(0, "Read Data Wrong");
-	}
-	return 0;
+	}	
 }
 
 static void psram_host_write(void *addr, uint8_t len, word_t data) {
 	switch (len) {
 		case 0: return;
 		case 1: *(uint8_t  *)addr = data; return;
-		case 2: *(uint16_t *)addr = data; return;
-		case 4: *(uint32_t *)addr = data; return;
+		case 2: *(uint16_t *)addr = ((data & 0xff) << 8) + ((data & 0xff00) >> 8); return;
+		case 4: *(uint32_t *)addr = ((data & 0xff0000) << 8) + ((data & 0xff00) >> 8) + ((data & 0xff) << 24) + ((data & 0xff000000) >> 24); return;
 	}
 }
 
@@ -86,7 +85,7 @@ extern "C" void psram_read(int32_t addr, int32_t *data) {
 	printf("addr: %x\tdata: %x\n", addr, *data);
 }
 
-extern "C" void psram_write(int32_t addr, uint8_t len, int32_t data) {
+extern "C" void psram_write(uint32_t addr, uint8_t len, uint32_t data) {
 	printf("addr: %x\tdata: %x\t len: %x\n", addr, data, len);
 	psram_host_write(guest_to_host_psram(addr), len, data);
 }
