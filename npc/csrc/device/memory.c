@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-11-26 20:41:03
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-21 19:58:17
+ * @LastEditTime: 2025-02-21 20:50:10
  * @FilePath: /ysyx-workbench/npc/csrc/device/memory.c
  * @Description: 
  * 
@@ -67,8 +67,8 @@ static void psram_host_write(void *addr, uint8_t len, word_t data) {
 	switch (len) {
 		case 0: return;
 		case 1: *(uint8_t  *)addr = data; return;
-		case 2: *(uint16_t *)addr = ((data & 0xff) << 8) + ((data & 0xff00) >> 8); return;
-		case 4: *(uint32_t *)addr = ((data & 0xff0000) << 8) + ((data & 0xff00) >> 8) + ((data & 0xff) << 24) + ((data & 0xff000000) >> 24); return;
+		case 2: *(uint16_t *)addr = data; return;
+		case 4: *(uint32_t *)addr = data; return;
 	}
 }
 
