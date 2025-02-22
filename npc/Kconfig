@@ -166,3 +166,33 @@ config SOC
   bool "Enable SoC"
   default n
 endmenu
+
+menu "SoC Device"
+depends on SOC
+menu "UART16550"
+config UART16550_BASE
+	hex "UART16550 base address"
+	default 0x10000000
+config UART16550_RBR_THR_DLL
+	hex "RBR THR DLL"
+	default 0x0
+config UART16550_IER_DLM
+	hex "IER DLM"
+	default 0x1
+config UART16550_IIR_FCR
+	hex "IIR FCR"
+	default 0x2
+config UART16550_LCR
+	hex "LCR"
+	default 0x3
+config UART16550_MCR
+	hex "MCR"
+	default 0x4
+config UART16550_LSR
+	hex "LSR"
+	default 0x5
+config UART16550_MSR
+	hex "MSR"
+	default 0x6
+endmenu
+endmenu

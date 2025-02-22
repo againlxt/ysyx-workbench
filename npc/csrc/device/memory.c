@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-11-26 20:41:03
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-21 20:50:10
+ * @LastEditTime: 2025-02-22 14:47:14
  * @FilePath: /ysyx-workbench/npc/csrc/device/memory.c
  * @Description: 
  * 
@@ -82,10 +82,8 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
 
 extern "C" void psram_read(int32_t addr, int32_t *data) {
 	*data = psram_host_read(guest_to_host_psram(addr), 4);
-	printf("addr: %x\tdata: %x\n", addr, *data);
 }
 
 extern "C" void psram_write(uint32_t addr, uint8_t len, uint32_t data) {
-	printf("addr: %x\tdata: %x\t len: %x\n", addr, data, len);
 	psram_host_write(guest_to_host_psram(addr), len, data);
 }

@@ -1,8 +1,8 @@
 /*
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-12-04 14:11:25
- * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-08 19:53:33
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2025-02-22 14:44:03
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/ysyxsoc/trm.c
  * @Description: 
  * 
@@ -26,10 +26,17 @@ Area heap = RANGE(&_heap_start, MROM_END);
 # define npc_trap(code) asm volatile("mv a0, %0; ebreak" : :"r"(code))
 static const char mainargs[] = MAINARGS;
 
-#define UART_BASE 0x10000000L
-#define UART_TX   0x0
+#define UART16550_BASE 0x10000000
+#define UART16550_RBR_THR_DLL   (0x0 + UART16550_BASE)
+#define UART16550_IER_DLM 		(0x1 + UART16550_BASE)
+#define UART16550_IIR_FCR 		(0x2 + UART16550_BASE)
+#define UART16550_LCR 			(0x3 + UART16550_BASE)
+#define UART16550_MCR 			(0x4 + UART16550_BASE)
+#define UART16550_LSR 			(0x5 + UART16550_BASE)
+#define UART16550_MSR 			(0x6 + UART16550_BASE)
 void putch(char ch) {
-    *(volatile char *)(UART_BASE + UART_TX) = ch;
+    while ((*(volatile uint8_t *) UART16550_LSR & 0x20) == 0) {}
+	*(volatile uint8_t *) UART16550_RBR_THR_DLL = ch;
 }
 
 void halt(int code) {
@@ -49,8 +56,25 @@ void _bootloader() {
         memcpy(&_data_start, &_data_load_start, &_data_end - &_data_start);
 }
 
+static void uart16550_init() {
+	/* Set the Line Control Register to the desired line control parameters. Set bit 7 to ‘1’
+to allow access to the Divisor Latches. */
+	*(volatile uint8_t *) UART16550_LCR 			= 0x80;
+	/* Set the Divisor Latches, MSB first, LSB next. */
+	*(volatile uint8_t *) UART16550_IER_DLM 		= 0x00;
+	*(volatile uint8_t *) UART16550_RBR_THR_DLL 	= 0x01;
+	/* Set bit 7 of LCR to ‘0’ to disable access to Divisor Latches. At this time the
+transmission engine starts working and data can be sent and received.  */
+	*(volatile uint8_t *) UART16550_LCR 			= 0x00;
+	/* Set the FIFO trigger level. Generally, higher trigger level values produce less
+interrupt to the system, so setting it to 14 bytes is recommended if the system
+responds fast enough. */
+	*(volatile uint8_t *) UART16550_IIR_FCR 		= 0xC7;
+}
+
 void _trm_init() {
     _bootloader();
+	uart16550_init();
     int ret = main(mainargs);
     halt(ret);
 }
