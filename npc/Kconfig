@@ -165,7 +165,6 @@ menu "SoC"
 config SOC
   bool "Enable SoC"
   default n
-endmenu
 
 menu "SoC Device"
 depends on SOC
@@ -195,4 +194,7 @@ config UART16550_MSR
 	hex "MSR"
 	default 0x6
 endmenu
+
+endmenu
+
 endmenu
