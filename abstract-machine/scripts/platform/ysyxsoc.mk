@@ -1,10 +1,10 @@
 AM_SRCS :=	riscv/ysyxsoc/trm.c \
 			riscv/ysyxsoc/start.S \
-			riscv/npc/ioe.c \
-            riscv/npc/timer.c \
-            riscv/npc/input.c \
-            riscv/npc/cte.c \
-            riscv/npc/trap.S \
+			riscv/ysyxsoc/ioe.c \
+            riscv/ysyxsoc/timer.c \
+            riscv/ysyxsoc/input.c \
+            riscv/ysyxsoc/cte.c \
+            riscv/ysyxsoc/trap.S \
             platform/dummy/vme.c \
             platform/dummy/mpe.c
 

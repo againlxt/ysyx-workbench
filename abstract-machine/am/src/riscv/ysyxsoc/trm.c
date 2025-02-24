@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-12-04 14:11:25
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-22 14:44:03
+ * @LastEditTime: 2025-02-24 15:30:35
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/ysyxsoc/trm.c
  * @Description: 
  * 
@@ -13,13 +13,14 @@
 #include <string.h>
 
 extern char _heap_start;
+extern char _heap_end;
 int main(const char *args);
 
 extern char _mrom_start;
 #define MROM_SIZE   (4 * 1024)
 #define MROM_END    ((unsigned long)&_mrom_start + MROM_SIZE)
 
-Area heap = RANGE(&_heap_start, MROM_END);
+Area heap = RANGE(&_heap_start, &_heap_end);
 #ifndef MAINARGS
 #define MAINARGS ""
 #endif
