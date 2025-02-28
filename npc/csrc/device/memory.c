@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-11-26 20:41:03
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-22 14:47:14
+ * @LastEditTime: 2025-02-28 10:27:59
  * @FilePath: /ysyx-workbench/npc/csrc/device/memory.c
  * @Description: 
  * 
@@ -18,14 +18,22 @@ static uint8_t mrom[CONFIG_MROMSIZE] PG_ALIGN = {};
 static uint8_t flash[CONFIG_FLASHSIZE] PG_ALIGN = {};
 static uint8_t psram[CONFIG_PSRAMSIZE] PG_ALIGN = {};
 
+#ifdef CONFIG_MTRACE
+#define MTRACE_LOG(mtrace_address, mtrace_length, mtrace_operation, mtrace_value) do { \
+    log_write("m %#X\t%#X\t%s\t%#X\n", mtrace_address, mtrace_length, mtrace_operation, mtrace_value); \
+} while(0);
+#endif
+
 void init_mrom() {
     memset(mrom, 0, CONFIG_MROMSIZE);
-	// Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", MROM_LEFT, MROM_RIGHT);
 }
 
 void init_flash() {
 	memset(flash, 0, CONFIG_FLASHSIZE);
-	// Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", FLASH_LEFT, FLASH_RIGHT);
+}
+
+void init_psram() {
+	memset(psram, 0, CONFIG_PSRAMSIZE);
 }
 
 uint8_t* guest_to_host_mrom(int32_t maddr) { return mrom + (maddr - CONFIG_MROMBASE); }
@@ -82,8 +90,14 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
 
 extern "C" void psram_read(int32_t addr, int32_t *data) {
 	*data = psram_host_read(guest_to_host_psram(addr), 4);
+	#ifdef CONFIG_MTRACE
+	MTRACE_LOG(addr, 4, "read", *data);	
+	#endif
 }
 
-extern "C" void psram_write(uint32_t addr, uint8_t len, uint32_t data) {
+extern "C" void psram_write(int32_t addr, int8_t len, int32_t data) {
 	psram_host_write(guest_to_host_psram(addr), len, data);
+	#ifdef CONFIG_MTRACE
+	MTRACE_LOG(addr, len, "write", data);	
+	#endif
 }

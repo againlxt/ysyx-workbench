@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-14 21:30:00
+ * @LastEditTime: 2025-02-24 17:29:29
  * @FilePath: /ysyx-workbench/npc/csrc/monitor/monitor.cpp
  * @Description: 
  * 
@@ -140,6 +140,7 @@ void init_monitor(int argc, char *argv[]) {
 	init_mem();
 	init_mrom();
 	init_flash();
+	init_psram();
 
 	long img_size = load_img();
 

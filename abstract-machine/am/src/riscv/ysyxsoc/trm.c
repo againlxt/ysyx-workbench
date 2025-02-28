@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-12-04 14:11:25
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-24 15:30:35
+ * @LastEditTime: 2025-02-28 10:25:40
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/ysyxsoc/trm.c
  * @Description: 
  * 
@@ -52,9 +52,13 @@ extern uint8_t _data_end;         // .data 段结束地址（RAM 中）
 extern uint8_t _bss_start;        /* .bss 段起始地址 */
 extern uint8_t _bss_end;          /* .bss 段结束地址 */
 
+void _trm_init();
+
 void _bootloader() {
-    if (&_data_start != &_data_load_start)
+    if (&_data_start != &_data_load_start) {
         memcpy(&_data_start, &_data_load_start, &_data_end - &_data_start);
+	}
+	_trm_init();
 }
 
 static void uart16550_init() {
@@ -74,7 +78,6 @@ responds fast enough. */
 }
 
 void _trm_init() {
-    _bootloader();
 	uart16550_init();
     int ret = main(mainargs);
     halt(ret);

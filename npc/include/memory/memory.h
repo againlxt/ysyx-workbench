@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-11-26 19:52:30
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-14 21:30:15
+ * @LastEditTime: 2025-02-25 02:12:57
  * @FilePath: /ysyx-workbench/npc/include/memory/mrom.h
  * @Description: 
  * 
@@ -20,6 +20,7 @@
 
 void init_mrom();
 void init_flash();
+void init_psram();
 uint8_t* guest_to_host_mrom(int32_t maddr);
 uint8_t* guest_to_host_flash(int32_t faddr);
 

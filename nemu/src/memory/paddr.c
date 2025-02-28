@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:26
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-14 22:26:27
+ * @LastEditTime: 2025-02-28 10:40:36
  * @FilePath: /ysyx-workbench/nemu/src/memory/paddr.c
  * @Description: 
  * 
@@ -144,7 +144,8 @@ word_t paddr_read(paddr_t addr, int len) {
 void paddr_write(paddr_t addr, int len, word_t data) {
   #if defined(CONFIG_HAS_MROM) || defined(CONFIG_HAS_SRAM)
   if (in_pmem(addr)) { 
-	  pmem_write(addr, len, data); 
+	  pmem_write(addr, len, data);
+	  printf("NEMU_PRAM: Addr:%#X\tLen:%d\tData:%#X\n", addr, len, data); 
     #ifdef CONFIG_MTRACE
     MTRACE_LOG(addr, len, "write", data);
     #endif
