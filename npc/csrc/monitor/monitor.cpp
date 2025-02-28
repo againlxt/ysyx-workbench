@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-24 17:29:29
+ * @LastEditTime: 2025-02-28 11:16:50
  * @FilePath: /ysyx-workbench/npc/csrc/monitor/monitor.cpp
  * @Description: 
  * 
@@ -101,10 +101,7 @@ static long load_img() {
 	Log("The image is %s, size = %ld", img_file, size);
 
 	fseek(fp, 0, SEEK_SET);
-	int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
-	assert(ret == 1);
-	fseek(fp, 0, SEEK_SET);
-	ret = fread(guest_to_host_flash(0), size, 1, fp);
+	int ret = fread(guest_to_host_flash(0), size, 1, fp);
 	assert(ret == 1);
 
 	fclose(fp);

@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-20 16:44:35
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-16 11:53:27
+ * @LastEditTime: 2025-02-28 10:44:37
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/difftest/dut.c
  * @Description: 
  * 
@@ -84,7 +84,6 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
       "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
 
 	ref_difftest_init(port);
-	ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF);
 	ref_difftest_memcpy(CONFIG_FLASHBASE, guest_to_host_flash(0), img_size, DIFFTEST_TO_REF);
 	ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
