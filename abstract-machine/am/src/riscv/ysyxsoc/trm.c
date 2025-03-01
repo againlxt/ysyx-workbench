@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-12-04 14:11:25
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-03-01 09:08:20
+ * @LastEditTime: 2025-03-01 10:13:06
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/ysyxsoc/trm.c
  * @Description: 
  * 
@@ -11,6 +11,7 @@
 #include <am.h>
 #include <klib-macros.h>
 #include <string.h>
+#include <stdio.h>
 
 extern char _heap_start;
 extern char _heap_end;
@@ -78,8 +79,19 @@ responds fast enough. */
 	*(volatile uint8_t *) UART16550_IIR_FCR 		= 0xC7;
 }
 
+static void hello() {
+	uint32_t mvendorid=0, marchid=0;
+	asm volatile("csrr %0, mvendorid" : "=r"(mvendorid));
+	asm volatile("csrr %0, marchid" : "=r"(marchid));
+	for (size_t i = 0; i < 4; i++) {
+		putch((char) (mvendorid >> ((3-i)*8)));
+	}
+	printf("_%u\n", marchid);
+}
+
 void _trm_init() {
 	uart16550_init();
+	hello();
     int ret = main(mainargs);
     halt(ret);
 }
