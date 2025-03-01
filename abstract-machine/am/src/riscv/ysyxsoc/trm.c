@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-12-04 14:11:25
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-28 10:25:40
+ * @LastEditTime: 2025-03-01 09:08:20
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/ysyxsoc/trm.c
  * @Description: 
  * 
@@ -58,6 +58,7 @@ void _bootloader() {
     if (&_data_start != &_data_load_start) {
         memcpy(&_data_start, &_data_load_start, &_data_end - &_data_start);
 	}
+
 	_trm_init();
 }
 
