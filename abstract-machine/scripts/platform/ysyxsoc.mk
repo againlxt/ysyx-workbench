@@ -8,7 +8,7 @@ AM_SRCS :=	riscv/ysyxsoc/trm.c \
             platform/dummy/vme.c \
             platform/dummy/mpe.c
 
-CFLAGS    += -fdata-sections -ffunction-sections -O2
+CFLAGS    += -fdata-sections -ffunction-sections -Os
 LDFLAGS   += -T $(AM_HOME)/scripts/platform/ysyxsoclinker.ld \
 						 --defsym=_mrom_start=0x20000000 --defsym=_entry_offset=0x0 \
 						 --defsym=_sram_start=0x0f000000

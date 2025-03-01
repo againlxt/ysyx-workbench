@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-12-04 14:11:25
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-03-01 10:13:06
+ * @LastEditTime: 2025-03-01 23:01:10
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/ysyxsoc/trm.c
  * @Description: 
  * 
@@ -50,17 +50,24 @@ extern uint8_t _data_load_start;  // .data 段加载地址（ROM 中）
 extern uint8_t _data_start;       // .data 段运行地址（RAM 中）
 extern uint8_t _data_end;         // .data 段结束地址（RAM 中）
 
+extern uint8_t _text_load_start;  // .text 段加载地址（ROM 中）
+extern uint8_t _text_start;       // .text 段运行地址（RAM 中）
+extern uint8_t _text_end;         // .text 段结束地址（RAM 中）
+
 extern uint8_t _bss_start;        /* .bss 段起始地址 */
 extern uint8_t _bss_end;          /* .bss 段结束地址 */
 
 void _trm_init();
 
-void _bootloader() {
+__attribute__((naked)) void _bootloader() {
+	/*
+	if (&_text_start != &_text_load_start) {
+        memcpy(&_text_start, &_text_load_start, &_text_end - &_text_start);
+	}
+	*/
     if (&_data_start != &_data_load_start) {
         memcpy(&_data_start, &_data_load_start, &_data_end - &_data_start);
 	}
-
-	_trm_init();
 }
 
 static void uart16550_init() {
