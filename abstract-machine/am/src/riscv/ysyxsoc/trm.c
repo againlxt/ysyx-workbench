@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-12-04 14:11:25
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-03-02 18:05:20
+ * @LastEditTime: 2025-03-02 22:55:49
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/ysyxsoc/trm.c
  * @Description: 
  * 
@@ -61,7 +61,28 @@ extern uint8_t _rodata_load_start;  // .text 段加载地址（ROM 中）
 extern uint8_t _rodata_start;       // .text 段运行地址（RAM 中）
 extern uint8_t _rodata_end;         // .text 段结束地址（RAM 中）
 
+extern uint8_t _ssbl_load_start;  // .ssbl 段加载地址（ROM 中）
+extern uint8_t _ssbl_start;       // .ssbl 段运行地址（RAM 中）
+extern uint8_t _ssbl_end;         // .ssbl 段结束地址（RAM 中）
+
 void _trm_init();
+
+__attribute__((section(".ssbl"))) static void *_ssbl_memcpy(void *out, const void *in, size_t n) {
+    // 将void*转换为char*以进行指针运算
+    unsigned char *cout = (unsigned char *)out;
+    const unsigned char *cin = (const unsigned char *)in;
+
+    // 检查内存重叠
+    if ((cout < cin && cout + n > cin) || (cin < cout && cin + n > cout)) {
+        panic("Memory conflicts!");
+    } else {
+        // 复制内存内容
+        for (size_t i = 0; i < n; i++) {
+            cout[i] = cin[i];
+        }
+    }
+    return out;
+}
 
 __attribute__((section(".entry.boot"))) static void *_boot_memcpy(void *out, const void *in, size_t n) {
     // 将void*转换为char*以进行指针运算
@@ -77,21 +98,27 @@ __attribute__((section(".entry.boot"))) static void *_boot_memcpy(void *out, con
             cout[i] = cin[i];
         }
     }
-
     return out;
 }
 
-__attribute__((section(".entry.boot"))) void _bootloader() {
+__attribute__((section(".ssbl"))) void _ssbl() {
 	if (&_text_start != &_text_load_start) {
-        _boot_memcpy(&_text_start, &_text_load_start, &_text_end - &_text_start);
+        _ssbl_memcpy(&_text_start, &_text_load_start, &_text_end - &_text_start);
 	}
     if (&_data_start != &_data_load_start) {
-        _boot_memcpy(&_data_start, &_data_load_start, &_data_end - &_data_start);
+        _ssbl_memcpy(&_data_start, &_data_load_start, &_data_end - &_data_start);
 	}
 	if (&_rodata_start != &_rodata_load_start) {
-        _boot_memcpy(&_rodata_start, &_rodata_load_start, &_rodata_end - &_rodata_start);
+        _ssbl_memcpy(&_rodata_start, &_rodata_load_start, &_rodata_end - &_rodata_start);
 	}
 	_trm_init();
+}
+
+__attribute__((section(".entry.boot"))) void _fsbl() {
+	if (&_ssbl_start != &_ssbl_load_start) {
+        _boot_memcpy(&_ssbl_start, &_ssbl_load_start, &_ssbl_end - &_ssbl_start);
+	}
+	_ssbl();
 }
 
 static void uart16550_init() {

@@ -1,5 +1,5 @@
 ENTRY(_start)
-PHDRS { text PT_LOAD; data PT_LOAD; entry PT_LOAD;}
+PHDRS { text PT_LOAD; data PT_LOAD; entry PT_LOAD; ssbl PT_LOAD;}
 
 MEMORY {
   flash : ORIGIN = 0x30000000, LENGTH = 262144K
@@ -13,6 +13,12 @@ SECTIONS {
 		*(entry)
 		*(.entry.boot)
 	} > flash AT> flash : entry
+	.ssbl : ALIGN(4) {
+		_ssbl_start = .;
+        *(.ssbl*)
+		_ssbl_end = .;
+    } > sram AT> flash : ssbl
+	_ssbl_load_start = LOADADDR(.ssbl);
     .text : ALIGN(4) {
 		_text_start = .;
         *(.text*)
