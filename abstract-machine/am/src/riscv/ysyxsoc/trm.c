@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-12-04 14:11:25
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-03-02 11:34:37
+ * @LastEditTime: 2025-03-02 16:13:20
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/ysyxsoc/trm.c
  * @Description: 
  * 
@@ -102,7 +102,6 @@ interrupt to the system, so setting it to 14 bytes is recommended if the system
 responds fast enough. */
 	*(volatile uint8_t *) UART16550_IIR_FCR 		= 0xC7;
 }
-/*
 static void hello() {
 	uint32_t mvendorid=0, marchid=0;
 	asm volatile("csrr %0, mvendorid" : "=r"(mvendorid));
@@ -112,11 +111,10 @@ static void hello() {
 	}
 	printf("_%u\n", marchid);
 }
-*/
 
 void _trm_init() {
 	uart16550_init();
-	// hello();
+	hello();
     int ret = main(mainargs);
     halt(ret);
 }
