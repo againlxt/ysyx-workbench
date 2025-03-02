@@ -15,7 +15,6 @@ SECTIONS {
 	} > flash AT> flash : entry
     .text : ALIGN(4) {
 		_text_start = .;
-		*(.rodata*)
         *(.text*)
 		_text_end = .;
     } > psram AT> flash : text
@@ -26,6 +25,14 @@ SECTIONS {
         *(.sdata*)
         _data_end = .;
     } > psram AT> flash : data
+	.rodata : 
+    {
+        _rodata_start = .;
+		*(.rodata*)
+        *(.srodata*)
+        _rodata_end = .;
+    } > psram AT> flash
+	_rodata_load_start = LOADADDR(.rodata);
     _data_size = SIZEOF(.data);
     _data_load_start = LOADADDR(.data);
 	_heap_start = ALIGN(0x100);
