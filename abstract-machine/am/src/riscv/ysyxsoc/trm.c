@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-12-04 14:11:25
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-03-01 23:01:10
+ * @LastEditTime: 2025-03-02 11:34:37
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/ysyxsoc/trm.c
  * @Description: 
  * 
@@ -59,15 +59,32 @@ extern uint8_t _bss_end;          /* .bss 段结束地址 */
 
 void _trm_init();
 
-__attribute__((naked)) void _bootloader() {
-	/*
+__attribute__((section(".entry.boot"))) static void *_boot_memcpy(void *out, const void *in, size_t n) {
+    // 将void*转换为char*以进行指针运算
+    unsigned char *cout = (unsigned char *)out;
+    const unsigned char *cin = (const unsigned char *)in;
+
+    // 检查内存重叠
+    if ((cout < cin && cout + n > cin) || (cin < cout && cin + n > cout)) {
+        panic("Memory conflicts!");
+    } else {
+        // 复制内存内容
+        for (size_t i = 0; i < n; i++) {
+            cout[i] = cin[i];
+        }
+    }
+
+    return out;
+}
+
+__attribute__((section(".entry.boot"))) void _bootloader() {
 	if (&_text_start != &_text_load_start) {
-        memcpy(&_text_start, &_text_load_start, &_text_end - &_text_start);
+        _boot_memcpy(&_text_start, &_text_load_start, &_text_end - &_text_start);
 	}
-	*/
     if (&_data_start != &_data_load_start) {
-        memcpy(&_data_start, &_data_load_start, &_data_end - &_data_start);
+        _boot_memcpy(&_data_start, &_data_load_start, &_data_end - &_data_start);
 	}
+	_trm_init();
 }
 
 static void uart16550_init() {
@@ -85,7 +102,7 @@ interrupt to the system, so setting it to 14 bytes is recommended if the system
 responds fast enough. */
 	*(volatile uint8_t *) UART16550_IIR_FCR 		= 0xC7;
 }
-
+/*
 static void hello() {
 	uint32_t mvendorid=0, marchid=0;
 	asm volatile("csrr %0, mvendorid" : "=r"(mvendorid));
@@ -95,10 +112,11 @@ static void hello() {
 	}
 	printf("_%u\n", marchid);
 }
+*/
 
 void _trm_init() {
 	uart16550_init();
-	hello();
+	// hello();
     int ret = main(mainargs);
     halt(ret);
 }
