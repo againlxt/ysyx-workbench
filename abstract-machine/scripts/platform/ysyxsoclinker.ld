@@ -49,7 +49,7 @@ SECTIONS {
         *(.sbss*)
         *(.scommon)
         _bss_end = .;
-    } > psram
+    } > psram AT> psram
 	. = ORIGIN(sram);
     _stack_top = ALIGN(0x10);
     . = _stack_top + 0x2000;
