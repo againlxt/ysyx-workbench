@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-15 11:28:24
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-19 15:59:45
+ * @LastEditTime: 2025-02-28 17:41:34
  * @FilePath: /ysyx-workbench/npc/include/utils.h
  * @Description: 
  * 
@@ -52,6 +52,8 @@ uint64_t get_time();
 #define ANSI_NONE       "\33[0m"
 
 #define ANSI_FMT(str, fmt) fmt str ANSI_NONE
+
+#include <trace/log.h>
 
 extern char log_buf[128];
 

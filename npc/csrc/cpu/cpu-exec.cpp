@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
- * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-10 16:16:23
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2025-02-16 11:52:08
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -26,9 +26,9 @@ static bool g_print_step = false;
 CPU_state cpu = {};
 
 char logbuf[128] = "";
-uint32_t npc_dnpc 	= 0x20000000;
-uint32_t npc_pc 	= 0x20000000;
-uint32_t base_addr 	= 0x20000000;
+uint32_t npc_dnpc 	= 0x30000000;
+uint32_t npc_pc 	= 0x30000000;
+uint32_t base_addr 	= 0x30000000;
 
 word_t ftrace_function_call_flag;
 word_t ftrace_ret_flag;
@@ -148,11 +148,11 @@ static void exec_once() {
 	new_irbn(logbuf);
 #endif
 	verilatorTop->clock = 1; step_and_dump_wave();
-	trace_and_difftest();
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
 	npc_pc		= get_cur_pc(); 
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
 	npc_dnpc	= get_next_pc();
+	trace_and_difftest();
 	
 }
 

@@ -5,4 +5,8 @@
 _start:
   mv s0, zero
   la sp, _stack_pointer
-  jal _trm_init
+  jal _bootloader
+
+_bootloader:
+  jal _fsbl
+  
