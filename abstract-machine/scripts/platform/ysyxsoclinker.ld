@@ -42,7 +42,7 @@ SECTIONS {
     _data_size = SIZEOF(.data);
     _data_load_start = LOADADDR(.data);
 	_heap_start = ALIGN(0x100);
-    _heap_end = _heap_start + 0x20000;
+    _heap_end = _heap_start + 0x10000;
     .bss : ALIGN(4) {
         _bss_start = .;
         *(.bss*)
@@ -50,9 +50,9 @@ SECTIONS {
         *(.scommon)
         _bss_end = .;
     } > psram AT> psram
-	. = ORIGIN(sram);
+	. = ORIGIN(sram) + 0x1000;
     _stack_top = ALIGN(0x10);
-    . = _stack_top + 0x2000;
+    . = _stack_top + 0x1000;
     _stack_pointer = .;
     end = .;
     _end = .;
