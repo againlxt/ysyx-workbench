@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:26
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-14 22:04:05
+ * @LastEditTime: 2024-07-17 09:41:01
  * @FilePath: /ysyx-workbench/nemu/include/memory/paddr.h
  * @Description: 
  * 
@@ -45,11 +45,6 @@ static inline bool in_sram(word_t addr) {
 #ifdef CONFIG_HAS_MROM
 static inline bool in_mrom(word_t addr) {
     return addr - CONFIG_MROMBASE < CONFIG_MROMSIZE;
-}
-#endif
-#ifdef CONFIG_HAS_FLASH
-static inline bool in_flash(word_t addr) {
-    return addr - CONFIG_FLASHBASE < CONFIG_FLASHSIZE;
 }
 #endif
 

@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:31
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2025-02-24 15:06:52
+ * @LastEditTime: 2024-09-04 18:14:36
  * @FilePath: /ysyx-workbench/abstract-machine/am/src/riscv/npc/timer.c
  * @Description: 
  * 
@@ -11,7 +11,7 @@
 #include <am.h>
 #include <riscv/riscv.h>
 
-#define RTC_ADDR 0x02000000
+#define RTC_ADDR 0xa0000048
 
 void __am_timer_init() {
 	outl(RTC_ADDR, 0);

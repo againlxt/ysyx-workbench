@@ -1,19 +1,18 @@
 AM_SRCS :=	riscv/ysyxsoc/trm.c \
 			riscv/ysyxsoc/start.S \
-			riscv/ysyxsoc/ioe.c \
-            riscv/ysyxsoc/timer.c \
-            riscv/ysyxsoc/input.c \
-            riscv/ysyxsoc/cte.c \
-            riscv/ysyxsoc/trap.S \
+			riscv/npc/ioe.c \
+            riscv/npc/timer.c \
+            riscv/npc/input.c \
+            riscv/npc/cte.c \
+            riscv/npc/trap.S \
             platform/dummy/vme.c \
             platform/dummy/mpe.c
 
-CFLAGS    += -fdata-sections -ffunction-sections
+CFLAGS    += -fdata-sections -ffunction-sections -O2
 LDFLAGS   += -T $(AM_HOME)/scripts/platform/ysyxsoclinker.ld \
 						 --defsym=_mrom_start=0x20000000 --defsym=_entry_offset=0x0 \
 						 --defsym=_sram_start=0x0f000000
 LDFLAGS   += --gc-sections -e _start # 启用链接器的垃圾回收功能（GC, Garbage Collection），删除未使用的代码或数据段。
-
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 NPCFLAGS  += -l $(NPC_HOME)/build/npc-log.txt
 NPCFLAGS  += -e $(IMAGE).elf
