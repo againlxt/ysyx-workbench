@@ -17,7 +17,7 @@
 static uint8_t mrom[CONFIG_MROMSIZE] PG_ALIGN = {};
 static uint8_t flash[CONFIG_FLASHSIZE] PG_ALIGN = {};
 static uint8_t psram[CONFIG_PSRAMSIZE] PG_ALIGN = {};
-static uint16_t sdram[4][8192][512] PG_ALIGN = {};
+static uint16_t sdram[4*8192*512] PG_ALIGN = {};
 
 #ifdef CONFIG_MTRACE
 #define MTRACE_LOG(mtrace_address, mtrace_length, mtrace_operation, mtrace_value) do { \
@@ -104,23 +104,19 @@ extern "C" void psram_write(int32_t addr, int8_t len, int32_t data) {
 }
 
 extern "C" void sdram_write(int16_t din, int8_t dqm, int16_t ra, int16_t ca, int8_t ba) {
-	printf("din: %hd dqm: %d ra: %hd ca: %hd ba: %d\n", din, dqm, ra, ca, ba);
-	uint16_t data = 0;
+	int addr = ba * 8192 * 512 + ra * 512 + ca;
+	printf("w:din: %hx dqm: %d ra: %hd ca: %hd ba: %d\n", din, dqm, ra, ca, ba);
 	switch (dqm) {
-		case 0b01: data = din & 0x00ff; break;
-		case 0b10: data = din & 0xff00; break;
-		case 0b11: data = din & 0xffff; break;
-		default: data = 0; break;
+		case 0b10: sdram[addr] = (uint16_t) ((din & 0x00ff) + (sdram[addr] & 0xff00)); break;
+		case 0b01: sdram[addr] = (uint16_t) ((din & 0xff00) + (sdram[addr] & 0x00ff)); break;
+		case 0b00: sdram[addr] = (uint16_t) din; break;
+		case 0b11: break;
+		default: break;
 	}
-	sdram[ba][ra][ca] = data;
+	printf("w:sdram: %hx\n", sdram[addr]);
 }
 
 extern "C" void sdram_read(int16_t *dout, int8_t dqm, int16_t ra, int16_t ca, int8_t ba) {
-	uint16_t data = sdram[ba][ra][ca];
-	switch (dqm) {
-		case 0b01: *dout = data & 0x00ff; return;
-		case 0b10: *dout = data & 0xff00; return;
-		case 0b11: *dout = data & 0xffff; return;
-		default: *dout = 0; return;
-	}
+	*dout = sdram[ba*8192*512+ra*512+ca];
+	printf("r:data: %hx dqm: %d ra: %hd ca: %hd ba: %d\n", *dout, dqm, ra, ca, ba);
 }
