@@ -46,6 +46,10 @@ static uint8_t sram[CONFIG_SRAMSIZE] PG_ALIGN = {};
 static uint8_t flash[CONFIG_FLASHSIZE] PG_ALIGN = {};
 #endif
 
+#ifdef CONFIG_HAS_SDRAM
+static uint8_t sdram[CONFIG_SDRAMSIZE] PG_ALIGN = {};
+#endif
+
 #ifdef CONFIG_MTRACE
 static word_t mtrace_begin   = PMEM_LEFT;
 static word_t mtrace_end	 = PMEM_RIGHT;
@@ -63,6 +67,10 @@ uint8_t* guest_to_host(paddr_t paddr) {
   #ifdef CONFIG_HAS_FLASH
   if (in_flash(paddr))
     return flash + paddr - CONFIG_FLASHBASE;
+  #endif
+  #ifdef CONFIG_HAS_SDRAM
+  if (in_sdram(paddr))
+    return sdram + paddr - CONFIG_SDRAMBASE;
   #endif
   return pmem + paddr - CONFIG_MBASE; 
 }
@@ -135,6 +143,12 @@ word_t paddr_read(paddr_t addr, int len) {
     return value;
   }
   #endif
+  #ifdef CONFIG_HAS_SDRAM
+  else if (in_sdram(addr)) {
+    word_t value = pmem_read(addr, len);
+    return value;
+  }
+  #endif
   
   IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
   out_of_bound(addr);
@@ -173,6 +187,12 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   #endif
   #ifdef CONFIG_HAS_FLASH
   else if (in_flash(addr)) {
+    pmem_write(addr, len, data);
+    return;
+  }
+  #endif
+  #ifdef CONFIG_HAS_SRAM
+  else if (in_sdram(addr)) {
     pmem_write(addr, len, data);
     return;
   }

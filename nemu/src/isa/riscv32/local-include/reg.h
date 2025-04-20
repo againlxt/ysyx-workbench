@@ -37,9 +37,10 @@ static inline int check_reg_idx(int idx) {
   return idx;
 }
 
-static inline int check_csrs_idx(int idx) {
-  IFDEF(CONFIG_RT_CHECK, assert(idx >= 0 && idx < 4096));
-  return idx;
+static inline int check_csrs_idx(uint32_t idx) {
+  uint32_t t = idx & 0x00000fff;
+  IFDEF(CONFIG_RT_CHECK, assert(t >= 0 && t < 4096));
+  return t;
 }
 
 #define gpr(idx) (cpu.gpr[check_reg_idx(idx)])

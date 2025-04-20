@@ -36,7 +36,8 @@ static void restart() {
   /* Init mstatus to 0x1800 to support difftest */
   extern uint32_t csrs[4096];
   csrs[0x300] = 0x1800;
-
+  cpu.csr[0xf11] = 0x79737978;
+  cpu.csr[0xf12] = 0X78957352;
 }
 
 void init_isa() {

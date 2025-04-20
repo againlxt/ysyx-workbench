@@ -52,6 +52,11 @@ static inline bool in_flash(word_t addr) {
     return addr - CONFIG_FLASHBASE < CONFIG_FLASHSIZE;
 }
 #endif
+#ifdef CONFIG_HAS_SDRAM
+static inline bool in_sdram(word_t addr) {
+    return addr - CONFIG_SDRAMBASE < CONFIG_SDRAMSIZE;
+}
+#endif
 
 static inline bool in_pmem(paddr_t addr) {
   return addr - CONFIG_MBASE < CONFIG_MSIZE;
