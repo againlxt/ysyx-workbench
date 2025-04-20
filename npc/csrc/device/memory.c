@@ -104,6 +104,7 @@ extern "C" void psram_write(int32_t addr, int8_t len, int32_t data) {
 }
 
 extern "C" void sdram_write(int16_t din, int8_t dqm, int16_t ra, int16_t ca, int8_t ba) {
+	printf("din: %hd dqm: %d ra: %hd ca: %hd ba: %d\n", din, dqm, ra, ca, ba);
 	uint16_t data = 0;
 	switch (dqm) {
 		case 0b01: data = din & 0x00ff; break;

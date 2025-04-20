@@ -63,9 +63,11 @@ extern "C" svBitVecVal get_next_pc();
 // Simulate stepping and record waveform
 static void step_and_dump_wave() {
     verilatorTop->eval();
+	verlatorContextp->timeInc(1); // 时间增加
 	#ifdef CONFIG_WAVE_TRACE
-    verlatorContextp->timeInc(1); // 时间增加
-   	verlatorTfp->dump(verlatorContextp->time());
+	if (cpu.pc >= 0x80000000) {
+		verlatorTfp->dump(verlatorContextp->time());
+	}
 	#endif
 }
 
