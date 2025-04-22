@@ -65,9 +65,7 @@ static void step_and_dump_wave() {
     verilatorTop->eval();
 	verlatorContextp->timeInc(1); // 时间增加
 	#ifdef CONFIG_WAVE_TRACE
-	if (cpu.pc >= 0x80000000) {
 		verlatorTfp->dump(verlatorContextp->time());
-	}
 	#endif
 }
 
@@ -163,7 +161,6 @@ static void execute(uint64_t n) {
 	npc_pc		= get_cur_pc(); 
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
 	npc_dnpc	= get_next_pc();	
-	//verilatorTop->io_npcState 		= npc_state.state;
 	verilatorTop->eval();
 
 	for(uint64_t i=0; i < n; i ++) {
