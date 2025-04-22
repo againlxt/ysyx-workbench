@@ -12,6 +12,7 @@
 !README.md
 !.gitignore
 !init.sh
+!/temp/*
 /fceux-am
 /nvboard
 /am-kernels
