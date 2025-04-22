@@ -63,8 +63,8 @@ extern "C" svBitVecVal get_next_pc();
 // Simulate stepping and record waveform
 static void step_and_dump_wave() {
     verilatorTop->eval();
-	verlatorContextp->timeInc(1); // 时间增加
 	#ifdef CONFIG_WAVE_TRACE
+		verlatorContextp->timeInc(1); // 时间增加
 		verlatorTfp->dump(verlatorContextp->time());
 	#endif
 }
@@ -114,8 +114,10 @@ static void set_dut_cpu_regs(vaddr_t pc) {
 }
 
 static void exec_once() {
+	#ifdef CONFIG_TRACE
 	uint32_t npc_curPC  = npc_pc;
 	uint32_t npc_snpc 	= npc_curPC + 4;
+	#endif
 
 	verilatorTop->clock = 0; step_and_dump_wave();
 	while (!(verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__wbu__DOT__validPC2Reg && verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc__DOT__wbu2PCReadyReg)) {
@@ -148,12 +150,14 @@ static void exec_once() {
 	new_irbn(logbuf);
 #endif
 	verilatorTop->clock = 1; step_and_dump_wave();
+
+	#ifdef CONFIG_TRACE
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
 	npc_pc		= get_cur_pc(); 
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
 	npc_dnpc	= get_next_pc();
 	trace_and_difftest();
-	
+	#endif
 }
 
 static void execute(uint64_t n) {
