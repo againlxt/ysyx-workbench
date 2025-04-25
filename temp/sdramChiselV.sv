@@ -29,7 +29,7 @@ assign clk_w = clk & cke;
 reg [7:0] 	counter_r;
 reg [7:0]	cas_counter_r;	
 reg [12:0] 	mode_r;
-reg [12:0]  row_addr_r;
+reg [12:0]  row_addr_r[0:3];
 reg [12:0] 	col_addr_r;
 reg [1:0]	bank_addr_r;
 reg [15:0]  din_r;
@@ -42,8 +42,10 @@ assign burstlength_w = 8'd1 << mode_r[3:0];
 
 wire [15:0] din_w, ra_w, ca_w;
 wire [7:0] 	dqm_w, ba_w;
+wire [1:0]  bank_addr_w;
+assign bank_addr_w = bank_addr_r;
 assign din_w = din_r;
-assign ra_w = {3'd0, row_addr_r};
+assign ra_w = {3'd0, row_addr_r[bank_addr_w]};
 assign ca_w = {7'd0, col_addr_r[8:0]} + {8'd0, counter_r};
 assign dqm_w = {6'd0, dqm_r};
 assign ba_w = {6'd0, bank_addr_r};
@@ -114,7 +116,7 @@ end
 
 always @(posedge clk) begin
 	if (cmd_w == ACTIVE) begin
-		row_addr_r	<= a;
+		row_addr_r[ba]	<= a;
 		bank_addr_r <= ba;
 	end else if (cmd_w == WRITE) begin
 		col_addr_r	<= a;
