@@ -71,7 +71,8 @@ static void step_and_dump_wave() {
 
 static void trace_and_difftest() {
 #ifdef CONFIG_ITRACE
-	log_write("%s\n", logbuf);
+	if (!((npc_pc >= 0x0f000000) & (npc_pc < 0x0f002000)))
+		log_write("%s\n", logbuf);
 #endif
   	if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(logbuf)); }
 	IFDEF(CONFIG_DIFFTEST, difftest_step(npc_pc, npc_dnpc));

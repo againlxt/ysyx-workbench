@@ -15,6 +15,7 @@
 extern uint64_t g_nr_guest_inst;
 
 FILE *log_fp = NULL;
+static size_t size = 0;
 
 void init_log(const char *log_file) {
   log_fp = stdout;
@@ -27,6 +28,7 @@ void init_log(const char *log_file) {
 }
 
 bool log_enable() {
-  return MUXDEF(CONFIG_TRACE, (g_nr_guest_inst >= CONFIG_TRACE_START) &&
-         (g_nr_guest_inst <= CONFIG_TRACE_END), false);
+  size ++;
+  return MUXDEF(CONFIG_TRACE, (size >= CONFIG_TRACE_START) &&
+         (size <= CONFIG_TRACE_END), false);
 }
