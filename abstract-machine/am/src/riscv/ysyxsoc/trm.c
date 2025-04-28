@@ -165,14 +165,12 @@ static void hello() {
 }
 
 static void _bss_init() {
-    printf("bss init begin!\n");
     if (&_bss_start != &_bss_end)
         memset(&_bss_start, 0, &_bss_end - &_bss_start);
     #ifdef RTT
     if (&__am_apps_bss_start != &__am_apps_bss_end)
         memset(&__am_apps_bss_start, 0, &__am_apps_bss_end - &__am_apps_bss_start);
     #endif
-    printf("bss init end!\n");
 }
 
 void _trm_init() {

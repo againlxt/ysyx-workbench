@@ -91,21 +91,14 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
 
 extern "C" void psram_read(int32_t addr, int32_t *data) {
 	*data = psram_host_read(guest_to_host_psram(addr), 4);
-	#ifdef CONFIG_MTRACE
-	MTRACE_LOG(addr, 4, "read", *data);	
-	#endif
 }
 
 extern "C" void psram_write(int32_t addr, int8_t len, int32_t data) {
 	psram_host_write(guest_to_host_psram(addr), len, data);
-	#ifdef CONFIG_MTRACE
-	MTRACE_LOG(addr, len, "write", data);	
-	#endif
 }
 
 extern "C" void sdram_write(int16_t din, int8_t dqm, int16_t ra, int16_t ca, int8_t ba) {
 	int addr = ba * 8192 * 512 + ra * 512 + ca;
-	//printf("w:din: %hx dqm: %d ra: %hd ca: %hd ba: %d\n", din, dqm, ra, ca, ba);
 	switch (dqm) {
 		case 0b10: sdram[addr] = (uint16_t) ((din & 0x00ff) + (sdram[addr] & 0xff00)); break;
 		case 0b01: sdram[addr] = (uint16_t) ((din & 0xff00) + (sdram[addr] & 0x00ff)); break;
@@ -113,10 +106,30 @@ extern "C" void sdram_write(int16_t din, int8_t dqm, int16_t ra, int16_t ca, int
 		case 0b11: break;
 		default: break;
 	}
-	//printf("w:sdram: %hx\n", sdram[addr]);
 }
 
 extern "C" void sdram_read(int16_t *dout, int8_t dqm, int16_t ra, int16_t ca, int8_t ba) {
 	*dout = sdram[ba*8192*512+ra*512+ca];
-	//printf("r:data: %hx dqm: %d ra: %hd ca: %hd ba: %d\n", *dout, dqm, ra, ca, ba);
+}
+
+extern "C" void MTrace(int32_t din, int32_t addr, int8_t op, int8_t wOrR) {
+	#ifdef CONFIG_MTRACE
+	extern uint32_t npc_pc;
+	if (!((npc_pc >= 0x0f000000) & (npc_pc < 0x0f002000))) {
+		int8_t len = 0;
+		switch (op) {
+			case 0b10: len = 3; break;
+			case 0b01: len = 2; break;
+			case 0b00: len = 1; break;
+			case 0b11: break;
+			default: break;
+		}
+		if (wOrR) {
+			MTRACE_LOG(addr, len, "write", din);
+		}
+		else {
+			MTRACE_LOG(addr, len, "read", din);	
+		}
+	}
+	#endif
 }
