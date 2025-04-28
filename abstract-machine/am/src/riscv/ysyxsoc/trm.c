@@ -12,6 +12,7 @@
 #include <klib-macros.h>
 #include <string.h>
 #include <stdio.h>
+#define RTT
 
 extern char _heap_start;
 extern char _heap_end;
@@ -50,11 +51,17 @@ extern uint8_t _data_load_start;  // .data 段加载地址（ROM 中）
 extern uint8_t _data_start;       // .data 段运行地址（RAM 中）
 extern uint8_t _data_end;         // .data 段结束地址（RAM 中）
 
-/*
+extern uint8_t _bss_start;
+extern uint8_t _bss_end;
+
+#ifdef RTT
 extern uint8_t _data_extra_load_start;  // .data 段加载地址（ROM 中）
 extern uint8_t _data_extra_start;       // .data 段运行地址（RAM 中）
 extern uint8_t _data_extra_end;         // .data 段结束地址（RAM 中）
-*/
+
+extern uint8_t __am_apps_bss_start;
+extern uint8_t __am_apps_bss_end;
+#endif
 
 extern uint8_t _text_load_start;  // .text 段加载地址（ROM 中）
 extern uint8_t _text_start;       // .text 段运行地址（RAM 中）
@@ -114,14 +121,14 @@ __attribute__((section(".ssbl"))) void _ssbl() {
     if (&_data_start != &_data_load_start) {
         _ssbl_memcpy(&_data_start, &_data_load_start, &_data_end - &_data_start);
 	}
-    /*
-    if (&_data_extra_start != &_data_extra_load_start) {
-        _ssbl_memcpy(&_data_extra_start, &_data_extra_load_start, &_data_extra_end - &_data_extra_start);
-	}
-    */
 	if (&_rodata_start != &_rodata_load_start) {
         _ssbl_memcpy(&_rodata_start, &_rodata_load_start, &_rodata_end - &_rodata_start);
 	}
+    #ifdef RTT
+    if (&_data_extra_start != &_data_extra_load_start) {
+        _ssbl_memcpy(&_data_extra_start, &_data_extra_load_start, &_data_extra_end - &_data_extra_start);
+	}
+    #endif
 	_trm_init();
 }
 
@@ -157,8 +164,20 @@ static void hello() {
 	printf("_%u\n", marchid);
 }
 
+static void _bss_init() {
+    printf("bss init begin!\n");
+    if (&_bss_start != &_bss_end)
+        memset(&_bss_start, 0, &_bss_end - &_bss_start);
+    #ifdef RTT
+    if (&__am_apps_bss_start != &__am_apps_bss_end)
+        memset(&__am_apps_bss_start, 0, &__am_apps_bss_end - &__am_apps_bss_start);
+    #endif
+    printf("bss init end!\n");
+}
+
 void _trm_init() {
-	uart16550_init();
+    uart16550_init();
+    _bss_init();
 	hello();
     int ret = main(mainargs);
     halt(ret);
