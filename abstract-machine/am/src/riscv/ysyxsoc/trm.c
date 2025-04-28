@@ -50,9 +50,11 @@ extern uint8_t _data_load_start;  // .data 段加载地址（ROM 中）
 extern uint8_t _data_start;       // .data 段运行地址（RAM 中）
 extern uint8_t _data_end;         // .data 段结束地址（RAM 中）
 
+/*
 extern uint8_t _data_extra_load_start;  // .data 段加载地址（ROM 中）
 extern uint8_t _data_extra_start;       // .data 段运行地址（RAM 中）
 extern uint8_t _data_extra_end;         // .data 段结束地址（RAM 中）
+*/
 
 extern uint8_t _text_load_start;  // .text 段加载地址（ROM 中）
 extern uint8_t _text_start;       // .text 段运行地址（RAM 中）
@@ -112,9 +114,11 @@ __attribute__((section(".ssbl"))) void _ssbl() {
     if (&_data_start != &_data_load_start) {
         _ssbl_memcpy(&_data_start, &_data_load_start, &_data_end - &_data_start);
 	}
+    /*
     if (&_data_extra_start != &_data_extra_load_start) {
         _ssbl_memcpy(&_data_extra_start, &_data_extra_load_start, &_data_extra_end - &_data_extra_start);
 	}
+    */
 	if (&_rodata_start != &_rodata_load_start) {
         _ssbl_memcpy(&_rodata_start, &_rodata_load_start, &_rodata_end - &_rodata_start);
 	}

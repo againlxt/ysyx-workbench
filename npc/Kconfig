@@ -85,6 +85,19 @@ config PC_RESET_OFFSET
   default 0x100000 if ISA_x86
   default 0
 
+menuconfig HAS_SRAM
+  bool "Enable SRAM"
+  default y
+
+if HAS_SRAM
+config SRAMMBASE
+  hex "SRAM base address"
+  default 0x0f000000
+config SRAMSIZE
+  hex "SRAM size"
+  default 0x2000
+endif # HAS_SRAM
+
 menuconfig HAS_MROM
   bool "Enable MROM"
   default y
