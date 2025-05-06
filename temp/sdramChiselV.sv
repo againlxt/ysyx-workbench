@@ -9,6 +9,7 @@ module sdramChiselV (
 	input [1:0] 	ba,
 	input [1:0]		dqm,
 	input [15:0] 	din,
+	input [7:0]		index,
 	output 			outen,
 	output[15:0] 	out
 );
@@ -27,7 +28,7 @@ assign cmd_w = {cs, ras, cas, we};
 assign clk_w = clk & cke;
 
 reg [7:0] 	counter_r;
-reg [7:0]	cas_counter_r;	
+reg [2:0]	cas_counter_r;	
 reg [12:0] 	mode_r;
 reg [12:0]  row_addr_r[0:3];
 reg [12:0] 	col_addr_r;
@@ -50,8 +51,8 @@ assign ca_w = {7'd0, col_addr_r[8:0]} + {8'd0, counter_r};
 assign dqm_w = {6'd0, dqm_r};
 assign ba_w = {6'd0, bank_addr_r};
 
-import "DPI-C" function void sdram_read(output shortint dout, input byte dqm, input shortint ra, input shortint ca, input byte ba);
-import "DPI-C" function void sdram_write(input shortint din, input byte dqm, input shortint ra, input shortint ca, input byte ba);
+import "DPI-C" function void sdram_read(output shortint dout, input byte dqm, input shortint ra, input shortint ca, input byte ba, input byte index);
+import "DPI-C" function void sdram_write(input shortint din, input byte dqm, input shortint ra, input shortint ca, input byte ba, input byte index);
 always @(posedge clk) begin
 	if (!cke) state_r <= S_IDLE;
 	else 	  state_r <= nextstate_r;
@@ -82,23 +83,23 @@ always @(*) begin
 			endcase
 		end
 		S_WRITE: begin
-			if (cmd_w == WRITE)
+			if (counter_r == (burstlength_w-1))
+				nextstate_r = S_IDLE;
+			else if (cmd_w == WRITE)
 				nextstate_r = S_WRITE;
 			else if (cmd_w == TERMINATE)
-				nextstate_r = S_IDLE;
-			else if (counter_r == (burstlength_w-1))
 				nextstate_r = S_IDLE;
 			else
 				nextstate_r = S_WRITE;
 		end
 		S_READ0: begin
-			if (cas_counter_r == (burstlength_w-1))
+			if (cas_counter_r == (mode_r[6:4]-1))
 				nextstate_r = S_READ1;
 			else
 				nextstate_r = S_READ0;
 		end
 		S_READ1: begin
-			if ((counter_r == burstlength_w-1) | (cmd_w == TERMINATE))
+			if ((counter_r == burstlength_w-1) | (cmd_w == TERMINATE) | (burstlength_w == 1))
 				nextstate_r = S_IDLE;
 			else if (cmd_w == READ)
 				nextstate_r = S_READ0;
@@ -140,11 +141,13 @@ always @(posedge clk) begin
 	end
 end
 
+wire [7:0] index_w;
+assign index_w = index;
 always @(posedge clk) begin
 	case (state_r)
-		S_WRITE: sdram_write(din_w, dqm_w, ra_w, ca_w, ba_w);
-		S_READ0: sdram_read(dout_r, dqm_w, ra_w, ca_w, ba_w);
-		S_READ1: sdram_read(dout_r, dqm_w, ra_w, ca_w, ba_w);
+		S_WRITE: sdram_write(din_w, dqm_w, ra_w, ca_w, ba_w, index_w);
+		S_READ0: sdram_read(dout_r, dqm_w, ra_w, ca_w, ba_w, index_w);
+		S_READ1: sdram_read(dout_r, dqm_w, ra_w, ca_w, ba_w, index_w);
 		default: dout_r = 16'd0;
 	endcase
 end
