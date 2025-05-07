@@ -12,7 +12,7 @@
 #include <klib-macros.h>
 #include <string.h>
 #include <stdio.h>
-//#define RTT
+#define RTT
 
 extern char _heap_start;
 extern char _heap_end;
