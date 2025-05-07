@@ -17,7 +17,7 @@
 static uint8_t mrom[CONFIG_MROMSIZE] PG_ALIGN = {};
 static uint8_t flash[CONFIG_FLASHSIZE] PG_ALIGN = {};
 static uint8_t psram[CONFIG_PSRAMSIZE] PG_ALIGN = {};
-static uint16_t sdram[4][4*8192*512] PG_ALIGN = {};
+static uint16_t sdram[4][8*8192*512] PG_ALIGN = {};
 
 #ifdef CONFIG_MTRACE
 #define MTRACE_LOG(mtrace_address, mtrace_length, mtrace_operation, mtrace_value) do { \
