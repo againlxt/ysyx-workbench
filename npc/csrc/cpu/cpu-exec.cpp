@@ -18,6 +18,9 @@
 #include <iostream>
 #include <cstdint>
 #include <elf.h>
+#ifdef CONFIG_NVBOARD
+#include <nvboard.h>
+#endif
 
 #define MAX_INST_TO_PRINT 10
 uint64_t g_nr_guest_inst = 0;
@@ -68,6 +71,9 @@ static void step_and_dump_wave() {
 		verlatorContextp->timeInc(1); // 时间增加
 		verlatorTfp->dump(verlatorContextp->time());
 	}
+	#endif
+	#ifdef CONFIG_NVBOARD
+	nvboard_update();
 	#endif
 }
 
@@ -229,7 +235,9 @@ void cpu_exec(uint64_t n) {
 		#ifdef CONFIG_ITRACE
 		iringbuf_log();
 		#endif
-		// fall through
+		#ifdef CONFIG_NVBOARD
+		nvboard_quit();
+		#endif
 		
 		case NPC_QUIT:  statistic(); break;
 		default:

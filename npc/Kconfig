@@ -181,7 +181,10 @@ menu "SoC"
 config SOC
   bool "Enable SoC"
   default n
-
+config NVBOARD
+  depends on SOC
+  bool "Enable nvboard"
+  default n
 menu "SoC Device"
 depends on SOC
 menu "UART16550"

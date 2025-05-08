@@ -4,8 +4,8 @@
 TOPNORMAL = top
 TOPSOC = ysyxSoCFull
 TOPNAME = $(if $(CONFIG_SOC),$(TOPSOC),$(TOPNORMAL))
-NXDC_FILES = constr/Top.nxdc
-INC_PATH ?= $(NPC_HOME)/include
+NXDC_FILES = $(if $(CONFIG_SOC), constr/ysyxSoC.nxdc, constr/Top.nxdc)
+INC_PATH  = $(NPC_HOME)/include
 YSYX_HOME = $(NEMU_HOME)/..
 
 GTKWAVE = gtkwave
@@ -26,26 +26,28 @@ SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 
+# rules for NVBoard
+include $(NVBOARD_HOME)/scripts/nvboard.mk
+
 # project source
 VSRCS = $(shell find $(abspath $(NPC_HOME)/vsrc/$(PROJ_NAME)) -name "*.v" -or -name "*.sv")
 VSRCS_SOC = $(shell find $(abspath $(YSYX_HOME)/ysyxSoC/perip) -name "*.v")
 VSRCS_SOC += $(YSYX_HOME)/ysyxSoC/build/ysyxSoCFull.v
 VSRCS += $(if $(CONFIG_SOC),$(VSRCS_SOC),)
 CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c")
+CSRCS += $(SRC_AUTO_BIND)
 CXXSRC = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.cpp" ! -name "disasm.cpp")
+
 ifneq ($(CONFIG_ITRACE),)
 CXXSRC += $(NPC_HOME)/csrc/utils/disasm.cpp
 CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
 LDFLAGS += $(shell llvm-config --libs)
 endif
-OBJS  = $(VSRCS) $(CSRCS) $(CXXSRC)
+OBJS  = $(VSRCS) $(CSRCS) $(CXXSRC) $(NVBOARD_ARCHIVE)
 VCDSRCS = $(shell find $(abspath ./) -name $(PROJ_NAME).vcd)
 
 # Command to execute NPC
 NPC_SIM := $(BUILD_DIR)/$(TOPNAME) $(ARGS) $(IMG)
-
-# rules for NVBoard
-# include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 # Extract compiler and options from menuconfig
 CC = $(call remove_quote,$(CONFIG_CC))
@@ -92,9 +94,9 @@ sim: $(OBJS)
 	@rm -rf $(OBJ_DIR)
 	@rm -rf ./*.vcd
 	@$(VERILATOR) $(VERILATOR_CFLAGS) \
+		--top-module $(TOPNAME) $^ \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) \
 		$(addprefix -LDFLAGS , $(LDFLAGS)) \
-		--top-module $(TOPNAME) $^ \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 	$(NPC_SIM)
 

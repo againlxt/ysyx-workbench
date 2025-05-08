@@ -14,6 +14,9 @@
 #include <isa/reg.h>
 #include <memory/paddr.h>
 #include <memory/memory.h>
+#ifdef CONFIG_NVBOARD
+#include <nvboard.h>
+#endif
 
 static char *img_file = NULL;
 static char *log_file = NULL;
@@ -25,6 +28,9 @@ VerilatedContext* verlatorContextp = nullptr;
 VysyxSoCFull* verilatorTop = nullptr;
 #ifdef CONFIG_WAVE_TRACE
 VerilatedVcdC* verlatorTfp = nullptr;
+#endif
+#ifdef CONFIG_NVBOARD
+void nvboard_bind_all_pins(VysyxSoCFull* top);
 #endif
 
 extern void sdb_set_batch_mode();
@@ -131,9 +137,7 @@ void init_monitor(int argc, char *argv[]) {
 	parse_args(argc, argv);
 
 	init_log(log_file);
-
 	init_elf(elf_file);
-
 	init_mem();
 	init_mrom();
 	init_flash();
@@ -142,7 +146,6 @@ void init_monitor(int argc, char *argv[]) {
 	long img_size = load_img();
 
 	sim_init();
-	
 	init_npc();
 
 	IFDEF(CONFIG_ITRACE, init_disasm(
@@ -151,5 +154,9 @@ void init_monitor(int argc, char *argv[]) {
 
 	init_difftest(diff_so_file, img_size, difftest_port);
 
+	#ifdef CONFIG_NVBOARD
+	nvboard_bind_all_pins(verilatorTop);
+	nvboard_init();
+	#endif
 	welcome();
 }

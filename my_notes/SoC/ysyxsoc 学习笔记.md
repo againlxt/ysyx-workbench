@@ -1,5 +1,11 @@
 # ysyxsoc 学习笔记
 
+# 总线学习
+
+## APB
+
+
+
 # 器件学习
 
 ## sdram (MT48LC16M16A2)
