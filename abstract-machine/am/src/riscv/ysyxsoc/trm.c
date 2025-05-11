@@ -142,18 +142,19 @@ __attribute__((section(".entry.boot"))) void _fsbl() {
 static void uart16550_init() {
 	/* Set the Line Control Register to the desired line control parameters. Set bit 7 to ‘1’
 to allow access to the Divisor Latches. */
-	*(volatile uint8_t *) UART16550_LCR 			= 0x80;
+	*(volatile uint8_t *) UART16550_LCR 			= 0x83;
 	/* Set the Divisor Latches, MSB first, LSB next. */
 	*(volatile uint8_t *) UART16550_IER_DLM 		= 0x00;
 	*(volatile uint8_t *) UART16550_RBR_THR_DLL 	= 0x01;
 	/* Set bit 7 of LCR to ‘0’ to disable access to Divisor Latches. At this time the
 transmission engine starts working and data can be sent and received.  */
-	*(volatile uint8_t *) UART16550_LCR 			= 0x00;
+	*(volatile uint8_t *) UART16550_LCR 			= 0x03;
 	/* Set the FIFO trigger level. Generally, higher trigger level values produce less
 interrupt to the system, so setting it to 14 bytes is recommended if the system
 responds fast enough. */
-	*(volatile uint8_t *) UART16550_IIR_FCR 		= 0xC7;
+	*(volatile uint8_t *) UART16550_IIR_FCR 		= 0xc0;
 }
+
 static void hello() {
 	uint32_t mvendorid=0, marchid=0;
 	asm volatile("csrr %0, mvendorid" : "=r"(mvendorid));

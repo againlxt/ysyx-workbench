@@ -47,6 +47,9 @@ static void step_and_dump_wave() {
     verlatorContextp->timeInc(1); // 时间增加
     verlatorTfp->dump(verlatorContextp->time());
 	#endif
+	#ifdef CONFIG_NVBOARD
+	if(verilatorTop->clock == 1) nvboard_update();
+	#endif
 }
 
 static void welcome() {
@@ -146,6 +149,10 @@ void init_monitor(int argc, char *argv[]) {
 	long img_size = load_img();
 
 	sim_init();
+	#ifdef CONFIG_NVBOARD
+	nvboard_bind_all_pins(verilatorTop);
+	nvboard_init();
+	#endif
 	init_npc();
 
 	IFDEF(CONFIG_ITRACE, init_disasm(
@@ -154,9 +161,5 @@ void init_monitor(int argc, char *argv[]) {
 
 	init_difftest(diff_so_file, img_size, difftest_port);
 
-	#ifdef CONFIG_NVBOARD
-	nvboard_bind_all_pins(verilatorTop);
-	nvboard_init();
-	#endif
 	welcome();
 }

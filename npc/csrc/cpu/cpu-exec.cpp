@@ -43,7 +43,6 @@ static void step_and_dump_wave();
 extern "C" void sim_exit();
 void sim_exit() {
 	NPCTRAP(npc_pc, gpr(10));
-	//verilatorTop->io_npcState 		= npc_state.state; 
 
     step_and_dump_wave(); // 确保最后一步被记录
 }
@@ -73,7 +72,7 @@ static void step_and_dump_wave() {
 	}
 	#endif
 	#ifdef CONFIG_NVBOARD
-	nvboard_update();
+	if(verilatorTop->clock == 1) nvboard_update();
 	#endif
 }
 
