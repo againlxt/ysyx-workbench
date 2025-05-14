@@ -3,7 +3,7 @@
 #include <riscv/riscv.h>
 #include <stdio.h>
 #define PS2_BASE 0x10011000
-#define KEYDOWN_MASK 0x100
+#define KEYDOWN_MASK 0x8000
 
 static int keymap[0x200] = {};
 
@@ -20,14 +20,16 @@ static int keymap[0x200] = {};
 
 void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
   int code = (uint32_t)inb(PS2_BASE);
-  if(code == 0xE0) code = (uint32_t)inb(PS2_BASE) + 0x100;
-	if(KEYDOWN_MASK < code) {
-		kbd->keycode = keymap[code];
-		kbd->keydown = 1;
-	}
-	else {
+	if(code == 0xF0) {
+    code = (uint32_t)inb(PS2_BASE);
+    if(code == 0xE0) code = (uint32_t)inb(PS2_BASE) + 0x100;
 		kbd->keycode = keymap[code];
 		kbd->keydown = 0;
+	}
+	else {
+    if(code == 0xE0) code = (uint32_t)inb(PS2_BASE) + 0x100;
+		kbd->keycode = keymap[code];
+		kbd->keydown = 1;
 	}
 }
 
