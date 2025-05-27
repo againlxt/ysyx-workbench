@@ -42,7 +42,7 @@ SECTIONS {
     _data_size = SIZEOF(.data);
     _data_load_start = LOADADDR(.data);
 	_heap_start = ALIGN(0x1000);
-    _heap_end = _heap_start + 0x8000000;
+    _heap_end = _heap_start + 0xf000000;
     .bss : ALIGN(4) {
         _bss_start = .;
         *(.bss*)
@@ -50,9 +50,9 @@ SECTIONS {
         *(.scommon)
         _bss_end = .;
     } > sdram AT> sdram
-	. = ORIGIN(sram) + 0x1000;
+	. = ORIGIN(sram) + 0x800;
     _stack_top = ALIGN(0x10);
-    . = _stack_top + 0x1000;
+    . = _stack_top + 0x1800;
     _stack_pointer = .;
     end = .;
     _end = .;
