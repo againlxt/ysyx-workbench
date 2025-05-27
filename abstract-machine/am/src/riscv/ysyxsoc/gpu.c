@@ -16,16 +16,14 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
 }
 
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
-	int x = ctl->x, y   = ctl->y, w = ctl->w, h = ctl->h;
-	uint32_t* p         = ctl->pixels;
-    uint16_t* fb        = (uint16_t *) VGA_BASE;
-	volatile int index = 0;
+    int x = ctl->x, y = ctl->y, w = ctl->w, h = ctl->h;
+	uint32_t* fb = (uint32_t *) VGA_BASE;
+	uint32_t* p = ctl->pixels;
+
+	int index = 0;
     for (size_t i = y ; i < y + h; i++) {
         for (size_t j = x; j < w + x; j++) {
-            *(fb + i*SCREEN_W + j) = (uint16_t) ((((p[index]&0x00ff0000)>>8)&0x0f00) + 
-                                                (((p[index]&0x0000ff00)>>4)&0x00f0) +
-                                                ((p[index]&0x000000ff)&0x000f));
-            index++;
+            *(fb + i*SCREEN_W + j) = p[index++];
         }
     }
 }
@@ -34,4 +32,5 @@ void __am_gpu_status(AM_GPU_STATUS_T *status) {
   	status->ready = true;
 }
 
-void __am_gpu_init() {}
+void __am_gpu_init() {
+}

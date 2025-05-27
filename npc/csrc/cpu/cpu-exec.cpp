@@ -66,7 +66,8 @@ extern "C" svBitVecVal get_next_pc();
 static void step_and_dump_wave() {
     verilatorTop->eval();
 	#ifdef CONFIG_WAVE_TRACE
-	if (!((npc_pc >= 0x0f000000) & (npc_pc < 0x0f002000))) {
+	if (((npc_pc >= CONFIG_WAVE_EREA_BEGIN) & (npc_pc < CONFIG_WAVE_EREA_END)) &
+		(!((npc_pc >= 0x0f000000) & (npc_pc < 0x0f002000)))) {
 		verlatorContextp->timeInc(1); // 时间增加
 		verlatorTfp->dump(verlatorContextp->time());
 	}

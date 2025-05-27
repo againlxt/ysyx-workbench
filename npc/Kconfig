@@ -17,10 +17,15 @@ config SDB_MODE
 endchoice
 
 menu "Verilator"
-
 config WAVE_TRACE
 	bool "Enable Wave tracer"
 	default y
+config WAVE_EREA_BEGIN
+  hex "The begining of wave area"
+  default 0x0
+config WAVE_EREA_END
+  hex "The end of wave area"
+  default 0xffffffff
 endmenu
 
 menu "Testing and Debugging"
@@ -29,6 +34,15 @@ menu "Testing and Debugging"
 config TRACE
   bool "Enable tracer"
   default y
+
+config NO_TRACE_START_ADDR
+  depends on TRACE
+  hex "The begining address of trace"
+  default 0
+config NO_TRACE_END_ADDR
+  depends on TRACE
+  hex "The ending address of trace"
+  default 0xffffffff
 
 config TRACE_START
   depends on TRACE
