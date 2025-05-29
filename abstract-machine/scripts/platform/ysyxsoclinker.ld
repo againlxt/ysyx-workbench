@@ -10,29 +10,29 @@ MEMORY {
 
 SECTIONS {
     . = ORIGIN(flash);
-	.entry : ALIGN(4) {
+	.entry : ALIGN_WITH_INPUT SUBALIGN(4) {
 		*(entry)
 		*(.entry.boot)
 	} > flash AT> flash : entry
-	.ssbl : ALIGN(4) {
+	.ssbl : ALIGN_WITH_INPUT SUBALIGN(4) {
 		_ssbl_start = .;
         *(.ssbl*)
 		_ssbl_end = .;
     } > sram AT> flash : ssbl
 	_ssbl_load_start = LOADADDR(.ssbl);
-    .text : ALIGN(4) {
+    .text : ALIGN_WITH_INPUT SUBALIGN(4) {
 		_text_start = .;
         *(.text*)
 		_text_end = .;
     } > sdram AT> flash : text
 	_text_load_start = LOADADDR(.text);
-    .data : ALIGN(4) {
+    .data : ALIGN_WITH_INPUT SUBALIGN(4) {
         _data_start = .;
         *(.data*)
         *(.sdata*)
         _data_end = .;
     } > sdram AT> flash : data
-	.rodata : ALIGN(4) {
+	.rodata : ALIGN_WITH_INPUT SUBALIGN(4) {
         _rodata_start = .;
 		*(.rodata*)
         *(.srodata*)
@@ -43,7 +43,7 @@ SECTIONS {
     _data_load_start = LOADADDR(.data);
 	_heap_start = ALIGN(0x1000);
     _heap_end = _heap_start + 0x8000000;
-    .bss : ALIGN(4) {
+    .bss : ALIGN_WITH_INPUT SUBALIGN(4) {
         _bss_start = .;
         *(.bss*)
         *(.sbss*)
@@ -51,7 +51,7 @@ SECTIONS {
         _bss_end = .;
     } > sdram AT> sdram
 	. = ORIGIN(sram) + 0x800;
-    _stack_top = ALIGN(0x10);
+    _stack_top = ALIGN(0x4);
     . = _stack_top + 0x1800;
     _stack_pointer = .;
     end = .;
