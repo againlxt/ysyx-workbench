@@ -119,7 +119,7 @@ static long load_img() {
 
 static void init_npc() {
 	verilatorTop->reset = 1; step_and_dump_wave();
-	for (size_t i = 0; i < 10; i++) {
+	for (size_t i = 0; i < 20; i++) {
 		verilatorTop->clock = 0; step_and_dump_wave();
 		verilatorTop->clock = 1; step_and_dump_wave();
 	}
