@@ -2,12 +2,13 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-17 13:27:08
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-10-22 16:11:41
+ * @LastEditTime: 2024-11-26 20:45:51
  * @FilePath: /ysyx-workbench/npc/csrc/memory/paddr.c
  * @Description: 
  * 
  * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
  */
+#ifndef CONFIG_SOC
 #include <memory/paddr.h>
 #include <isa/isa-def.h>
 #include <verilator.h>
@@ -65,7 +66,6 @@ void init_mem() {
 extern "C" int unsigned pmem_read(unsigned int addr, unsigned char wmask);
 int unsigned pmem_read(unsigned int addr, unsigned char wmask)
 {
-	// 由于单周期处理器存在冒险问题且该存储器为异步读写存储器，会有一些瞬间的地址会不在正常地址范围内，需要忽略这些冒险的瞬间
 	if (likely(in_pmem(addr))) {
 		word_t ret = host_read(guest_to_host(addr), 4);
 		#ifdef CONFIG_MTRACE
@@ -93,7 +93,6 @@ static unsigned int pre_wdata = 0;
 static unsigned int pre_wmask = 0;
 
 void pmem_write(unsigned int waddr, unsigned int wdata, unsigned char wmask) {
-	// 由于单周期处理器存在冒险问题且该存储器为异步读写存储器，会有一些瞬间的地址会不在正常地址范围内，需要忽略这些冒险的瞬间
 	if (pre_waddr != waddr || pre_wdata != wdata || pre_wmask != wmask) {
 		pre_waddr = waddr;
 		pre_wdata = wdata;
@@ -122,3 +121,4 @@ void pmem_write(unsigned int waddr, unsigned int wdata, unsigned char wmask) {
 	}
 	// out_of_bound(waddr);
 }
+#endif

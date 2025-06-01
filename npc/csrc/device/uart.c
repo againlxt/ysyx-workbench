@@ -1,8 +1,8 @@
 /*
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @Date: 2024-12-04 19:30:26
- * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-04 19:32:38
+ * @Date: 2024-11-09 22:25:41
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2025-01-24 16:54:15
  * @FilePath: /ysyx-workbench/npc/csrc/device/uart.c
  * @Description: 
  * 

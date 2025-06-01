@@ -2,7 +2,7 @@
  * @Author: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
  * @Date: 2024-09-15 15:43:43
  * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-05 16:53:33
+ * @LastEditTime: 2024-12-08 10:40:06
  * @FilePath: /ysyx-workbench/nemu/src/isa/riscv32/local-include/reg.h
  * @Description: 
  * 
@@ -37,9 +37,10 @@ static inline int check_reg_idx(int idx) {
   return idx;
 }
 
-static inline int check_csrs_idx(int idx) {
-  IFDEF(CONFIG_RT_CHECK, assert(idx >= 0 && idx < 4096));
-  return idx;
+static inline int check_csrs_idx(uint32_t idx) {
+  uint32_t t = idx & 0x00000fff;
+  IFDEF(CONFIG_RT_CHECK, assert(t >= 0 && t < 4096));
+  return t;
 }
 
 #define gpr(idx) (cpu.gpr[check_reg_idx(idx)])

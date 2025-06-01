@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-01-15 09:47:26
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-07-17 09:41:01
+ * @LastEditTime: 2025-02-14 22:04:05
  * @FilePath: /ysyx-workbench/nemu/include/memory/paddr.h
  * @Description: 
  * 
@@ -36,6 +36,27 @@
 uint8_t* guest_to_host(paddr_t paddr);
 /* convert the host virtual address in NEMU to guest physical address in the guest program */
 paddr_t host_to_guest(uint8_t *haddr);
+
+#ifdef CONFIG_HAS_SRAM
+static inline bool in_sram(word_t addr) {
+    return addr - CONFIG_SRAMBASE < CONFIG_SRAMSIZE;
+}
+#endif
+#ifdef CONFIG_HAS_MROM
+static inline bool in_mrom(word_t addr) {
+    return addr - CONFIG_MROMBASE < CONFIG_MROMSIZE;
+}
+#endif
+#ifdef CONFIG_HAS_FLASH
+static inline bool in_flash(word_t addr) {
+    return addr - CONFIG_FLASHBASE < CONFIG_FLASHSIZE;
+}
+#endif
+#ifdef CONFIG_HAS_SDRAM
+static inline bool in_sdram(word_t addr) {
+    return addr - CONFIG_SDRAMBASE < CONFIG_SDRAMSIZE;
+}
+#endif
 
 static inline bool in_pmem(paddr_t addr) {
   return addr - CONFIG_MBASE < CONFIG_MSIZE;

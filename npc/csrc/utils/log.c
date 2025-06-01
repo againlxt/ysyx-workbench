@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-17 14:47:50
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-18 20:47:56
+ * @LastEditTime: 2025-02-28 17:42:06
  * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/utils/log.c
  * @Description: 
  * 
@@ -10,10 +10,12 @@
  */
 
 #include <common.h>
+#include <trace/log.h>
 
 extern uint64_t g_nr_guest_inst;
 
 FILE *log_fp = NULL;
+static size_t size = 0;
 
 void init_log(const char *log_file) {
   log_fp = stdout;
@@ -26,6 +28,7 @@ void init_log(const char *log_file) {
 }
 
 bool log_enable() {
-  return MUXDEF(CONFIG_TRACE, (g_nr_guest_inst >= CONFIG_TRACE_START) &&
-         (g_nr_guest_inst <= CONFIG_TRACE_END), false);
+  size ++;
+  return MUXDEF(CONFIG_TRACE, (size >= CONFIG_TRACE_START) &&
+         (size <= CONFIG_TRACE_END), false);
 }

@@ -1,16 +1,18 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-16 16:46:46
- * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-08-20 21:13:18
- * @FilePath: /ysyx-workbench/npc/csrc/single_cycle_cpu/isa/reg.c
+ * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
+ * @LastEditTime: 2024-12-08 13:37:05
+ * @FilePath: /ysyx-workbench/npc/csrc/isa/reg.c
  * @Description: 
  * 
  * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
  */
 #include <common.h>
 #include <isa/reg.h>
+#include <isa/isa-def.h>
 uint32_t* regsData[REGS_SIZE] = {};
+extern CPU_state cpu;
 
 const char *regs[] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
@@ -22,7 +24,11 @@ const char *regs[] = {
 void isa_reg_display() {
 	printf("Reg display begin\n");
 	for (int i = 0; i < REGS_SIZE; i++) {
-		printf("%s:\t%#x\n", regs[i], gpr(i));
+		printf("%s:\t%#x\n", regs[i], cpu.gpr[i]);
 	}
+	printf("MSTATUS:\t%#x\n", cpu.csr[MSTATUS]);
+	printf("MCAUSE:\t%#x\n", cpu.csr[MCAUSE]);
+	printf("MEPC:\t%#x\n", cpu.csr[MEPC]);
+	printf("MTVEC:\t%#x\n", cpu.csr[MTVEC]);
 	printf("Reg display end\n");
 }

@@ -1,8 +1,8 @@
 /*
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 15:40:47
- * @LastEditors: 23060306-Lei Xiao Tian leixiaotian434@gmail.com
- * @LastEditTime: 2024-12-05 21:10:15
+ * @LastEditors: lxt leixiaotian434@gmail.com
+ * @LastEditTime: 2025-02-16 11:52:08
  * @FilePath: /ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp
  * @Description: 
  * 
@@ -18,6 +18,9 @@
 #include <iostream>
 #include <cstdint>
 #include <elf.h>
+#ifdef CONFIG_NVBOARD
+#include <nvboard.h>
+#endif
 
 #define MAX_INST_TO_PRINT 10
 uint64_t g_nr_guest_inst = 0;
@@ -26,9 +29,9 @@ static bool g_print_step = false;
 CPU_state cpu = {};
 
 char logbuf[128] = "";
-uint32_t npc_dnpc 	= 0x80000000;
-uint32_t npc_pc 	= 0x80000000;
-uint32_t base_addr 	= 0x80000000;
+uint32_t npc_dnpc 	= 0x30000000;
+uint32_t npc_pc 	= 0x30000000;
+uint32_t base_addr 	= 0x30000000;
 
 word_t ftrace_function_call_flag;
 word_t ftrace_ret_flag;
@@ -40,7 +43,6 @@ static void step_and_dump_wave();
 extern "C" void sim_exit();
 void sim_exit() {
 	NPCTRAP(npc_pc, gpr(10));
-	verilatorTop->io_npcState 		= npc_state.state; 
 
     step_and_dump_wave(); // 确保最后一步被记录
 }
@@ -56,20 +58,29 @@ void set_ftrace_ret_flag() {
 }
 
 extern "C" svBitVecVal getCommond();
+extern "C" svBitVecVal get_cur_pc();
+extern "C" svBitVecVal get_next_pc();
 // DPI-C END
 
 // Simulate stepping and record waveform
 static void step_and_dump_wave() {
     verilatorTop->eval();
 	#ifdef CONFIG_WAVE_TRACE
-    verlatorContextp->timeInc(1); // 时间增加
-   	verlatorTfp->dump(verlatorContextp->time());
+	if (((npc_pc >= CONFIG_WAVE_EREA_BEGIN) & (npc_pc < CONFIG_WAVE_EREA_END)) &
+		(!((npc_pc >= 0x0f000000) & (npc_pc < 0x0f002000)))) {
+		verlatorContextp->timeInc(1); // 时间增加
+		verlatorTfp->dump(verlatorContextp->time());
+	}
+	#endif
+	#ifdef CONFIG_NVBOARD
+	if(verilatorTop->clock == 1) nvboard_update();
 	#endif
 }
 
 static void trace_and_difftest() {
 #ifdef CONFIG_ITRACE
-	log_write("%s\n", logbuf);
+	if (!((npc_pc >= 0x0f000000) & (npc_pc < 0x0f002000)))
+		log_write("%s\n", logbuf);
 #endif
   	if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(logbuf)); }
 	IFDEF(CONFIG_DIFFTEST, difftest_step(npc_pc, npc_dnpc));
@@ -100,14 +111,26 @@ static void trace_and_difftest() {
 #endif
 }
 
+static void set_dut_cpu_regs(vaddr_t pc) {
+  cpu.pc  = pc;
+  for (size_t i = 0; i < REGS_SIZE; i++) {
+    cpu.gpr[i] = gpr(i);
+  }
+  cpu.csr[MSTATUS]  = csr(MSTATUS);
+  cpu.csr[MCAUSE]   = csr(MCAUSE);
+  cpu.csr[MEPC]     = csr(MEPC);
+  cpu.csr[MTVEC]    = csr(MTVEC);
+}
+
 static void exec_once() {
+	#ifdef CONFIG_TRACE
 	uint32_t npc_curPC  = npc_pc;
 	uint32_t npc_snpc 	= npc_curPC + 4;
+	#endif
 
 	verilatorTop->clock = 0; step_and_dump_wave();
-	while (!(verilatorTop->rootp->top__DOT__wbu__DOT__validPC2Reg && verilatorTop->rootp->top__DOT__pc__DOT__wbu2PCReadyReg)) {
+	while (!(verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__wbu__DOT__validPC2Reg && verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc__DOT__wbu2PCReadyReg)) {
 		verilatorTop->clock = 1; step_and_dump_wave();
-		if(verilatorTop->io_npcState == 2) break;
 		verilatorTop->clock = 0; step_and_dump_wave();
 	}
 #ifdef CONFIG_ITRACE
@@ -115,7 +138,7 @@ static void exec_once() {
 	p += snprintf(p, sizeof(logbuf), FMT_WORD ":", npc_curPC);
 	int ilen = npc_snpc - npc_curPC;
 	int i;
-	svSetScope(svGetScopeFromName("TOP.top.idu.contrGen.cgDPIC"));
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.wbu.getCmd"));
 	svBitVecVal cmd = getCommond();
 	uint32_t npcCurCmd = (uint32_t) cmd;
 	uint8_t *inst = reinterpret_cast<uint8_t*>(&npcCurCmd);
@@ -137,17 +160,18 @@ static void exec_once() {
 #endif
 	verilatorTop->clock = 1; step_and_dump_wave();
 
-	npc_pc		= verilatorTop->io_curPC; 
-	npc_dnpc	= verilatorTop->io_nextPC;
-	verilatorTop->io_npcState = npc_state.state;
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
+	npc_pc		= get_cur_pc(); 
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
+	npc_dnpc	= get_next_pc();
 	trace_and_difftest();
-	verilatorTop->eval();
 }
 
 static void execute(uint64_t n) {
-	npc_pc		= verilatorTop->io_curPC; 
-	npc_dnpc	= verilatorTop->io_nextPC;
-	verilatorTop->io_npcState 		= npc_state.state;
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
+	npc_pc		= get_cur_pc(); 
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
+	npc_dnpc	= get_next_pc();	
 	verilatorTop->eval();
 
 	for(uint64_t i=0; i < n; i ++) {
@@ -188,7 +212,7 @@ void cpu_exec(uint64_t n) {
 
 	uint64_t timer_start = get_time();
 
-	verilatorTop->reset 			= 0;
+	verilatorTop->reset = 0; step_and_dump_wave();
 	execute(n);
 
 	uint64_t timer_end = get_time();
@@ -211,7 +235,9 @@ void cpu_exec(uint64_t n) {
 		#ifdef CONFIG_ITRACE
 		iringbuf_log();
 		#endif
-		// fall through
+		#ifdef CONFIG_NVBOARD
+		nvboard_quit();
+		#endif
 		
 		case NPC_QUIT:  statistic(); break;
 		default:

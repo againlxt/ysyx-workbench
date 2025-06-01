@@ -17,10 +17,15 @@ config SDB_MODE
 endchoice
 
 menu "Verilator"
-
 config WAVE_TRACE
 	bool "Enable Wave tracer"
 	default y
+config WAVE_EREA_BEGIN
+  hex "The begining of wave area"
+  default 0x0
+config WAVE_EREA_END
+  hex "The end of wave area"
+  default 0xffffffff
 endmenu
 
 menu "Testing and Debugging"
@@ -29,6 +34,15 @@ menu "Testing and Debugging"
 config TRACE
   bool "Enable tracer"
   default y
+
+config NO_TRACE_START_ADDR
+  depends on TRACE
+  hex "The begining address of trace"
+  default 0
+config NO_TRACE_END_ADDR
+  depends on TRACE
+  hex "The ending address of trace"
+  default 0xffffffff
 
 config TRACE_START
   depends on TRACE
@@ -85,6 +99,61 @@ config PC_RESET_OFFSET
   default 0x100000 if ISA_x86
   default 0
 
+menuconfig HAS_SRAM
+  bool "Enable SRAM"
+  default y
+
+if HAS_SRAM
+config SRAMMBASE
+  hex "SRAM base address"
+  default 0x0f000000
+config SRAMSIZE
+  hex "SRAM size"
+  default 0x2000
+endif # HAS_SRAM
+
+menuconfig HAS_MROM
+  bool "Enable MROM"
+  default y
+
+if HAS_MROM
+config MROMBASE
+  hex "MROM base address"
+  default 0x20000000
+config MROMSIZE
+  hex "MROM size"
+  default 0x1000
+endif # HAS_MROM
+
+menuconfig HAS_FLASH
+  bool "Enable FLASH"
+  default y
+
+if HAS_FLASH
+config FLASHCTRLBASE
+  hex "FLASH base address"
+  default 0x10001000
+config FLASHBASE
+  hex "FLASH base address"
+  default 0x30000000
+config FLASHSIZE
+  hex "FLASH size"
+  default 0x10000000
+endif # HAS_FLASH
+
+menuconfig HAS_PSRAM
+  bool "Enable PSRAM"
+  default y
+
+if HAS_PSRAM
+config PSRAMBASE
+  hex "PSRAM base address"
+  default 0x80000000
+config PSRAMSIZE
+  hex "PSRAM size"
+  default 0x20000000
+endif # HAS_PSRAM
+
 endmenu
 
 menu "Build Options"
@@ -100,6 +169,8 @@ config CC_O2
   bool "O2"
 config CC_O3
   bool "O3"
+config CC_OS
+  bool "Os"
 endchoice
 
 config CC_OPT
@@ -108,6 +179,7 @@ config CC_OPT
   default "-O1" if CC_O1
   default "-O2" if CC_O2
   default "-O3" if CC_O3
+  default "-Os" if CC_OS
   default "none"
 
 config CC_DEBUG
@@ -115,7 +187,47 @@ config CC_DEBUG
   default n
 
 config CC_ASAN
-  depends on MODE_SYSTEM
   bool "Enable address sanitizer"
   default n
+endmenu
+
+menu "SoC"
+config SOC
+  bool "Enable SoC"
+  default n
+config NVBOARD
+  depends on SOC
+  bool "Enable nvboard"
+  default n
+menu "SoC Device"
+depends on SOC
+menu "UART16550"
+config UART16550_BASE
+	hex "UART16550 base address"
+	default 0x10000000
+config UART16550_RBR_THR_DLL
+	hex "RBR THR DLL"
+	default 0x0
+config UART16550_IER_DLM
+	hex "IER DLM"
+	default 0x1
+config UART16550_IIR_FCR
+	hex "IIR FCR"
+	default 0x2
+config UART16550_LCR
+	hex "LCR"
+	default 0x3
+config UART16550_MCR
+	hex "MCR"
+	default 0x4
+config UART16550_LSR
+	hex "LSR"
+	default 0x5
+config UART16550_MSR
+	hex "MSR"
+	default 0x6
+endmenu
+
+endmenu
+
 endmenu

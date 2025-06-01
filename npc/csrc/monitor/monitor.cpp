@@ -2,7 +2,7 @@
  * @Author: lxt leixiaotian434@gmail.com
  * @Date: 2024-08-14 14:26:56
  * @LastEditors: lxt leixiaotian434@gmail.com
- * @LastEditTime: 2024-10-14 19:22:16
+ * @LastEditTime: 2025-02-28 11:16:50
  * @FilePath: /ysyx-workbench/npc/csrc/monitor/monitor.cpp
  * @Description: 
  * 
@@ -13,6 +13,10 @@
 #include <verilator.h>
 #include <isa/reg.h>
 #include <memory/paddr.h>
+#include <memory/memory.h>
+#ifdef CONFIG_NVBOARD
+#include <nvboard.h>
+#endif
 
 static char *img_file = NULL;
 static char *log_file = NULL;
@@ -21,9 +25,12 @@ static char *elf_file = NULL;
 static int difftest_port = 1234;
 
 VerilatedContext* verlatorContextp = nullptr;
-Vtop* verilatorTop = nullptr;
+VysyxSoCFull* verilatorTop = nullptr;
 #ifdef CONFIG_WAVE_TRACE
 VerilatedVcdC* verlatorTfp = nullptr;
+#endif
+#ifdef CONFIG_NVBOARD
+void nvboard_bind_all_pins(VysyxSoCFull* top);
 #endif
 
 extern void sdb_set_batch_mode();
@@ -39,6 +46,9 @@ static void step_and_dump_wave() {
 	#ifdef CONFIG_WAVE_TRACE
     verlatorContextp->timeInc(1); // 时间增加
     verlatorTfp->dump(verlatorContextp->time());
+	#endif
+	#ifdef CONFIG_NVBOARD
+	if(verilatorTop->clock == 1) nvboard_update();
 	#endif
 }
 
@@ -100,7 +110,7 @@ static long load_img() {
 	Log("The image is %s, size = %ld", img_file, size);
 
 	fseek(fp, 0, SEEK_SET);
-	int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
+	int ret = fread(guest_to_host_flash(0), size, 1, fp);
 	assert(ret == 1);
 
 	fclose(fp);
@@ -108,23 +118,21 @@ static long load_img() {
 }
 
 static void init_npc() {
-	verilatorTop->io_npcState 	= NPC_INIT;
-
-	verilatorTop->reset 			= 1;
-	verilatorTop->clock = 0; step_and_dump_wave();
-	verilatorTop->clock = 1; step_and_dump_wave();
-	verilatorTop->clock = 0; step_and_dump_wave();
-	verilatorTop->clock = 1; step_and_dump_wave();
+	verilatorTop->reset = 1; step_and_dump_wave();
+	for (size_t i = 0; i < 20; i++) {
+		verilatorTop->clock = 0; step_and_dump_wave();
+		verilatorTop->clock = 1; step_and_dump_wave();
+	}
 }
 
 static void sim_init() {
     verlatorContextp = new VerilatedContext;
-    verilatorTop = new Vtop(verlatorContextp);
+    verilatorTop = new VysyxSoCFull(verlatorContextp);
 	#ifdef CONFIG_WAVE_TRACE
 	verlatorTfp = new VerilatedVcdC;
     verlatorContextp->traceEverOn(true);
     verilatorTop->trace(verlatorTfp, 1000);
-    verlatorTfp->open("bus_cpu.vcd");
+    verlatorTfp->open("soc_cpu.vcd");
 	#endif
 }
 
@@ -132,15 +140,19 @@ void init_monitor(int argc, char *argv[]) {
 	parse_args(argc, argv);
 
 	init_log(log_file);
-
 	init_elf(elf_file);
-
 	init_mem();
+	init_mrom();
+	init_flash();
+	init_psram();
 
 	long img_size = load_img();
 
 	sim_init();
-	
+	#ifdef CONFIG_NVBOARD
+	nvboard_bind_all_pins(verilatorTop);
+	nvboard_init();
+	#endif
 	init_npc();
 
 	IFDEF(CONFIG_ITRACE, init_disasm(

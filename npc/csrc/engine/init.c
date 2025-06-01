@@ -16,6 +16,6 @@ void engine_start() {
 #if CONFIG_SDB_MODE == 1
 	sdb_mainloop();
 #else 
-	cpu_exec(-1);
+	cpu_exec(0xffffffffffffffff);
 #endif
 }
