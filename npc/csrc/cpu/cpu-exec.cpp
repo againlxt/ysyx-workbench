@@ -38,6 +38,9 @@ word_t ftrace_ret_flag;
 
 static void step_and_dump_wave();
 
+/* Preformence Counter */
+static uint64_t cycle_counter = 0;
+
 // DPI-C
 // Simulation exit
 extern "C" void sim_exit();
@@ -45,6 +48,10 @@ void sim_exit() {
 	NPCTRAP(npc_pc, gpr(10));
 
     step_and_dump_wave(); // 确保最后一步被记录
+	printf("total cycle = %lu\n", cycle_counter);
+	printf("total inst  = %lu\n", g_nr_guest_inst);
+	printf("IPC         = %lf\n", (double) ((double) g_nr_guest_inst/ (double)cycle_counter));
+	printf("CPI         = %lf\n", (double) ((double) cycle_counter/ (double)g_nr_guest_inst));
 }
 
 extern "C" void set_ftrace_function_call_flag(); 
@@ -88,15 +95,6 @@ static void trace_and_difftest() {
 #ifdef CONFIG_FTRACE
 	Elf32_Sym *ftrace_function_symbol = NULL;
 	if(ftrace_function_call_flag == true) {
-		ftrace_function_call_flag = false;
-		ftrace_function_symbol = find_func_call(npc_dnpc);
-		log_write("f %#X: ", npc_pc);
-		ftrace_call_depth ++;
-		for (uint32_t i = 0; i < ftrace_call_depth; i++) { log_write("  "); }
-		if(ftrace_function_symbol != NULL)
-		  	log_write("call [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);
-		else
-			log_write("call [UNKOWN@%#X]\n", npc_dnpc);
 	} else if (ftrace_ret_flag == true) {
 		ftrace_ret_flag = false;
 		ftrace_function_symbol = find_func_call(npc_dnpc);
@@ -122,16 +120,25 @@ static void set_dut_cpu_regs(vaddr_t pc) {
   cpu.csr[MTVEC]    = csr(MTVEC);
 }
 
+static void clk_up() {
+	verilatorTop->clock = 1; step_and_dump_wave();
+	cycle_counter ++;
+}
+
+static void clk_down() {
+	verilatorTop->clock = 0; step_and_dump_wave();
+}
+
 static void exec_once() {
 	#ifdef CONFIG_TRACE
 	uint32_t npc_curPC  = npc_pc;
 	uint32_t npc_snpc 	= npc_curPC + 4;
 	#endif
 
-	verilatorTop->clock = 0; step_and_dump_wave();
+	clk_down();	
 	while (!(verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__wbu__DOT__validPC2Reg && verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc__DOT__wbu2PCReadyReg)) {
-		verilatorTop->clock = 1; step_and_dump_wave();
-		verilatorTop->clock = 0; step_and_dump_wave();
+		clk_up();
+		clk_down();
 	}
 #ifdef CONFIG_ITRACE
 	char *p = logbuf;
@@ -158,7 +165,7 @@ static void exec_once() {
 
 	new_irbn(logbuf);
 #endif
-	verilatorTop->clock = 1; step_and_dump_wave();
+	clk_up();
 
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
 	npc_pc		= get_cur_pc(); 
@@ -176,7 +183,7 @@ static void execute(uint64_t n) {
 
 	for(uint64_t i=0; i < n; i ++) {
 		if(npc_state.state != NPC_RUNNING)	break;
-		exec_once();	
+		exec_once();
 		#ifdef CONFIG_ITRACE
 		#endif
 		g_nr_guest_inst ++;
