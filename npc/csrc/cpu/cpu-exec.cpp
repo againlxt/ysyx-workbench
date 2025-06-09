@@ -38,20 +38,60 @@ word_t ftrace_ret_flag;
 
 static void step_and_dump_wave();
 
+// DPI-C
 /* Preformence Counter */
 static uint64_t cycle_counter = 0;
-
-// DPI-C
+#ifdef CONFIG_PERFORMANCE_COUNTER_ENABLE
+enum PerformanceCounterType {
+	OTHER = 0, JUMP, STROE, LOAD, CAL, CSR, IFUGETINST, LSUGETDATA, EXUFINCAL
+};
+static double other_counter = 0;
+static double jump_counter = 0;
+static double stroe_counter = 0;
+static double load_counter = 0;
+static double cal_counter = 0;
+static double csr_counter = 0;
+static double ifu_get_inst_cnt = 0;
+static double lsu_get_data_cnt = 0;
+static double exu_fin_cal_cnt = 0;
+extern "C" void performence_cnt_record(int cnttype, int data) {
+	switch (cnttype) {
+		case OTHER: other_counter ++; 	break;
+		case JUMP: 	jump_counter ++; 	break;
+		case STROE:	stroe_counter ++; 	break;
+		case LOAD: 	load_counter ++; 	break;
+		case CAL: 	cal_counter ++;		break;
+		case CSR: 	csr_counter ++; 	break;
+		case IFUGETINST:
+			ifu_get_inst_cnt += data;	break;
+		case LSUGETDATA:
+			lsu_get_data_cnt += data;	break;
+		case EXUFINCAL:
+			exu_fin_cal_cnt  += data;	break;
+		default: Log("Unknow Type!"); assert(0);
+	}
+}
+static void performence_cnt_display() {
+	Log("================ Performence Counter Display =================");
+	Log("\tproportion JUMP  |  Store  |  Load  |  Cal  |  Csr  |  Other");
+	Log("\t           %0.2lf%%   %0.2lf%%   %0.2lf%%   %0.2lf%%   %0.2lf%%   %0.2lf%%", 100*jump_counter/g_nr_guest_inst, 100*stroe_counter/g_nr_guest_inst,
+	100*load_counter/g_nr_guest_inst, 100*cal_counter/g_nr_guest_inst, 100*csr_counter/g_nr_guest_inst, 100*other_counter/g_nr_guest_inst);
+	Log("\tproportion IFUGetInst  |  LSUGetData  |  EXUFinCal");
+	Log("\t           %0.2lf%%           %0.2lf%%         %0.2lf%%", 100*ifu_get_inst_cnt/cycle_counter, 100*lsu_get_data_cnt/cycle_counter, 100*exu_fin_cal_cnt/cycle_counter);
+	Log("============== Performence Counter Display End ===============");
+}
+#endif
 // Simulation exit
 extern "C" void sim_exit();
 void sim_exit() {
 	NPCTRAP(npc_pc, gpr(10));
 
     step_and_dump_wave(); // 确保最后一步被记录
-	printf("total cycle = %lu\n", cycle_counter);
-	printf("total inst  = %lu\n", g_nr_guest_inst);
-	printf("IPC         = %lf\n", (double) ((double) g_nr_guest_inst/ (double)cycle_counter));
-	printf("CPI         = %lf\n", (double) ((double) cycle_counter/ (double)g_nr_guest_inst));
+	Log("total cycle = %lu", cycle_counter);
+	Log("total inst  = %lu", g_nr_guest_inst);
+	Log("IPC         = %lf", (double) ((double) g_nr_guest_inst/ (double)cycle_counter));
+	Log("CPI         = %lf", (double) ((double) cycle_counter/ (double)g_nr_guest_inst));
+	IFDEF(CONFIG_PERFORMANCE_COUNTER_ENABLE, performence_cnt_display());
 }
 
 extern "C" void set_ftrace_function_call_flag(); 

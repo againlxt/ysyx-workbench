@@ -28,6 +28,10 @@ config WAVE_EREA_END
   default 0xffffffff
 endmenu
 
+config PERFORMANCE_COUNTER_ENABLE
+  bool "Performance Counter Enable"
+  default y
+
 menu "Testing and Debugging"
 
 
