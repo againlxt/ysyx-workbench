@@ -12,7 +12,11 @@
 #define __VERILATOR_H__
 
 #include "verilated.h"
-#include <verilated_vcd_c.h>
+#ifdef CONFIG_FST_MODE
+#include "verilated_fst_c.h"
+#else
+#include "verilated_vcd_c.h"
+#endif
 #include <svdpi.h>
 #include <iostream>
 #include "VysyxSoCFull.h"
@@ -22,7 +26,11 @@ extern VysyxSoCFull* verilatorTop;
 
 extern VerilatedContext* verlatorContextp;
 #ifdef CONFIG_WAVE_TRACE
+#ifdef CONFIG_FST_MODE
+extern VerilatedFstC* verlatorTfp;
+#else
 extern VerilatedVcdC* verlatorTfp;
+#endif
 #endif
 extern uint32_t npc_dnpc;
 extern uint32_t npc_pc;

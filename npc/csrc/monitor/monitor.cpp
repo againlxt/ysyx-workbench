@@ -27,7 +27,11 @@ static int difftest_port = 1234;
 VerilatedContext* verlatorContextp = nullptr;
 VysyxSoCFull* verilatorTop = nullptr;
 #ifdef CONFIG_WAVE_TRACE
+#ifdef CONFIG_FST_MODE 
+VerilatedFstC* verlatorTfp = nullptr;
+#else
 VerilatedVcdC* verlatorTfp = nullptr;
+#endif
 #endif
 #ifdef CONFIG_NVBOARD
 void nvboard_bind_all_pins(VysyxSoCFull* top);
@@ -129,10 +133,18 @@ static void sim_init() {
     verlatorContextp = new VerilatedContext;
     verilatorTop = new VysyxSoCFull(verlatorContextp);
 	#ifdef CONFIG_WAVE_TRACE
+	#ifdef CONFIG_FST_MODE
+	verlatorTfp = new VerilatedFstC;
+	#else
 	verlatorTfp = new VerilatedVcdC;
+	#endif
     verlatorContextp->traceEverOn(true);
     verilatorTop->trace(verlatorTfp, 1000);
+	#ifdef CONFIG_FST_MODE
+	verlatorTfp->open("soc_cpu.fst");
+	#else
     verlatorTfp->open("soc_cpu.vcd");
+	#endif
 	#endif
 }
 

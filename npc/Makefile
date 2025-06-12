@@ -44,7 +44,7 @@ CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
 LDFLAGS += $(shell llvm-config --libs)
 endif
 OBJS  = $(VSRCS) $(CSRCS) $(CXXSRC) $(NVBOARD_ARCHIVE)
-VCDSRCS = $(shell find $(abspath ./) -name $(PROJ_NAME).vcd)
+VCDSRCS = $(if $(CONFIG_FST_MODE), $(shell find $(abspath ./) -name $(PROJ_NAME).fst), $(shell find $(abspath ./) -name $(PROJ_NAME).vcd))
 
 # Command to execute NPC
 NPC_SIM := $(BUILD_DIR)/$(TOPNAME) $(ARGS) $(IMG)
@@ -68,7 +68,7 @@ CXXFLAGS += $(HSRCS)
 LDFLAGS  += -lreadline
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc --x-initial fast --noassert --autoflush
-VERILATOR_CFLAGS += $(if $(CONFIG_WAVE_TRACE),--trace,)
+VERILATOR_CFLAGS += $(if $(CONFIG_WAVE_TRACE),$(if $(CONFIG_FST_MODE), --trace-fst, --trace),)
 VERILATOR_CFLAGS += $(call remove_quote,$(CONFIG_CC_OPT))
 VERILATOR_CFLAGS += $(if $(CONFIG_SOC),--timescale "1ns/1ns",)
 VERILATOR_CFLAGS += $(if $(CONFIG_SOC),--no-timing,)
@@ -87,12 +87,14 @@ run: $(BIN)
 	@$^
 clean:
 	rm -rf ./build
-	rm -rf ./*.vcd
+	rm -rf ./*.vcd*
+	rm -rf ./*.fst*
 
 sim: $(OBJS)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@rm -rf $(OBJ_DIR)
-	@rm -rf ./*.vcd
+	@rm -rf ./*.vcd*
+	@rm -rf ./*.fst*
 	@$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $^ \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) \

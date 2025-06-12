@@ -83,6 +83,8 @@ static void performence_cnt_display() {
 	Log("           %0.2lf%%           %0.2lf%%         %0.2lf%%", 100*ifu_get_inst_cnt/cycle_counter, 100*lsu_get_data_cnt/cycle_counter, 100*exu_fin_cal_cnt/cycle_counter);
 	Log("============== Performence Counter Display End ===============");
 }
+#else
+extern "C" void performence_cnt_record(int cnttype, int data) {}
 #endif
 // Simulation exit
 extern "C" void sim_exit();
@@ -182,7 +184,7 @@ static void exec_once() {
 		clk_up();
 		clk_down();
 	}
-#ifdef CONFIG_ITRACE
+	#ifdef CONFIG_ITRACE
 	char *p = logbuf;
 	p += snprintf(p, sizeof(logbuf), FMT_WORD ":", npc_curPC);
 	int ilen = npc_snpc - npc_curPC;
@@ -203,10 +205,10 @@ static void exec_once() {
 
 	void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 	disassemble(p, logbuf + sizeof(logbuf) - p,
-    	npc_pc, (uint8_t *) &npcCurCmd, ilen);
+		npc_pc, (uint8_t *) &npcCurCmd, ilen);
 
 	new_irbn(logbuf);
-#endif
+	#endif
 	clk_up();
 
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));

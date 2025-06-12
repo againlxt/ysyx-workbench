@@ -20,10 +20,15 @@ menu "Verilator"
 config WAVE_TRACE
 	bool "Enable Wave tracer"
 	default y
+config FST_MODE
+  depends on WAVE_TRACE
+	bool "FST mode"
 config WAVE_EREA_BEGIN
+  depends on WAVE_TRACE
   hex "The begining of wave area"
   default 0x0
 config WAVE_EREA_END
+  depends on WAVE_TRACE
   hex "The end of wave area"
   default 0xffffffff
 endmenu
