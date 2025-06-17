@@ -80,6 +80,7 @@ module IFU(
   output [31:0] io_inst_bits_pc, // @[src/main/scala/ifu/IFU.scala 15:16]
   output        io_ifu2Mem_bready, // @[src/main/scala/ifu/IFU.scala 15:16]
   input         io_ifu2Mem_bvalid, // @[src/main/scala/ifu/IFU.scala 15:16]
+  input  [1:0]  io_ifu2Mem_bresp, // @[src/main/scala/ifu/IFU.scala 15:16]
   input         io_ifu2Mem_arready, // @[src/main/scala/ifu/IFU.scala 15:16]
   output        io_ifu2Mem_arvalid, // @[src/main/scala/ifu/IFU.scala 15:16]
   output [31:0] io_ifu2Mem_araddr, // @[src/main/scala/ifu/IFU.scala 15:16]
@@ -92,7 +93,14 @@ module IFU(
   reg [31:0] _RAND_1;
   reg [31:0] _RAND_2;
   reg [31:0] _RAND_3;
+  reg [31:0] _RAND_4;
 `endif // RANDOMIZE_REG_INIT
+  wire  axiAccessFault_valid; // @[src/main/scala/ifu/IFU.scala 90:44]
+  wire  axiAccessFault_ready; // @[src/main/scala/ifu/IFU.scala 90:44]
+  wire [1:0] axiAccessFault_resp; // @[src/main/scala/ifu/IFU.scala 90:44]
+  wire  IGIC_valid; // @[src/main/scala/ifu/IFU.scala 127:57]
+  wire [31:0] IGIC_counterType; // @[src/main/scala/ifu/IFU.scala 127:57]
+  wire [31:0] IGIC_data; // @[src/main/scala/ifu/IFU.scala 127:57]
   wire  resetnWire = ~reset; // @[src/main/scala/ifu/IFU.scala 22:35]
   reg  breadyReg; // @[src/main/scala/ifu/IFU.scala 37:42]
   reg  arvalidReg; // @[src/main/scala/ifu/IFU.scala 39:42]
@@ -108,6 +116,18 @@ module IFU(
   wire  _GEN_6 = io_ifu2Mem_rvalid | rreadyReg; // @[src/main/scala/ifu/IFU.scala 115:40 116:27 47:42]
   wire  _GEN_7 = io_ifu2Mem_rvalid & rreadyReg ? 1'h0 : _GEN_6; // @[src/main/scala/ifu/IFU.scala 113:60 114:27]
   wire  _GEN_8 = _T_1 | _GEN_7; // @[src/main/scala/ifu/IFU.scala 111:34 112:27]
+  reg [31:0] ifuGetInstCounter; // @[src/main/scala/ifu/IFU.scala 121:48]
+  wire [31:0] _ifuGetInstCounter_T_1 = ifuGetInstCounter + 32'h1; // @[src/main/scala/ifu/IFU.scala 125:64]
+  AXIAccessFault axiAccessFault ( // @[src/main/scala/ifu/IFU.scala 90:44]
+    .valid(axiAccessFault_valid),
+    .ready(axiAccessFault_ready),
+    .resp(axiAccessFault_resp)
+  );
+  PerformanceCounter IGIC ( // @[src/main/scala/ifu/IFU.scala 127:57]
+    .valid(IGIC_valid),
+    .counterType(IGIC_counterType),
+    .data(IGIC_data)
+  );
   assign io_inst_valid = io_ifu2Mem_rvalid & rreadyReg; // @[src/main/scala/ifu/IFU.scala 133:47]
   assign io_inst_bits_inst = io_ifu2Mem_rdata; // @[src/main/scala/ifu/IFU.scala 134:33]
   assign io_inst_bits_pc = araddrReg; // @[src/main/scala/ifu/IFU.scala 135:33]
@@ -115,6 +135,12 @@ module IFU(
   assign io_ifu2Mem_arvalid = arvalidReg; // @[src/main/scala/ifu/IFU.scala 71:33]
   assign io_ifu2Mem_araddr = araddrReg; // @[src/main/scala/ifu/IFU.scala 72:33]
   assign io_ifu2Mem_rready = rreadyReg; // @[src/main/scala/ifu/IFU.scala 78:33]
+  assign axiAccessFault_valid = io_ifu2Mem_bvalid; // @[src/main/scala/ifu/IFU.scala 92:41]
+  assign axiAccessFault_ready = breadyReg; // @[src/main/scala/ifu/IFU.scala 91:41]
+  assign axiAccessFault_resp = io_ifu2Mem_bresp; // @[src/main/scala/ifu/IFU.scala 93:41]
+  assign IGIC_valid = io_ifu2Mem_rvalid & rreadyReg; // @[src/main/scala/ifu/IFU.scala 128:62]
+  assign IGIC_counterType = 32'h6; // @[src/main/scala/ifu/IFU.scala 129:41]
+  assign IGIC_data = ifuGetInstCounter; // @[src/main/scala/ifu/IFU.scala 130:41]
   always @(posedge clock) begin
     breadyReg <= reset | _GEN_2; // @[src/main/scala/ifu/IFU.scala 37:{42,42}]
     arvalidReg <= reset | _GEN_5; // @[src/main/scala/ifu/IFU.scala 39:{42,42}]
@@ -127,6 +153,13 @@ module IFU(
       rreadyReg <= 1'h0; // @[src/main/scala/ifu/IFU.scala 47:42]
     end else begin
       rreadyReg <= _GEN_8;
+    end
+    if (reset) begin // @[src/main/scala/ifu/IFU.scala 121:48]
+      ifuGetInstCounter <= 32'h0; // @[src/main/scala/ifu/IFU.scala 121:48]
+    end else if (arvalidReg & io_ifu2Mem_arready) begin // @[src/main/scala/ifu/IFU.scala 122:64]
+      ifuGetInstCounter <= 32'h0; // @[src/main/scala/ifu/IFU.scala 123:43]
+    end else begin
+      ifuGetInstCounter <= _ifuGetInstCounter_T_1; // @[src/main/scala/ifu/IFU.scala 125:43]
     end
   end
 // Register and memory initialization
@@ -173,6 +206,8 @@ initial begin
   araddrReg = _RAND_2[31:0];
   _RAND_3 = {1{`RANDOM}};
   rreadyReg = _RAND_3[0:0];
+  _RAND_4 = {1{`RANDOM}};
+  ifuGetInstCounter = _RAND_4[31:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
@@ -675,6 +710,10 @@ module ContrGen(
   output        io_csrOP, // @[src/main/scala/idu/ContrGen.scala 11:20]
   output [1:0]  io_csrALUOP // @[src/main/scala/idu/ContrGen.scala 11:20]
 );
+  wire [31:0] cgDPIC_instructionFormat; // @[src/main/scala/idu/ContrGen.scala 1009:36]
+  wire [31:0] cgDPIC_instructionFormatJAL; // @[src/main/scala/idu/ContrGen.scala 1009:36]
+  wire [31:0] cgDPIC_instructionFormatJALR; // @[src/main/scala/idu/ContrGen.scala 1009:36]
+  wire [31:0] cgDPIC_instructionFormatRET; // @[src/main/scala/idu/ContrGen.scala 1009:36]
   wire  _instructionFormatWire_T_1 = io_cmd[19:0] == 20'h8067; // @[src/main/scala/idu/ContrGen.scala 42:31]
   wire  _instructionFormatWire_T_7 = io_func3 == 3'h0; // @[src/main/scala/idu/ContrGen.scala 43:79]
   wire  _instructionFormatWire_T_9 = io_opcode == 7'h13; // @[src/main/scala/idu/ContrGen.scala 43:106]
@@ -1215,7 +1254,21 @@ module ContrGen(
   wire  _GEN_423 = 6'h31 == instructionFormatWire ? 1'h0 : 6'h28 == instructionFormatWire; // @[src/main/scala/idu/ContrGen.scala 186:39 217:25]
   wire  _GEN_424 = 6'h31 == instructionFormatWire ? 1'h0 : _GEN_409; // @[src/main/scala/idu/ContrGen.scala 186:39 218:25]
   wire  _GEN_425 = 6'h31 == instructionFormatWire ? 1'h0 : _GEN_410; // @[src/main/scala/idu/ContrGen.scala 186:39 219:25]
-  wire [1:0] _GEN_426 = 6'h31 == instructionFormatDESIGNre ? 2'h0 : _GEN_417; // @[src/main/scala/idu/ContrGen.scala 186:39 194:37]
+  wire [1:0] _GEN_426 = 6'h31 == instructionFormatWire ? 2'h0 : _GEN_411; // @[src/main/scala/idu/ContrGen.scala 186:39 220:25]
+  wire  _GEN_428 = 6'h0 == instructionFormatWire | _GEN_413; // @[src/main/scala/idu/ContrGen.scala 186:39 190:41]
+  CGDPIC cgDPIC ( // @[src/main/scala/idu/ContrGen.scala 1009:36]
+    .instructionFormat(cgDPIC_instructionFormat),
+    .instructionFormatJAL(cgDPIC_instructionFormatJAL),
+    .instructionFormatJALR(cgDPIC_instructionFormatJALR),
+    .instructionFormatRET(cgDPIC_instructionFormatRET)
+  );
+  assign io_immType = _instructionFormatWire_T_12 ? 3'h1 : _instructionTypeWire_T_199; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
+  assign io_regWR = 6'h0 == instructionFormatWire | _GEN_412; // @[src/main/scala/idu/ContrGen.scala 186:39 189:41]
+  assign io_srcAALU = {{1'd0}, _GEN_428};
+  assign io_srcBALU = 6'h0 == instructionFormatWire ? 2'h2 : _GEN_414; // @[src/main/scala/idu/ContrGen.scala 186:39 191:41]
+  assign io_ctrALU = 6'h0 == instructionFormatWire ? 4'h2 : _GEN_415; // @[src/main/scala/idu/ContrGen.scala 186:39 192:41]
+  assign io_branch = 6'h0 == instructionFormatWire ? 4'h2 : _GEN_416; // @[src/main/scala/idu/ContrGen.scala 186:39 193:41]
+  assign io_memToReg = 6'h0 == instructionFormatWire ? 2'h0 : _GEN_417; // @[src/main/scala/idu/ContrGen.scala 186:39 194:37]
   assign io_memWR = 6'h0 == instructionFormatWire ? 1'h0 : _GEN_418; // @[src/main/scala/idu/ContrGen.scala 186:39 195:41]
   assign io_memValid = 6'h0 == instructionFormatWire ? 1'h0 : _GEN_419; // @[src/main/scala/idu/ContrGen.scala 186:39 196:37]
   assign io_memOP = 6'h0 == instructionFormatWire ? 3'h0 : _GEN_420; // @[src/main/scala/idu/ContrGen.scala 186:39 197:41]
@@ -1225,6 +1278,10 @@ module ContrGen(
   assign io_csrWr = 6'h0 == instructionFormatWire ? 1'h0 : _GEN_421; // @[src/main/scala/idu/ContrGen.scala 186:39 198:33]
   assign io_csrOP = 6'h0 == instructionFormatWire ? 1'h0 : _GEN_422; // @[src/main/scala/idu/ContrGen.scala 186:39 199:25]
   assign io_csrALUOP = 6'h0 == instructionFormatWire ? 2'h0 : _GEN_426; // @[src/main/scala/idu/ContrGen.scala 186:39 203:25]
+  assign cgDPIC_instructionFormat = {{26'd0}, instructionFormatWire}; // @[src/main/scala/idu/ContrGen.scala 1010:49]
+  assign cgDPIC_instructionFormatJAL = 32'h3; // @[src/main/scala/idu/ContrGen.scala 1011:49]
+  assign cgDPIC_instructionFormatJALR = 32'h4; // @[src/main/scala/idu/ContrGen.scala 1012:49]
+  assign cgDPIC_instructionFormatRET = 32'h0; // @[src/main/scala/idu/ContrGen.scala 1013:49]
 endmodule
 module ImmGen(
   input  [11:0] io_iImm, // @[src/main/scala/idu/ImmGen.scala 7:20]
@@ -1322,6 +1379,9 @@ module IDU(
   wire [20:0] immGen_io_jImm; // @[src/main/scala/idu/IDU.scala 95:33]
   wire [2:0] immGen_io_immType; // @[src/main/scala/idu/IDU.scala 95:33]
   wire [31:0] immGen_io_imm; // @[src/main/scala/idu/IDU.scala 95:33]
+  wire  instTypeCnt_valid; // @[src/main/scala/idu/IDU.scala 115:45]
+  wire [31:0] instTypeCnt_counterType; // @[src/main/scala/idu/IDU.scala 115:45]
+  wire [31:0] instTypeCnt_data; // @[src/main/scala/idu/IDU.scala 115:45]
   reg [31:0] pcReg; // @[src/main/scala/idu/IDU.scala 21:30]
   reg [31:0] instReg; // @[src/main/scala/idu/IDU.scala 22:30]
   reg  ready2IFUReg; // @[src/main/scala/idu/IDU.scala 23:30]
@@ -1335,11 +1395,21 @@ module IDU(
   wire [6:0] func7Wire = instReg[31:25]; // @[src/main/scala/idu/IDU.scala 57:35]
   wire [4:0] rs2IndexWire = instReg[24:20]; // @[src/main/scala/idu/IDU.scala 58:31]
   wire [4:0] rs1IndexWire = instReg[19:15]; // @[src/main/scala/idu/IDU.scala 59:31]
-  wire [4:0] rdIndexWire = instReg[11:7]; // @[src/main/scala/idu/IDU.scala 61:31]
+  wire [6:0] opcodeWire = instReg[6:0]; // @[src/main/scala/idu/IDU.scala 62:35]
   wire [4:0] bImmWire_lo = {instReg[11:8],1'h0}; // @[src/main/scala/idu/IDU.scala 65:30]
   wire [7:0] bImmWire_hi = {instReg[31],instReg[7],instReg[30:25]}; // @[src/main/scala/idu/IDU.scala 65:30]
   wire [10:0] jImmWire_lo = {instReg[30:21],1'h0}; // @[src/main/scala/idu/IDU.scala 67:30]
   wire [9:0] jImmWire_hi = {instReg[31],instReg[19:12],instReg[20]}; // @[src/main/scala/idu/IDU.scala 67:30]
+  wire  _instType_T_3 = opcodeWire == 7'h67 | opcodeWire == 7'h6f; // @[src/main/scala/idu/IDU.scala 109:42]
+  wire  _instType_T_5 = opcodeWire == 7'h23; // @[src/main/scala/idu/IDU.scala 110:25]
+  wire  _instType_T_7 = opcodeWire == 7'h3; // @[src/main/scala/idu/IDU.scala 111:25]
+  wire  _instType_T_11 = opcodeWire == 7'h13 | opcodeWire == 7'h33; // @[src/main/scala/idu/IDU.scala 112:42]
+  wire  _instType_T_13 = opcodeWire == 7'h73; // @[src/main/scala/idu/IDU.scala 113:25]
+  wire [2:0] _instType_T_15 = _instType_T_13 ? 3'h5 : 3'h0; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
+  wire [2:0] _instType_T_16 = _instType_T_11 ? 3'h4 : _instType_T_15; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
+  wire [2:0] _instType_T_17 = _instType_T_7 ? 3'h3 : _instType_T_16; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
+  wire [2:0] _instType_T_18 = _instType_T_5 ? 3'h2 : _instType_T_17; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
+  wire [2:0] instType = _instType_T_3 ? 3'h1 : _instType_T_18; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
   ContrGen contrGen ( // @[src/main/scala/idu/IDU.scala 70:33]
     .io_cmd(contrGen_io_cmd),
     .io_opcode(contrGen_io_opcode),
@@ -1371,6 +1441,11 @@ module IDU(
     .io_immType(immGen_io_immType),
     .io_imm(immGen_io_imm)
   );
+  PerformanceCounter instTypeCnt ( // @[src/main/scala/idu/IDU.scala 115:45]
+    .valid(instTypeCnt_valid),
+    .counterType(instTypeCnt_counterType),
+    .data(instTypeCnt_data)
+  );
   assign io_inst_ready = ready2IFUReg; // @[src/main/scala/idu/IDU.scala 24:37]
   assign io_idu2EXU_valid = valid2EXUReg; // @[src/main/scala/idu/IDU.scala 26:37]
   assign io_idu2EXU_bits_pc = pcReg; // @[src/main/scala/idu/IDU.scala 142:33]
@@ -1401,11 +1476,14 @@ module IDU(
   assign contrGen_io_func3 = instReg[14:12]; // @[src/main/scala/idu/IDU.scala 60:35]
   assign contrGen_io_func7 = instReg[31:25]; // @[src/main/scala/idu/IDU.scala 57:35]
   assign immGen_io_iImm = instReg[31:20]; // @[src/main/scala/idu/IDU.scala 63:35]
-  assign immGen_io_sImm = {func7Wire,rdIndexWire}; // @[src/main/scala/idu/IDU.scala 64:30]
+  assign immGen_io_sImm = {func7Wire,instReg[11:7]}; // @[src/main/scala/idu/IDU.scala 64:30]
   assign immGen_io_bImm = {bImmWire_hi,bImmWire_lo}; // @[src/main/scala/idu/IDU.scala 65:30]
   assign immGen_io_uImm = {instReg[31:12],12'h0}; // @[src/main/scala/idu/IDU.scala 66:30]
   assign immGen_io_jImm = {jImmWire_hi,jImmWire_lo}; // @[src/main/scala/idu/IDU.scala 67:30]
   assign immGen_io_immType = contrGen_io_immType; // @[src/main/scala/idu/IDU.scala 102:25]
+  assign instTypeCnt_valid = io_idu2EXU_valid; // @[src/main/scala/idu/IDU.scala 116:37]
+  assign instTypeCnt_counterType = {{29'd0}, instType}; // @[src/main/scala/idu/IDU.scala 117:37]
+  assign instTypeCnt_data = 32'h0; // @[src/main/scala/idu/IDU.scala 118:37]
   always @(posedge clock) begin
     if (reset) begin // @[src/main/scala/idu/IDU.scala 21:30]
       pcReg <= 32'h80000000; // @[src/main/scala/idu/IDU.scala 21:30]
@@ -2440,6 +2518,7 @@ module EXU(
   reg [31:0] _RAND_21;
   reg [31:0] _RAND_22;
   reg [31:0] _RAND_23;
+  reg [31:0] _RAND_24;
 `endif // RANDOMIZE_REG_INIT
   wire [3:0] alu_io_aluCtr; // @[src/main/scala/exu/EXU.scala 132:25]
   wire [31:0] alu_io_srcAData; // @[src/main/scala/exu/EXU.scala 132:25]
@@ -2451,6 +2530,9 @@ module EXU(
   wire [31:0] csrALU_io_srcBData; // @[src/main/scala/exu/EXU.scala 142:41]
   wire [1:0] csrALU_io_csrALUOP; // @[src/main/scala/exu/EXU.scala 142:41]
   wire [31:0] csrALU_io_oData; // @[src/main/scala/exu/EXU.scala 142:41]
+  wire  EFCC_valid; // @[src/main/scala/exu/EXU.scala 157:57]
+  wire [31:0] EFCC_counterType; // @[src/main/scala/exu/EXU.scala 157:57]
+  wire [31:0] EFCC_data; // @[src/main/scala/exu/EXU.scala 157:57]
   reg [31:0] pcReg; // @[src/main/scala/exu/EXU.scala 24:42]
   reg [31:0] rs1DataReg; // @[src/main/scala/exu/EXU.scala 25:34]
   reg [31:0] rs2DataReg; // @[src/main/scala/exu/EXU.scala 26:34]
@@ -2489,6 +2571,8 @@ module EXU(
   wire  _srcBDataWire_T_2 = srcBALUReg == 2'h2; // @[src/main/scala/exu/EXU.scala 130:33]
   wire [31:0] _srcBDataWire_T_3 = _srcBDataWire_T_2 ? 32'h4 : 32'h0; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
   wire [31:0] _srcBDataWire_T_4 = _srcBDataWire_T_1 ? immReg : _srcBDataWire_T_3; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
+  reg [31:0] exuFinCalCnt; // @[src/main/scala/exu/EXU.scala 151:43]
+  wire [31:0] _exuFinCalCnt_T_1 = exuFinCalCnt + 32'h1; // @[src/main/scala/exu/EXU.scala 155:54]
   ALU alu ( // @[src/main/scala/exu/EXU.scala 132:25]
     .io_aluCtr(alu_io_aluCtr),
     .io_srcAData(alu_io_srcAData),
@@ -2502,6 +2586,11 @@ module EXU(
     .io_srcBData(csrALU_io_srcBData),
     .io_csrALUOP(csrALU_io_csrALUOP),
     .io_oData(csrALU_io_oData)
+  );
+  PerformanceCounter EFCC ( // @[src/main/scala/exu/EXU.scala 157:57]
+    .valid(EFCC_valid),
+    .counterType(EFCC_counterType),
+    .data(EFCC_data)
   );
   assign io_idu2EXU_ready = ready2IDUReg; // @[src/main/scala/exu/EXU.scala 48:40]
   assign io_exu2WBU_valid = valid2WBUReg; // @[src/main/scala/exu/EXU.scala 50:37]
@@ -2533,6 +2622,9 @@ module EXU(
   assign csrALU_io_srcAData = io_exu2CSR_csrData; // @[src/main/scala/exu/EXU.scala 144:33]
   assign csrALU_io_srcBData = csrOPReg ? {{27'd0}, rs1IndexReg} : rs1DataReg; // @[src/main/scala/exu/EXU.scala 145:39]
   assign csrALU_io_csrALUOP = csrALUOPReg; // @[src/main/scala/exu/EXU.scala 146:33]
+  assign EFCC_valid = io_exu2WBU_valid; // @[src/main/scala/exu/EXU.scala 158:41]
+  assign EFCC_counterType = 32'h8; // @[src/main/scala/exu/EXU.scala 159:41]
+  assign EFCC_data = exuFinCalCnt; // @[src/main/scala/exu/EXU.scala 160:41]
   always @(posedge clock) begin
     if (reset) begin // @[src/main/scala/exu/EXU.scala 24:42]
       pcReg <= 32'h80000000; // @[src/main/scala/exu/EXU.scala 24:42]
@@ -2670,6 +2762,13 @@ module EXU(
     end else begin
       state <= 2'h0;
     end
+    if (reset) begin // @[src/main/scala/exu/EXU.scala 151:43]
+      exuFinCalCnt <= 32'h0; // @[src/main/scala/exu/EXU.scala 151:43]
+    end else if (io_idu2EXU_valid & io_idu2EXU_ready) begin // @[src/main/scala/exu/EXU.scala 152:60]
+      exuFinCalCnt <= 32'h0; // @[src/main/scala/exu/EXU.scala 153:38]
+    end else begin
+      exuFinCalCnt <= _exuFinCalCnt_T_1; // @[src/main/scala/exu/EXU.scala 155:38]
+    end
   end
 // Register and memory initialization
 `ifdef RANDOMIZE_GARBAGE_ASSIGN
@@ -2755,6 +2854,8 @@ initial begin
   valid2WBUReg = _RAND_22[0:0];
   _RAND_23 = {1{`RANDOM}};
   state = _RAND_23[1:0];
+  _RAND_24 = {1{`RANDOM}};
+  exuFinCalCnt = _RAND_24[31:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
@@ -2855,6 +2956,7 @@ module WBU(
   output        io_wbu2Mem_wlast, // @[src/main/scala/wbu/WBU.scala 18:20]
   output        io_wbu2Mem_bready, // @[src/main/scala/wbu/WBU.scala 18:20]
   input         io_wbu2Mem_bvalid, // @[src/main/scala/wbu/WBU.scala 18:20]
+  input  [1:0]  io_wbu2Mem_bresp, // @[src/main/scala/wbu/WBU.scala 18:20]
   input         io_wbu2Mem_arready, // @[src/main/scala/wbu/WBU.scala 18:20]
   output        io_wbu2Mem_arvalid, // @[src/main/scala/wbu/WBU.scala 18:20]
   output [31:0] io_wbu2Mem_araddr, // @[src/main/scala/wbu/WBU.scala 18:20]
@@ -2895,12 +2997,26 @@ module WBU(
   reg [31:0] _RAND_25;
   reg [31:0] _RAND_26;
   reg [31:0] _RAND_27;
+  reg [31:0] _RAND_28;
+  reg [31:0] _RAND_29;
 `endif // RANDOMIZE_REG_INIT
   wire [3:0] branchCond_io_branch; // @[src/main/scala/wbu/WBU.scala 112:41]
   wire  branchCond_io_less; // @[src/main/scala/wbu/WBU.scala 112:41]
   wire  branchCond_io_zero; // @[src/main/scala/wbu/WBU.scala 112:41]
   wire [1:0] branchCond_io_pcASrc; // @[src/main/scala/wbu/WBU.scala 112:41]
   wire [1:0] branchCond_io_pcBSrc; // @[src/main/scala/wbu/WBU.scala 112:41]
+  wire  axiAccessFault_valid; // @[src/main/scala/wbu/WBU.scala 246:44]
+  wire  axiAccessFault_ready; // @[src/main/scala/wbu/WBU.scala 246:44]
+  wire [1:0] axiAccessFault_resp; // @[src/main/scala/wbu/WBU.scala 246:44]
+  wire  LGDC_valid; // @[src/main/scala/wbu/WBU.scala 308:57]
+  wire [31:0] LGDC_counterType; // @[src/main/scala/wbu/WBU.scala 308:57]
+  wire [31:0] LGDC_data; // @[src/main/scala/wbu/WBU.scala 308:57]
+  wire [31:0] getCmd_cmd; // @[src/main/scala/wbu/WBU.scala 316:57]
+  wire [31:0] mTrace_data; // @[src/main/scala/wbu/WBU.scala 320:57]
+  wire [31:0] mTrace_addr; // @[src/main/scala/wbu/WBU.scala 320:57]
+  wire [1:0] mTrace_memop; // @[src/main/scala/wbu/WBU.scala 320:57]
+  wire  mTrace_wOrR; // @[src/main/scala/wbu/WBU.scala 320:57]
+  wire  mTrace_enable; // @[src/main/scala/wbu/WBU.scala 320:57]
   wire  resetnWire = ~reset; // @[src/main/scala/wbu/WBU.scala 26:35]
   reg [31:0] pcReg; // @[src/main/scala/wbu/WBU.scala 28:42]
   reg [31:0] memDataReg; // @[src/main/scala/wbu/WBU.scala 29:42]
@@ -2912,6 +3028,7 @@ module WBU(
   reg [31:0] instReg; // @[src/main/scala/wbu/WBU.scala 35:42]
   reg  regWRReg; // @[src/main/scala/wbu/WBU.scala 37:34]
   reg  memWRReg; // @[src/main/scala/wbu/WBU.scala 38:42]
+  reg  memValidReg; // @[src/main/scala/wbu/WBU.scala 39:38]
   reg [2:0] memOPReg; // @[src/main/scala/wbu/WBU.scala 40:42]
   reg [1:0] toRegReg; // @[src/main/scala/wbu/WBU.scala 41:42]
   reg [3:0] branchCtrReg; // @[src/main/scala/wbu/WBU.scala 42:42]
@@ -3039,11 +3156,14 @@ module WBU(
   wire [31:0] _signDataWire_T_16 = _signDataWire_T_7 ? $signed(_signDataWire_T_12) : $signed(_signDataWire_T_15); // @[src/main/scala/chisel3/util/Mux.scala 141:16]
   reg [31:0] memRdDataReg; // @[src/main/scala/wbu/WBU.scala 214:42]
   wire [31:0] _memRdDataWire_T_1 = _signDataWire_T_1 ? $signed(_signDataWire_T_6) : $signed(_signDataWire_T_16); // @[src/main/scala/wbu/WBU.scala 215:69]
+  wire [31:0] memRdDataWire = sOrUWire ? _memRdDataWire_T_1 : rdataShiftWire; // @[src/main/scala/wbu/WBU.scala 215:38]
   wire  _T_1 = ~resetnWire; // @[src/main/scala/wbu/WBU.scala 218:14]
   wire  _T_2 = io_wbu2Mem_rvalid & io_wbu2Mem_rready; // @[src/main/scala/wbu/WBU.scala 220:32]
   wire  _T_18 = _T & io_exu2WBU_bits_memValid & io_exu2WBU_bits_memWR; // @[src/main/scala/wbu/WBU.scala 228:93]
+  wire  _T_19 = io_wbu2Mem_awready & io_wbu2Mem_awvalid; // @[src/main/scala/wbu/WBU.scala 230:33]
   wire  _GEN_21 = io_wbu2Mem_awready & io_wbu2Mem_awvalid ? 1'h0 : awvalidReg; // @[src/main/scala/wbu/WBU.scala 230:56 231:33 124:42]
   wire  _GEN_22 = _T & io_exu2WBU_bits_memValid & io_exu2WBU_bits_memWR | _GEN_21; // @[src/main/scala/wbu/WBU.scala 228:126 229:33]
+  wire  _T_26 = io_wbu2Mem_wready & io_wbu2Mem_wvalid; // @[src/main/scala/wbu/WBU.scala 240:32]
   wire  _GEN_24 = io_wbu2Mem_wready & io_wbu2Mem_wvalid ? 1'h0 : wvalidReg; // @[src/main/scala/wbu/WBU.scala 240:54 241:33 136:42]
   wire  _GEN_25 = io_wbu2Mem_wready & io_wbu2Mem_wvalid ? 1'h0 : wlastReg; // @[src/main/scala/wbu/WBU.scala 240:54 242:33 153:42]
   wire  _GEN_26 = _T_18 | _GEN_24; // @[src/main/scala/wbu/WBU.scala 237:126 238:33]
@@ -3051,12 +3171,14 @@ module WBU(
   wire  _GEN_30 = io_wbu2Mem_bvalid | breadyReg; // @[src/main/scala/wbu/WBU.scala 255:33 256:33 156:42]
   wire  _GEN_31 = io_wbu2Mem_bvalid & io_wbu2Mem_bready ? 1'h0 : _GEN_30; // @[src/main/scala/wbu/WBU.scala 253:54 254:33]
   wire  _GEN_32 = _T_1 | _GEN_31; // @[src/main/scala/wbu/WBU.scala 251:34 252:33]
+  wire  _T_36 = io_wbu2Mem_arvalid & io_wbu2Mem_arready; // @[src/main/scala/wbu/WBU.scala 263:40]
   wire  _GEN_33 = io_wbu2Mem_arvalid & io_wbu2Mem_arready ? 1'h0 : arvalidReg; // @[src/main/scala/wbu/WBU.scala 263:63 264:33 163:42]
   wire  _GEN_34 = _T & (io_exu2WBU_bits_memValid & ~io_exu2WBU_bits_memWR) | _GEN_33; // @[src/main/scala/wbu/WBU.scala 261:131 262:33]
   wire  _GEN_36 = io_wbu2Mem_rvalid | rreadyReg; // @[src/main/scala/wbu/WBU.scala 271:33 272:33 174:42]
   wire  _GEN_37 = _T_2 & io_exu2WBU_bits_memValid ? 1'h0 : _GEN_36; // @[src/main/scala/wbu/WBU.scala 269:89 270:33]
   wire  _GEN_38 = _T_1 | _GEN_37; // @[src/main/scala/wbu/WBU.scala 267:34 268:33]
   reg [1:0] state; // @[src/main/scala/wbu/WBU.scala 277:28]
+  wire  _memEnd_T_1 = rreadyReg & io_wbu2Mem_rvalid; // @[src/main/scala/wbu/WBU.scala 278:62]
   wire  memEnd = io_wbu2Mem_wready & wvalidReg | rreadyReg & io_wbu2Mem_rvalid; // @[src/main/scala/wbu/WBU.scala 278:48]
   wire [1:0] _state_T_1 = reset ? 2'h0 : 2'h1; // @[src/main/scala/wbu/WBU.scala 280:55]
   wire [1:0] _state_T_4 = io_exu2WBU_bits_memValid ? 2'h2 : 2'h3; // @[src/main/scala/wbu/WBU.scala 281:95]
@@ -3068,6 +3190,9 @@ module WBU(
   wire  _GEN_41 = state == 2'h2 ? 1'h0 : _GEN_39; // @[src/main/scala/wbu/WBU.scala 292:42 293:33]
   wire  _GEN_43 = state == 2'h1 | _GEN_41; // @[src/main/scala/wbu/WBU.scala 289:49 290:33]
   wire  _GEN_45 = state == 2'h0 | _GEN_43; // @[src/main/scala/wbu/WBU.scala 286:32 287:33]
+  reg [31:0] lsuGetDataCnt; // @[src/main/scala/wbu/WBU.scala 302:44]
+  wire  _T_47 = _T_36 | _T_19; // @[src/main/scala/wbu/WBU.scala 303:66]
+  wire [31:0] _lsuGetDataCnt_T_1 = lsuGetDataCnt + 32'h1; // @[src/main/scala/wbu/WBU.scala 306:56]
   wire  _io_wbu2BaseReg_data_T = toRegReg == 2'h0; // @[src/main/scala/wbu/WBU.scala 337:20]
   wire  _io_wbu2BaseReg_data_T_1 = toRegReg == 2'h1; // @[src/main/scala/wbu/WBU.scala 338:28]
   wire  _io_wbu2BaseReg_data_T_2 = toRegReg == 2'h2; // @[src/main/scala/wbu/WBU.scala 339:28]
@@ -3089,6 +3214,26 @@ module WBU(
     .io_zero(branchCond_io_zero),
     .io_pcASrc(branchCond_io_pcASrc),
     .io_pcBSrc(branchCond_io_pcBSrc)
+  );
+  AXIAccessFault axiAccessFault ( // @[src/main/scala/wbu/WBU.scala 246:44]
+    .valid(axiAccessFault_valid),
+    .ready(axiAccessFault_ready),
+    .resp(axiAccessFault_resp)
+  );
+  PerformanceCounter LGDC ( // @[src/main/scala/wbu/WBU.scala 308:57]
+    .valid(LGDC_valid),
+    .counterType(LGDC_counterType),
+    .data(LGDC_data)
+  );
+  GetCommond getCmd ( // @[src/main/scala/wbu/WBU.scala 316:57]
+    .cmd(getCmd_cmd)
+  );
+  MTrace mTrace ( // @[src/main/scala/wbu/WBU.scala 320:57]
+    .data(mTrace_data),
+    .addr(mTrace_addr),
+    .memop(mTrace_memop),
+    .wOrR(mTrace_wOrR),
+    .enable(mTrace_enable)
   );
   assign io_exu2WBU_ready = ready2EXUReg; // @[src/main/scala/wbu/WBU.scala 70:40]
   assign io_wbu2CSR_pc = pcReg; // @[src/main/scala/wbu/WBU.scala 329:25]
@@ -3117,6 +3262,18 @@ module WBU(
   assign branchCond_io_branch = branchCtrReg; // @[src/main/scala/wbu/WBU.scala 114:29]
   assign branchCond_io_less = lessReg; // @[src/main/scala/wbu/WBU.scala 115:33]
   assign branchCond_io_zero = zeroReg; // @[src/main/scala/wbu/WBU.scala 116:33]
+  assign axiAccessFault_valid = io_wbu2Mem_bvalid; // @[src/main/scala/wbu/WBU.scala 248:41]
+  assign axiAccessFault_ready = breadyReg; // @[src/main/scala/wbu/WBU.scala 247:41]
+  assign axiAccessFault_resp = io_wbu2Mem_bresp; // @[src/main/scala/wbu/WBU.scala 249:41]
+  assign LGDC_valid = (_T_2 | _T_26) & memValidReg; // @[src/main/scala/wbu/WBU.scala 309:131]
+  assign LGDC_counterType = 32'h7; // @[src/main/scala/wbu/WBU.scala 310:41]
+  assign LGDC_data = _T_47 ? 32'h1 : _lsuGetDataCnt_T_1; // @[src/main/scala/wbu/WBU.scala 311:47]
+  assign getCmd_cmd = instReg; // @[src/main/scala/wbu/WBU.scala 317:41]
+  assign mTrace_data = memWRReg ? io_wbu2Mem_wdata : memRdDataWire; // @[src/main/scala/wbu/WBU.scala 321:47]
+  assign mTrace_addr = aluDataReg; // @[src/main/scala/wbu/WBU.scala 322:41]
+  assign mTrace_memop = memOPReg[1:0]; // @[src/main/scala/wbu/WBU.scala 323:53]
+  assign mTrace_wOrR = memWRReg; // @[src/main/scala/wbu/WBU.scala 324:53]
+  assign mTrace_enable = (wvalidReg & io_wbu2Mem_wready | _memEnd_T_1) & memValidReg; // @[src/main/scala/wbu/WBU.scala 325:98]
   always @(posedge clock) begin
     if (reset) begin // @[src/main/scala/wbu/WBU.scala 28:42]
       pcReg <= 32'h20000000; // @[src/main/scala/wbu/WBU.scala 28:42]
@@ -3167,6 +3324,11 @@ module WBU(
       memWRReg <= 1'h0; // @[src/main/scala/wbu/WBU.scala 38:42]
     end else if (io_exu2WBU_ready & io_exu2WBU_valid) begin // @[src/main/scala/wbu/WBU.scala 75:52]
       memWRReg <= io_exu2WBU_bits_memWR; // @[src/main/scala/wbu/WBU.scala 85:33]
+    end
+    if (reset) begin // @[src/main/scala/wbu/WBU.scala 39:38]
+      memValidReg <= 1'h0; // @[src/main/scala/wbu/WBU.scala 39:38]
+    end else if (io_exu2WBU_ready & io_exu2WBU_valid) begin // @[src/main/scala/wbu/WBU.scala 75:52]
+      memValidReg <= io_exu2WBU_bits_memValid; // @[src/main/scala/wbu/WBU.scala 86:29]
     end
     if (reset) begin // @[src/main/scala/wbu/WBU.scala 40:42]
       memOPReg <= 3'h0; // @[src/main/scala/wbu/WBU.scala 40:42]
@@ -3282,6 +3444,13 @@ module WBU(
     end else begin
       state <= _state_T_1;
     end
+    if (reset) begin // @[src/main/scala/wbu/WBU.scala 302:44]
+      lsuGetDataCnt <= 32'h0; // @[src/main/scala/wbu/WBU.scala 302:44]
+    end else if (_T_36 | _T_19) begin // @[src/main/scala/wbu/WBU.scala 303:113]
+      lsuGetDataCnt <= 32'h0; // @[src/main/scala/wbu/WBU.scala 304:39]
+    end else begin
+      lsuGetDataCnt <= _lsuGetDataCnt_T_1; // @[src/main/scala/wbu/WBU.scala 306:39]
+    end
     `ifndef SYNTHESIS
     `ifdef PRINTF_COND
       if (`PRINTF_COND) begin
@@ -3300,8 +3469,8 @@ module WBU(
     `ifdef STOP_COND
       if (`STOP_COND) begin
     `endif
-        if (resetnWire & ~(~(io_wbu2Mem_awvalid & io_wbu2Mem_awaddr <= 32'hf000000) | ~(io_wbu2Mem_arvalid &
-          io_wbu2Mem_araddr <= 32'hf000000))) begin
+        if (~(~(io_wbu2Mem_awvalid & io_wbu2Mem_awaddr <= 32'hf000000) | ~(io_wbu2Mem_arvalid & io_wbu2Mem_araddr <= 32'hf000000
+          )) & resetnWire) begin
           $fatal; // @[src/main/scala/wbu/WBU.scala 224:15]
         end
     `ifdef STOP_COND
@@ -3366,41 +3535,45 @@ initial begin
   _RAND_9 = {1{`RANDOM}};
   memWRReg = _RAND_9[0:0];
   _RAND_10 = {1{`RANDOM}};
-  memOPReg = _RAND_10[2:0];
+  memValidReg = _RAND_10[0:0];
   _RAND_11 = {1{`RANDOM}};
-  toRegReg = _RAND_11[1:0];
+  memOPReg = _RAND_11[2:0];
   _RAND_12 = {1{`RANDOM}};
-  branchCtrReg = _RAND_12[3:0];
+  toRegReg = _RAND_12[1:0];
   _RAND_13 = {1{`RANDOM}};
-  lessReg = _RAND_13[0:0];
+  branchCtrReg = _RAND_13[3:0];
   _RAND_14 = {1{`RANDOM}};
-  zeroReg = _RAND_14[0:0];
+  lessReg = _RAND_14[0:0];
   _RAND_15 = {1{`RANDOM}};
-  ecallReg = _RAND_15[0:0];
+  zeroReg = _RAND_15[0:0];
   _RAND_16 = {1{`RANDOM}};
-  csrEnReg = _RAND_16[0:0];
+  ecallReg = _RAND_16[0:0];
   _RAND_17 = {1{`RANDOM}};
-  csrWrReg = _RAND_17[0:0];
+  csrEnReg = _RAND_17[0:0];
   _RAND_18 = {1{`RANDOM}};
-  ready2EXUReg = _RAND_18[0:0];
+  csrWrReg = _RAND_18[0:0];
   _RAND_19 = {1{`RANDOM}};
-  validPC2Reg = _RAND_19[0:0];
+  ready2EXUReg = _RAND_19[0:0];
   _RAND_20 = {1{`RANDOM}};
-  awvalidReg = _RAND_20[0:0];
+  validPC2Reg = _RAND_20[0:0];
   _RAND_21 = {1{`RANDOM}};
-  wvalidReg = _RAND_21[0:0];
+  awvalidReg = _RAND_21[0:0];
   _RAND_22 = {1{`RANDOM}};
-  wlastReg = _RAND_22[0:0];
+  wvalidReg = _RAND_22[0:0];
   _RAND_23 = {1{`RANDOM}};
-  breadyReg = _RAND_23[0:0];
+  wlastReg = _RAND_23[0:0];
   _RAND_24 = {1{`RANDOM}};
-  arvalidReg = _RAND_24[0:0];
+  breadyReg = _RAND_24[0:0];
   _RAND_25 = {1{`RANDOM}};
-  rreadyReg = _RAND_25[0:0];
+  arvalidReg = _RAND_25[0:0];
   _RAND_26 = {1{`RANDOM}};
-  memRdDataReg = _RAND_26[31:0];
+  rreadyReg = _RAND_26[0:0];
   _RAND_27 = {1{`RANDOM}};
-  state = _RAND_27[1:0];
+  memRdDataReg = _RAND_27[31:0];
+  _RAND_28 = {1{`RANDOM}};
+  state = _RAND_28[1:0];
+  _RAND_29 = {1{`RANDOM}};
+  lsuGetDataCnt = _RAND_29[31:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
@@ -3414,6 +3587,7 @@ module AXIBusArbiter(
   input         reset,
   input         io_axiSlave0_bready, // @[src/main/scala/basemode/Memory.scala 143:14]
   output        io_axiSlave0_bvalid, // @[src/main/scala/basemode/Memory.scala 143:14]
+  output [1:0]  io_axiSlave0_bresp, // @[src/main/scala/basemode/Memory.scala 143:14]
   output        io_axiSlave0_arready, // @[src/main/scala/basemode/Memory.scala 143:14]
   input         io_axiSlave0_arvalid, // @[src/main/scala/basemode/Memory.scala 143:14]
   input  [31:0] io_axiSlave0_araddr, // @[src/main/scala/basemode/Memory.scala 143:14]
@@ -3431,6 +3605,7 @@ module AXIBusArbiter(
   input         io_axiSlave1_wlast, // @[src/main/scala/basemode/Memory.scala 143:14]
   input         io_axiSlave1_bready, // @[src/main/scala/basemode/Memory.scala 143:14]
   output        io_axiSlave1_bvalid, // @[src/main/scala/basemode/Memory.scala 143:14]
+  output [1:0]  io_axiSlave1_bresp, // @[src/main/scala/basemode/Memory.scala 143:14]
   output        io_axiSlave1_arready, // @[src/main/scala/basemode/Memory.scala 143:14]
   input         io_axiSlave1_arvalid, // @[src/main/scala/basemode/Memory.scala 143:14]
   input  [31:0] io_axiSlave1_araddr, // @[src/main/scala/basemode/Memory.scala 143:14]
@@ -3449,6 +3624,7 @@ module AXIBusArbiter(
   output        io_axiMaster_wlast, // @[src/main/scala/basemode/Memory.scala 143:14]
   output        io_axiMaster_bready, // @[src/main/scala/basemode/Memory.scala 143:14]
   input         io_axiMaster_bvalid, // @[src/main/scala/basemode/Memory.scala 143:14]
+  input  [1:0]  io_axiMaster_bresp, // @[src/main/scala/basemode/Memory.scala 143:14]
   input         io_axiMaster_arready, // @[src/main/scala/basemode/Memory.scala 143:14]
   output        io_axiMaster_arvalid, // @[src/main/scala/basemode/Memory.scala 143:14]
   output [31:0] io_axiMaster_araddr, // @[src/main/scala/basemode/Memory.scala 143:14]
@@ -3480,6 +3656,7 @@ module AXIBusArbiter(
   wire  _GEN_11 = state == 2'h3 & io_axiSlave1_wlast; // @[src/main/scala/basemode/Memory.scala 192:32 193:18 src/main/scala/basemode/Interface.scala 222:19]
   wire  _GEN_12 = state == 2'h3 & io_axiSlave1_bready; // @[src/main/scala/basemode/Memory.scala 192:32 193:18 src/main/scala/basemode/Interface.scala 224:20]
   wire  _GEN_13 = state == 2'h3 & io_axiMaster_bvalid; // @[src/main/scala/basemode/Memory.scala 192:32 193:18 src/main/scala/basemode/Interface.scala 197:20]
+  wire [1:0] _GEN_14 = state == 2'h3 ? io_axiMaster_bresp : 2'h0; // @[src/main/scala/basemode/Memory.scala 192:32 193:18 src/main/scala/basemode/Interface.scala 198:19]
   wire  _GEN_16 = state == 2'h3 & io_axiMaster_arready; // @[src/main/scala/basemode/Memory.scala 192:32 193:18 src/main/scala/basemode/Interface.scala 201:21]
   wire  _GEN_17 = state == 2'h3 & io_axiSlave1_arvalid; // @[src/main/scala/basemode/Memory.scala 192:32 193:18 src/main/scala/basemode/Interface.scala 226:21]
   wire [31:0] _GEN_18 = state == 2'h3 ? io_axiSlave1_araddr : 32'h0; // @[src/main/scala/basemode/Memory.scala 192:32 193:18 src/main/scala/basemode/Interface.scala 227:20]
@@ -3496,6 +3673,7 @@ module AXIBusArbiter(
   wire  _GEN_40 = state == 2'h2 | state == 2'h1 ? 1'h0 : _GEN_11; // @[src/main/scala/basemode/Memory.scala 190:52 191:18]
   wire  _GEN_41 = state == 2'h2 | state == 2'h1 ? io_axiSlave0_bready : _GEN_12; // @[src/main/scala/basemode/Memory.scala 190:52 191:18]
   wire  _GEN_42 = (state == 2'h2 | state == 2'h1) & io_axiMaster_bvalid; // @[src/main/scala/basemode/Memory.scala 190:52 191:18 src/main/scala/basemode/Interface.scala 197:20]
+  wire [1:0] _GEN_43 = state == 2'h2 | state == 2'h1 ? io_axiMaster_bresp : 2'h0; // @[src/main/scala/basemode/Memory.scala 190:52 191:18 src/main/scala/basemode/Interface.scala 198:19]
   wire  _GEN_45 = (state == 2'h2 | state == 2'h1) & io_axiMaster_arready; // @[src/main/scala/basemode/Memory.scala 190:52 191:18 src/main/scala/basemode/Interface.scala 201:21]
   wire  _GEN_46 = state == 2'h2 | state == 2'h1 ? io_axiSlave0_arvalid : _GEN_17; // @[src/main/scala/basemode/Memory.scala 190:52 191:18]
   wire [31:0] _GEN_47 = state == 2'h2 | state == 2'h1 ? io_axiSlave0_araddr : _GEN_18; // @[src/main/scala/basemode/Memory.scala 190:52 191:18]
@@ -3506,16 +3684,19 @@ module AXIBusArbiter(
   wire  _GEN_58 = state == 2'h2 | state == 2'h1 ? 1'h0 : _GEN_0; // @[src/main/scala/basemode/Memory.scala 190:52 src/main/scala/basemode/Interface.scala 193:21]
   wire  _GEN_59 = state == 2'h2 | state == 2'h1 ? 1'h0 : _GEN_7; // @[src/main/scala/basemode/Memory.scala 190:52 src/main/scala/basemode/Interface.scala 195:20]
   wire  _GEN_60 = state == 2'h2 | state == 2'h1 ? 1'h0 : _GEN_13; // @[src/main/scala/basemode/Memory.scala 190:52 src/main/scala/basemode/Interface.scala 197:20]
+  wire [1:0] _GEN_61 = state == 2'h2 | state == 2'h1 ? 2'h0 : _GEN_14; // @[src/main/scala/basemode/Memory.scala 190:52 src/main/scala/basemode/Interface.scala 198:19]
   wire  _GEN_63 = state == 2'h2 | state == 2'h1 ? 1'h0 : _GEN_16; // @[src/main/scala/basemode/Memory.scala 190:52 src/main/scala/basemode/Interface.scala 201:21]
   wire  _GEN_64 = state == 2'h2 | state == 2'h1 ? 1'h0 : _GEN_24; // @[src/main/scala/basemode/Memory.scala 190:52 src/main/scala/basemode/Interface.scala 203:20]
   wire [31:0] _GEN_66 = state == 2'h2 | state == 2'h1 ? 32'h0 : _GEN_26; // @[src/main/scala/basemode/Memory.scala 190:52 src/main/scala/basemode/Interface.scala 205:19]
   assign io_axiSlave0_bvalid = state == 2'h0 ? 1'h0 : _GEN_42; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 197:20]
+  assign io_axiSlave0_bresp = state == 2'h0 ? 2'h0 : _GEN_43; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 198:19]
   assign io_axiSlave0_arready = state == 2'h0 ? 1'h0 : _GEN_45; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 201:21]
   assign io_axiSlave0_rvalid = state == 2'h0 ? 1'h0 : _GEN_53; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 203:20]
   assign io_axiSlave0_rdata = state == 2'h0 ? 32'h0 : _GEN_55; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 205:19]
   assign io_axiSlave1_awready = state == 2'h0 ? 1'h0 : _GEN_58; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 193:21]
   assign io_axiSlave1_wready = state == 2'h0 ? 1'h0 : _GEN_59; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 195:20]
   assign io_axiSlave1_bvalid = state == 2'h0 ? 1'h0 : _GEN_60; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 197:20]
+  assign io_axiSlave1_bresp = state == 2'h0 ? 2'h0 : _GEN_61; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 198:19]
   assign io_axiSlave1_arready = state == 2'h0 ? 1'h0 : _GEN_63; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 201:21]
   assign io_axiSlave1_rvalid = state == 2'h0 ? 1'h0 : _GEN_64; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 203:20]
   assign io_axiSlave1_rdata = state == 2'h0 ? 32'h0 : _GEN_66; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 205:19]
@@ -3605,6 +3786,7 @@ module XbarAXI(
   input         reset,
   input         io_axiSlaveIFU_bready, // @[src/main/scala/device/Device.scala 58:16]
   output        io_axiSlaveIFU_bvalid, // @[src/main/scala/device/Device.scala 58:16]
+  output [1:0]  io_axiSlaveIFU_bresp, // @[src/main/scala/device/Device.scala 58:16]
   output        io_axiSlaveIFU_arready, // @[src/main/scala/device/Device.scala 58:16]
   input         io_axiSlaveIFU_arvalid, // @[src/main/scala/device/Device.scala 58:16]
   input  [31:0] io_axiSlaveIFU_araddr, // @[src/main/scala/device/Device.scala 58:16]
@@ -3622,6 +3804,7 @@ module XbarAXI(
   input         io_axiSlaveWBU_wlast, // @[src/main/scala/device/Device.scala 58:16]
   input         io_axiSlaveWBU_bready, // @[src/main/scala/device/Device.scala 58:16]
   output        io_axiSlaveWBU_bvalid, // @[src/main/scala/device/Device.scala 58:16]
+  output [1:0]  io_axiSlaveWBU_bresp, // @[src/main/scala/device/Device.scala 58:16]
   output        io_axiSlaveWBU_arready, // @[src/main/scala/device/Device.scala 58:16]
   input         io_axiSlaveWBU_arvalid, // @[src/main/scala/device/Device.scala 58:16]
   input  [31:0] io_axiSlaveWBU_araddr, // @[src/main/scala/device/Device.scala 58:16]
@@ -3640,6 +3823,7 @@ module XbarAXI(
   output        io_axiMasterDevice_wlast, // @[src/main/scala/device/Device.scala 58:16]
   output        io_axiMasterDevice_bready, // @[src/main/scala/device/Device.scala 58:16]
   input         io_axiMasterDevice_bvalid, // @[src/main/scala/device/Device.scala 58:16]
+  input  [1:0]  io_axiMasterDevice_bresp, // @[src/main/scala/device/Device.scala 58:16]
   input         io_axiMasterDevice_arready, // @[src/main/scala/device/Device.scala 58:16]
   output        io_axiMasterDevice_arvalid, // @[src/main/scala/device/Device.scala 58:16]
   output [31:0] io_axiMasterDevice_araddr, // @[src/main/scala/device/Device.scala 58:16]
@@ -3664,6 +3848,7 @@ module XbarAXI(
   wire  axiBusarbiter_reset; // @[src/main/scala/device/Device.scala 83:33]
   wire  axiBusarbiter_io_axiSlave0_bready; // @[src/main/scala/device/Device.scala 83:33]
   wire  axiBusarbiter_io_axiSlave0_bvalid; // @[src/main/scala/device/Device.scala 83:33]
+  wire [1:0] axiBusarbiter_io_axiSlave0_bresp; // @[src/main/scala/device/Device.scala 83:33]
   wire  axiBusarbiter_io_axiSlave0_arready; // @[src/main/scala/device/Device.scala 83:33]
   wire  axiBusarbiter_io_axiSlave0_arvalid; // @[src/main/scala/device/Device.scala 83:33]
   wire [31:0] axiBusarbiter_io_axiSlave0_araddr; // @[src/main/scala/device/Device.scala 83:33]
@@ -3681,6 +3866,7 @@ module XbarAXI(
   wire  axiBusarbiter_io_axiSlave1_wlast; // @[src/main/scala/device/Device.scala 83:33]
   wire  axiBusarbiter_io_axiSlave1_bready; // @[src/main/scala/device/Device.scala 83:33]
   wire  axiBusarbiter_io_axiSlave1_bvalid; // @[src/main/scala/device/Device.scala 83:33]
+  wire [1:0] axiBusarbiter_io_axiSlave1_bresp; // @[src/main/scala/device/Device.scala 83:33]
   wire  axiBusarbiter_io_axiSlave1_arready; // @[src/main/scala/device/Device.scala 83:33]
   wire  axiBusarbiter_io_axiSlave1_arvalid; // @[src/main/scala/device/Device.scala 83:33]
   wire [31:0] axiBusarbiter_io_axiSlave1_araddr; // @[src/main/scala/device/Device.scala 83:33]
@@ -3699,6 +3885,7 @@ module XbarAXI(
   wire  axiBusarbiter_io_axiMaster_wlast; // @[src/main/scala/device/Device.scala 83:33]
   wire  axiBusarbiter_io_axiMaster_bready; // @[src/main/scala/device/Device.scala 83:33]
   wire  axiBusarbiter_io_axiMaster_bvalid; // @[src/main/scala/device/Device.scala 83:33]
+  wire [1:0] axiBusarbiter_io_axiMaster_bresp; // @[src/main/scala/device/Device.scala 83:33]
   wire  axiBusarbiter_io_axiMaster_arready; // @[src/main/scala/device/Device.scala 83:33]
   wire  axiBusarbiter_io_axiMaster_arvalid; // @[src/main/scala/device/Device.scala 83:33]
   wire [31:0] axiBusarbiter_io_axiMaster_araddr; // @[src/main/scala/device/Device.scala 83:33]
@@ -3706,6 +3893,7 @@ module XbarAXI(
   wire  axiBusarbiter_io_axiMaster_rready; // @[src/main/scala/device/Device.scala 83:33]
   wire  axiBusarbiter_io_axiMaster_rvalid; // @[src/main/scala/device/Device.scala 83:33]
   wire [31:0] axiBusarbiter_io_axiMaster_rdata; // @[src/main/scala/device/Device.scala 83:33]
+  wire  skipDiff_en; // @[src/main/scala/device/Device.scala 115:30]
   wire  _deviceID_T_9 = axiBusarbiter_io_axiMaster_awaddr < 32'h2010000 & axiBusarbiter_io_axiMaster_awaddr >= 32'h2000000
     ; // @[src/main/scala/device/Device.scala 93:79]
   wire  _deviceID_T_10 = axiBusarbiter_io_axiMaster_araddr < 32'h2010000 & axiBusarbiter_io_axiMaster_araddr >= 32'h2000000
@@ -3749,11 +3937,14 @@ module XbarAXI(
   wire [3:0] _deviceID_T_97 = _deviceID_T_32 ? 4'h2 : _deviceID_T_96; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
   wire [3:0] _deviceID_T_98 = _deviceID_T_21 ? 4'h1 : _deviceID_T_97; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
   wire [3:0] deviceID = _deviceID_T_10 ? 4'h0 : _deviceID_T_98; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
+  wire  _skipDiff_io_en_T_6 = axiBusarbiter_io_axiMaster_wvalid & axiBusarbiter_io_axiMaster_wready |
+    axiBusarbiter_io_axiMaster_rvalid & axiBusarbiter_io_axiMaster_rready; // @[src/main/scala/device/Device.scala 117:48]
   AXIBusArbiter axiBusarbiter ( // @[src/main/scala/device/Device.scala 83:33]
     .clock(axiBusarbiter_clock),
     .reset(axiBusarbiter_reset),
     .io_axiSlave0_bready(axiBusarbiter_io_axiSlave0_bready),
     .io_axiSlave0_bvalid(axiBusarbiter_io_axiSlave0_bvalid),
+    .io_axiSlave0_bresp(axiBusarbiter_io_axiSlave0_bresp),
     .io_axiSlave0_arready(axiBusarbiter_io_axiSlave0_arready),
     .io_axiSlave0_arvalid(axiBusarbiter_io_axiSlave0_arvalid),
     .io_axiSlave0_araddr(axiBusarbiter_io_axiSlave0_araddr),
@@ -3771,6 +3962,7 @@ module XbarAXI(
     .io_axiSlave1_wlast(axiBusarbiter_io_axiSlave1_wlast),
     .io_axiSlave1_bready(axiBusarbiter_io_axiSlave1_bready),
     .io_axiSlave1_bvalid(axiBusarbiter_io_axiSlave1_bvalid),
+    .io_axiSlave1_bresp(axiBusarbiter_io_axiSlave1_bresp),
     .io_axiSlave1_arready(axiBusarbiter_io_axiSlave1_arready),
     .io_axiSlave1_arvalid(axiBusarbiter_io_axiSlave1_arvalid),
     .io_axiSlave1_araddr(axiBusarbiter_io_axiSlave1_araddr),
@@ -3789,6 +3981,7 @@ module XbarAXI(
     .io_axiMaster_wlast(axiBusarbiter_io_axiMaster_wlast),
     .io_axiMaster_bready(axiBusarbiter_io_axiMaster_bready),
     .io_axiMaster_bvalid(axiBusarbiter_io_axiMaster_bvalid),
+    .io_axiMaster_bresp(axiBusarbiter_io_axiMaster_bresp),
     .io_axiMaster_arready(axiBusarbiter_io_axiMaster_arready),
     .io_axiMaster_arvalid(axiBusarbiter_io_axiMaster_arvalid),
     .io_axiMaster_araddr(axiBusarbiter_io_axiMaster_araddr),
@@ -3797,13 +3990,18 @@ module XbarAXI(
     .io_axiMaster_rvalid(axiBusarbiter_io_axiMaster_rvalid),
     .io_axiMaster_rdata(axiBusarbiter_io_axiMaster_rdata)
   );
+  SkipDiff skipDiff ( // @[src/main/scala/device/Device.scala 115:30]
+    .en(skipDiff_en)
+  );
   assign io_axiSlaveIFU_bvalid = axiBusarbiter_io_axiSlave0_bvalid; // @[src/main/scala/device/Device.scala 84:21]
+  assign io_axiSlaveIFU_bresp = axiBusarbiter_io_axiSlave0_bresp; // @[src/main/scala/device/Device.scala 84:21]
   assign io_axiSlaveIFU_arready = axiBusarbiter_io_axiSlave0_arready; // @[src/main/scala/device/Device.scala 84:21]
   assign io_axiSlaveIFU_rvalid = axiBusarbiter_io_axiSlave0_rvalid; // @[src/main/scala/device/Device.scala 84:21]
   assign io_axiSlaveIFU_rdata = axiBusarbiter_io_axiSlave0_rdata; // @[src/main/scala/device/Device.scala 84:21]
   assign io_axiSlaveWBU_awready = axiBusarbiter_io_axiSlave1_awready; // @[src/main/scala/device/Device.scala 85:21]
   assign io_axiSlaveWBU_wready = axiBusarbiter_io_axiSlave1_wready; // @[src/main/scala/device/Device.scala 85:21]
   assign io_axiSlaveWBU_bvalid = axiBusarbiter_io_axiSlave1_bvalid; // @[src/main/scala/device/Device.scala 85:21]
+  assign io_axiSlaveWBU_bresp = axiBusarbiter_io_axiSlave1_bresp; // @[src/main/scala/device/Device.scala 85:21]
   assign io_axiSlaveWBU_arready = axiBusarbiter_io_axiSlave1_arready; // @[src/main/scala/device/Device.scala 85:21]
   assign io_axiSlaveWBU_rvalid = axiBusarbiter_io_axiSlave1_rvalid; // @[src/main/scala/device/Device.scala 85:21]
   assign io_axiSlaveWBU_rdata = axiBusarbiter_io_axiSlave1_rdata; // @[src/main/scala/device/Device.scala 85:21]
@@ -3846,9 +4044,11 @@ module XbarAXI(
   assign axiBusarbiter_io_axiMaster_awready = deviceID == 4'h0 ? io_axiLiteClint_awReady : io_axiMasterDevice_awready; // @[src/main/scala/device/Device.scala 120:39 122:30 144:19]
   assign axiBusarbiter_io_axiMaster_wready = deviceID == 4'h0 ? io_axiLiteClint_wReady : io_axiMasterDevice_wready; // @[src/main/scala/device/Device.scala 120:39 126:30 144:19]
   assign axiBusarbiter_io_axiMaster_bvalid = deviceID == 4'h0 ? io_axiLiteClint_bValid : io_axiMasterDevice_bvalid; // @[src/main/scala/device/Device.scala 120:39 132:30 144:19]
+  assign axiBusarbiter_io_axiMaster_bresp = deviceID == 4'h0 ? 2'h0 : io_axiMasterDevice_bresp; // @[src/main/scala/device/Device.scala 120:39 131:30 144:19]
   assign axiBusarbiter_io_axiMaster_arready = deviceID == 4'h0 ? io_axiLiteClint_arReady : io_axiMasterDevice_arready; // @[src/main/scala/device/Device.scala 120:39 135:30 144:19]
   assign axiBusarbiter_io_axiMaster_rvalid = deviceID == 4'h0 ? io_axiLiteClint_rValid : io_axiMasterDevice_rvalid; // @[src/main/scala/device/Device.scala 120:39 141:30 144:19]
   assign axiBusarbiter_io_axiMaster_rdata = deviceID == 4'h0 ? io_axiLiteClint_rData : io_axiMasterDevice_rdata; // @[src/main/scala/device/Device.scala 120:39 139:30 144:19]
+  assign skipDiff_en = ~(deviceID >= 4'h6 & deviceID <= 4'h9) & _skipDiff_io_en_T_6; // @[src/main/scala/device/Device.scala 116:89]
 endmodule
 module AXILiteClint(
   input         clock,
@@ -4097,6 +4297,7 @@ module top(
   wire [31:0] ifu_io_inst_bits_pc; // @[src/main/scala/Main.scala 29:49]
   wire  ifu_io_ifu2Mem_bready; // @[src/main/scala/Main.scala 29:49]
   wire  ifu_io_ifu2Mem_bvalid; // @[src/main/scala/Main.scala 29:49]
+  wire [1:0] ifu_io_ifu2Mem_bresp; // @[src/main/scala/Main.scala 29:49]
   wire  ifu_io_ifu2Mem_arready; // @[src/main/scala/Main.scala 29:49]
   wire  ifu_io_ifu2Mem_arvalid; // @[src/main/scala/Main.scala 29:49]
   wire [31:0] ifu_io_ifu2Mem_araddr; // @[src/main/scala/Main.scala 29:49]
@@ -4250,6 +4451,7 @@ module top(
   wire  wbu_io_wbu2Mem_wlast; // @[src/main/scala/Main.scala 34:49]
   wire  wbu_io_wbu2Mem_bready; // @[src/main/scala/Main.scala 34:49]
   wire  wbu_io_wbu2Mem_bvalid; // @[src/main/scala/Main.scala 34:49]
+  wire [1:0] wbu_io_wbu2Mem_bresp; // @[src/main/scala/Main.scala 34:49]
   wire  wbu_io_wbu2Mem_arready; // @[src/main/scala/Main.scala 34:49]
   wire  wbu_io_wbu2Mem_arvalid; // @[src/main/scala/Main.scala 34:49]
   wire [31:0] wbu_io_wbu2Mem_araddr; // @[src/main/scala/Main.scala 34:49]
@@ -4264,6 +4466,7 @@ module top(
   wire  xbarAXI_reset; // @[src/main/scala/Main.scala 35:49]
   wire  xbarAXI_io_axiSlaveIFU_bready; // @[src/main/scala/Main.scala 35:49]
   wire  xbarAXI_io_axiSlaveIFU_bvalid; // @[src/main/scala/Main.scala 35:49]
+  wire [1:0] xbarAXI_io_axiSlaveIFU_bresp; // @[src/main/scala/Main.scala 35:49]
   wire  xbarAXI_io_axiSlaveIFU_arready; // @[src/main/scala/Main.scala 35:49]
   wire  xbarAXI_io_axiSlaveIFU_arvalid; // @[src/main/scala/Main.scala 35:49]
   wire [31:0] xbarAXI_io_axiSlaveIFU_araddr; // @[src/main/scala/Main.scala 35:49]
@@ -4281,6 +4484,7 @@ module top(
   wire  xbarAXI_io_axiSlaveWBU_wlast; // @[src/main/scala/Main.scala 35:49]
   wire  xbarAXI_io_axiSlaveWBU_bready; // @[src/main/scala/Main.scala 35:49]
   wire  xbarAXI_io_axiSlaveWBU_bvalid; // @[src/main/scala/Main.scala 35:49]
+  wire [1:0] xbarAXI_io_axiSlaveWBU_bresp; // @[src/main/scala/Main.scala 35:49]
   wire  xbarAXI_io_axiSlaveWBU_arready; // @[src/main/scala/Main.scala 35:49]
   wire  xbarAXI_io_axiSlaveWBU_arvalid; // @[src/main/scala/Main.scala 35:49]
   wire [31:0] xbarAXI_io_axiSlaveWBU_araddr; // @[src/main/scala/Main.scala 35:49]
@@ -4299,6 +4503,7 @@ module top(
   wire  xbarAXI_io_axiMasterDevice_wlast; // @[src/main/scala/Main.scala 35:49]
   wire  xbarAXI_io_axiMasterDevice_bready; // @[src/main/scala/Main.scala 35:49]
   wire  xbarAXI_io_axiMasterDevice_bvalid; // @[src/main/scala/Main.scala 35:49]
+  wire [1:0] xbarAXI_io_axiMasterDevice_bresp; // @[src/main/scala/Main.scala 35:49]
   wire  xbarAXI_io_axiMasterDevice_arready; // @[src/main/scala/Main.scala 35:49]
   wire  xbarAXI_io_axiMasterDevice_arvalid; // @[src/main/scala/Main.scala 35:49]
   wire [31:0] xbarAXI_io_axiMasterDevice_araddr; // @[src/main/scala/Main.scala 35:49]
@@ -4332,6 +4537,8 @@ module top(
   wire  axiLiteClint_io_axiLiteMaster_wReady; // @[src/main/scala/Main.scala 66:34]
   wire  axiLiteClint_io_axiLiteMaster_bValid; // @[src/main/scala/Main.scala 66:34]
   wire  axiLiteClint_io_axiLiteMaster_bReady; // @[src/main/scala/Main.scala 66:34]
+  wire [31:0] getCurPC_pc; // @[src/main/scala/Main.scala 71:41]
+  wire [31:0] getNextPC_nextPC; // @[src/main/scala/Main.scala 72:41]
   PC pc ( // @[src/main/scala/Main.scala 28:49]
     .clock(pc_clock),
     .reset(pc_reset),
@@ -4349,6 +4556,7 @@ module top(
     .io_inst_bits_pc(ifu_io_inst_bits_pc),
     .io_ifu2Mem_bready(ifu_io_ifu2Mem_bready),
     .io_ifu2Mem_bvalid(ifu_io_ifu2Mem_bvalid),
+    .io_ifu2Mem_bresp(ifu_io_ifu2Mem_bresp),
     .io_ifu2Mem_arready(ifu_io_ifu2Mem_arready),
     .io_ifu2Mem_arvalid(ifu_io_ifu2Mem_arvalid),
     .io_ifu2Mem_araddr(ifu_io_ifu2Mem_araddr),
@@ -4512,6 +4720,7 @@ module top(
     .io_wbu2Mem_wlast(wbu_io_wbu2Mem_wlast),
     .io_wbu2Mem_bready(wbu_io_wbu2Mem_bready),
     .io_wbu2Mem_bvalid(wbu_io_wbu2Mem_bvalid),
+    .io_wbu2Mem_bresp(wbu_io_wbu2Mem_bresp),
     .io_wbu2Mem_arready(wbu_io_wbu2Mem_arready),
     .io_wbu2Mem_arvalid(wbu_io_wbu2Mem_arvalid),
     .io_wbu2Mem_araddr(wbu_io_wbu2Mem_araddr),
@@ -4528,6 +4737,7 @@ module top(
     .reset(xbarAXI_reset),
     .io_axiSlaveIFU_bready(xbarAXI_io_axiSlaveIFU_bready),
     .io_axiSlaveIFU_bvalid(xbarAXI_io_axiSlaveIFU_bvalid),
+    .io_axiSlaveIFU_bresp(xbarAXI_io_axiSlaveIFU_bresp),
     .io_axiSlaveIFU_arready(xbarAXI_io_axiSlaveIFU_arready),
     .io_axiSlaveIFU_arvalid(xbarAXI_io_axiSlaveIFU_arvalid),
     .io_axiSlaveIFU_araddr(xbarAXI_io_axiSlaveIFU_araddr),
@@ -4545,6 +4755,7 @@ module top(
     .io_axiSlaveWBU_wlast(xbarAXI_io_axiSlaveWBU_wlast),
     .io_axiSlaveWBU_bready(xbarAXI_io_axiSlaveWBU_bready),
     .io_axiSlaveWBU_bvalid(xbarAXI_io_axiSlaveWBU_bvalid),
+    .io_axiSlaveWBU_bresp(xbarAXI_io_axiSlaveWBU_bresp),
     .io_axiSlaveWBU_arready(xbarAXI_io_axiSlaveWBU_arready),
     .io_axiSlaveWBU_arvalid(xbarAXI_io_axiSlaveWBU_arvalid),
     .io_axiSlaveWBU_araddr(xbarAXI_io_axiSlaveWBU_araddr),
@@ -4563,6 +4774,7 @@ module top(
     .io_axiMasterDevice_wlast(xbarAXI_io_axiMasterDevice_wlast),
     .io_axiMasterDevice_bready(xbarAXI_io_axiMasterDevice_bready),
     .io_axiMasterDevice_bvalid(xbarAXI_io_axiMasterDevice_bvalid),
+    .io_axiMasterDevice_bresp(xbarAXI_io_axiMasterDevice_bresp),
     .io_axiMasterDevice_arready(xbarAXI_io_axiMasterDevice_arready),
     .io_axiMasterDevice_arvalid(xbarAXI_io_axiMasterDevice_arvalid),
     .io_axiMasterDevice_araddr(xbarAXI_io_axiMasterDevice_araddr),
@@ -4598,6 +4810,12 @@ module top(
     .io_axiLiteMaster_wReady(axiLiteClint_io_axiLiteMaster_wReady),
     .io_axiLiteMaster_bValid(axiLiteClint_io_axiLiteMaster_bValid),
     .io_axiLiteMaster_bReady(axiLiteClint_io_axiLiteMaster_bReady)
+  );
+  GetCurPC getCurPC ( // @[src/main/scala/Main.scala 71:41]
+    .pc(getCurPC_pc)
+  );
+  GetNextPC getNextPC ( // @[src/main/scala/Main.scala 72:41]
+    .nextPC(getNextPC_nextPC)
   );
   assign io_master_awvalid = xbarAXI_io_axiMasterDevice_awvalid; // @[src/main/scala/Main.scala 63:41]
   assign io_master_awaddr = xbarAXI_io_axiMasterDevice_awaddr; // @[src/main/scala/Main.scala 63:41]
@@ -4636,6 +4854,7 @@ module top(
   assign ifu_reset = reset;
   assign ifu_io_pc = pc_io_pc; // @[src/main/scala/Main.scala 43:33]
   assign ifu_io_ifu2Mem_bvalid = xbarAXI_io_axiSlaveIFU_bvalid; // @[src/main/scala/Main.scala 46:24]
+  assign ifu_io_ifu2Mem_bresp = xbarAXI_io_axiSlaveIFU_bresp; // @[src/main/scala/Main.scala 46:24]
   assign ifu_io_ifu2Mem_arready = xbarAXI_io_axiSlaveIFU_arready; // @[src/main/scala/Main.scala 46:24]
   assign ifu_io_ifu2Mem_rvalid = xbarAXI_io_axiSlaveIFU_rvalid; // @[src/main/scala/Main.scala 46:24]
   assign ifu_io_ifu2Mem_rdata = xbarAXI_io_axiSlaveIFU_rdata; // @[src/main/scala/Main.scala 46:24]
@@ -4716,6 +4935,7 @@ module top(
   assign wbu_io_wbu2Mem_awready = xbarAXI_io_axiSlaveWBU_awready; // @[src/main/scala/Main.scala 59:41]
   assign wbu_io_wbu2Mem_wready = xbarAXI_io_axiSlaveWBU_wready; // @[src/main/scala/Main.scala 59:41]
   assign wbu_io_wbu2Mem_bvalid = xbarAXI_io_axiSlaveWBU_bvalid; // @[src/main/scala/Main.scala 59:41]
+  assign wbu_io_wbu2Mem_bresp = xbarAXI_io_axiSlaveWBU_bresp; // @[src/main/scala/Main.scala 59:41]
   assign wbu_io_wbu2Mem_arready = xbarAXI_io_axiSlaveWBU_arready; // @[src/main/scala/Main.scala 59:41]
   assign wbu_io_wbu2Mem_rvalid = xbarAXI_io_axiSlaveWBU_rvalid; // @[src/main/scala/Main.scala 59:41]
   assign wbu_io_wbu2Mem_rdata = xbarAXI_io_axiSlaveWBU_rdata; // @[src/main/scala/Main.scala 59:41]
@@ -4741,6 +4961,7 @@ module top(
   assign xbarAXI_io_axiMasterDevice_awready = io_master_awready; // @[src/main/scala/Main.scala 63:41]
   assign xbarAXI_io_axiMasterDevice_wready = io_master_wready; // @[src/main/scala/Main.scala 63:41]
   assign xbarAXI_io_axiMasterDevice_bvalid = io_master_bvalid; // @[src/main/scala/Main.scala 63:41]
+  assign xbarAXI_io_axiMasterDevice_bresp = io_master_bresp; // @[src/main/scala/Main.scala 63:41]
   assign xbarAXI_io_axiMasterDevice_arready = io_master_arready; // @[src/main/scala/Main.scala 63:41]
   assign xbarAXI_io_axiMasterDevice_rvalid = io_master_rvalid; // @[src/main/scala/Main.scala 63:41]
   assign xbarAXI_io_axiMasterDevice_rdata = io_master_rdata; // @[src/main/scala/Main.scala 63:41]
@@ -4758,4 +4979,6 @@ module top(
   assign axiLiteClint_io_axiLiteMaster_awValid = xbarAXI_io_axiLiteClint_awValid; // @[src/main/scala/Main.scala 67:41]
   assign axiLiteClint_io_axiLiteMaster_wValid = xbarAXI_io_axiLiteClint_wValid; // @[src/main/scala/Main.scala 67:41]
   assign axiLiteClint_io_axiLiteMaster_bReady = xbarAXI_io_axiLiteClint_bReady; // @[src/main/scala/Main.scala 67:41]
+  assign getCurPC_pc = pc_io_pc; // @[src/main/scala/Main.scala 73:41]
+  assign getNextPC_nextPC = wbu_io_wbu2PC_bits_nextPC; // @[src/main/scala/Main.scala 74:41]
 endmodule
