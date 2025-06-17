@@ -191,7 +191,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
     return;
   }
   #endif
-  #ifdef CONFIG_HAS_SRAM
+  #ifdef CONFIG_HAS_SDRAM
   else if (in_sdram(addr)) {
     pmem_write(addr, len, data);
     return;
