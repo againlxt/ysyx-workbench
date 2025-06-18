@@ -184,7 +184,8 @@ static void exec_once() {
 	while (!(verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__wbu__DOT__validPC2Reg && verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc__DOT__wbu2PCReadyReg)) {
 		clk_up();
 		clk_down();
-		if ((loop_counter ++) >= 1000) {
+		#ifdef CONFIG_LOOP_CHECK_ENABLE
+		if ((loop_counter ++) >= CONFIG_LOOP_NUM) {
 			printf("\n");
 			sim_exit();
 			Log("npc: %s at pc = " FMT_WORD,
@@ -199,6 +200,7 @@ static void exec_once() {
 			#endif
 			assert(0);
 		}
+		#endif
 	}
 	#ifdef CONFIG_ITRACE
 	char *p = logbuf;

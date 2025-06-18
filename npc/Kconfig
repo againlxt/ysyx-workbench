@@ -37,6 +37,16 @@ config PERFORMANCE_COUNTER_ENABLE
   bool "Performance Counter Enable"
   default y
 
+menuconfig LOOP_CHECK_ENABLE
+  bool "Enable loop check"
+  default y
+
+if LOOP_CHECK_ENABLE
+config LOOP_NUM
+  hex "The max loop num"
+  default 10000
+endif
+
 menu "Testing and Debugging"
 
 

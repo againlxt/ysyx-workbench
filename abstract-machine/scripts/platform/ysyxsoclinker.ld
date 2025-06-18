@@ -49,7 +49,7 @@ SECTIONS {
         _bss_end = .;
     } > sdram AT> sdram
     _heap_start = ALIGN(0x1000);
-    _heap_end = _heap_start + 0x200000;
+    _heap_end = _heap_start + 0x2000000;
 	. = ORIGIN(sram) + 0x800;
     _stack_top = ALIGN(0x4);
     . = _stack_top + 0x1800;
