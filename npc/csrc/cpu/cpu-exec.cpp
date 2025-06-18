@@ -179,10 +179,26 @@ static void exec_once() {
 	uint32_t npc_snpc 	= npc_curPC + 4;
 	#endif
 
-	clk_down();	
+	clk_down();
+	uint32_t loop_counter = 0;
 	while (!(verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__wbu__DOT__validPC2Reg && verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc__DOT__wbu2PCReadyReg)) {
 		clk_up();
 		clk_down();
+		if ((loop_counter ++) >= 1000) {
+			printf("\n");
+			sim_exit();
+			Log("npc: %s at pc = " FMT_WORD,
+			(npc_state.state == NPC_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
+			(npc_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
+				ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
+			npc_state.halt_pc);
+			FREE_VERILATOR();
+			#ifdef CONFIG_WAVE_TRACE
+			verlatorTfp->close();
+			delete verlatorTfp;
+			#endif
+			assert(0);
+		}
 	}
 	#ifdef CONFIG_ITRACE
 	char *p = logbuf;

@@ -32,6 +32,8 @@ SECTIONS {
         *(.sdata*)
         _data_end = .;
     } > sdram AT> flash : data
+    _data_size = SIZEOF(.data);
+    _data_load_start = LOADADDR(.data);
 	.rodata : ALIGN_WITH_INPUT SUBALIGN(4) {
         _rodata_start = .;
 		*(.rodata*)
@@ -39,10 +41,6 @@ SECTIONS {
         _rodata_end = .;
     } > sdram AT> flash
 	_rodata_load_start = LOADADDR(.rodata);
-    _data_size = SIZEOF(.data);
-    _data_load_start = LOADADDR(.data);
-	_heap_start = ALIGN(0x1000);
-    _heap_end = _heap_start + 0x200000;
     .bss : ALIGN_WITH_INPUT SUBALIGN(4) {
         _bss_start = .;
         *(.bss*)
@@ -50,6 +48,8 @@ SECTIONS {
         *(.scommon)
         _bss_end = .;
     } > sdram AT> sdram
+    _heap_start = ALIGN(0x1000);
+    _heap_end = _heap_start + 0x200000;
 	. = ORIGIN(sram) + 0x800;
     _stack_top = ALIGN(0x4);
     . = _stack_top + 0x1800;
