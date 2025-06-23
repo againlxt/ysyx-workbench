@@ -541,7 +541,7 @@ core_clock period_min = 1.46 fmax = 687.05
 [/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:84 performence_cnt_display] ============== Performence Counter Display End ===============
 ```
 
-根据`Amdahl's Law`，优化IFU取指令到理论值，整个程序的加速比是`1 / (1 - 0.7314 + 0.7314 / 4) = 2.2151`，能够让运行速度变为原来的`41952932 / 19511741 = 2.1501`倍，但要获取同样的效果需要将频率提升为原来的两倍而且没有考虑延迟的改变，还是比较有难度，所以当前主要目标应该是优化取值效率。
+根据`Amdahl's Law`，优化IFU取指令到理论值，整个程序的加速比是`1 / (1 - 0.7314 + 0.7314 / 4) = 2.2151`，能够让运行速度变为原来的`41952932 / 19511741 = 2.1501`倍，但要获取同样的效果需要将频率提升为原来的两倍而且没有考虑延迟的改变，还是比较有难度，所以当前主要目标应该是优化取指令效率。
 
 # 评估NPC性能
 
@@ -558,5 +558,3 @@ core_clock period_min = 1.46 fmax = 687.05
 [/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:83 performence_cnt_display]            73.14%           4.47%         2.73%
 [/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:84 performence_cnt_display] ============== Performence Counter Display End ===============
 ```
-
-# 
