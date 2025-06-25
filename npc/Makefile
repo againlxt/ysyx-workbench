@@ -11,7 +11,7 @@ YSYX_HOME = $(NEMU_HOME)/..
 GTKWAVE = gtkwave
 GTKWAVE_CFLAGS +=
 
-PROJ_NAME ?= soc_cpu
+PROJ_NAME ?= $(if $(CONFIG_SOC),soc_cpu,npc_cpu)
 
 BUILD_DIR = ./build/$(PROJ_NAME)
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -35,7 +35,7 @@ VSRCS_SOC = $(shell find $(abspath $(YSYX_HOME)/ysyxSoC/perip) -name "*.v")
 VSRCS_SOC += $(YSYX_HOME)/ysyxSoC/build/ysyxSoCFull.v
 VSRCS += $(if $(CONFIG_SOC),$(VSRCS_SOC),)
 CSRCS = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.c")
-CSRCS += $(SRC_AUTO_BIND)
+CSRCS += $(if $(CONFIG_SOC),$(SRC_AUTO_BIND),)
 CXXSRC = $(shell find $(abspath $(NPC_HOME)/csrc/) -name "*.cpp" ! -name "disasm.cpp")
 
 ifneq ($(CONFIG_ITRACE),)

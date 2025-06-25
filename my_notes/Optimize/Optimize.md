@@ -558,3 +558,7 @@ core_clock period_min = 1.46 fmax = 687.05
 [/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:83 performence_cnt_display]            73.14%           4.47%         2.73%
 [/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:84 performence_cnt_display] ============== Performence Counter Display End ===============
 ```
+
+# 提升功能测试效率
+
+npc软硬件支持要同时支持`riscv32e-npc`和`riscv32e-ysyxsoc`，其中硬件只需要退回之前的分支就行，而软件最好是能够同时支持。

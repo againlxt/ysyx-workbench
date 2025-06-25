@@ -25,7 +25,11 @@ static char *elf_file = NULL;
 static int difftest_port = 1234;
 
 VerilatedContext* verlatorContextp = nullptr;
+#ifdef CONFIG_SOC
 VysyxSoCFull* verilatorTop = nullptr;
+#else
+Vtop* verilatorTop = nullptr;
+#endif
 #ifdef CONFIG_WAVE_TRACE
 #ifdef CONFIG_FST_MODE 
 VerilatedFstC* verlatorTfp = nullptr;
@@ -62,7 +66,8 @@ static void welcome() {
         "to record the trace. This may lead to a large log file. "
         "If it is not necessary, you can disable it in menuconfig"));
   Log("Build time: %s, %s", __TIME__, __DATE__);
-  printf("Welcome to %s-NPC!\n", ANSI_FMT(str("riscv32e"), ANSI_FG_YELLOW ANSI_BG_RED));
+  IFDEF(CONFIG_SOC, printf("Welcome to %s-ysyxsoc!\n", ANSI_FMT(str("riscv32e"), ANSI_FG_YELLOW ANSI_BG_RED)));
+  IFNDEF(CONFIG_SOC, printf("Welcome to %s-NPC!\n", ANSI_FMT(str("riscv32e"), ANSI_FG_YELLOW ANSI_BG_RED)));
   printf("For help, type \"help\"\n");
 }
 
@@ -114,7 +119,8 @@ static long load_img() {
 	Log("The image is %s, size = %ld", img_file, size);
 
 	fseek(fp, 0, SEEK_SET);
-	int ret = fread(guest_to_host_flash(0), size, 1, fp);
+	IFDEF(CONFIG_SOC, int ret = fread(guest_to_host_flash(0), size, 1, fp));
+	IFNDEF(CONFIG_SOC, int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp););
 	assert(ret == 1);
 
 	fclose(fp);
@@ -131,7 +137,11 @@ static void init_npc() {
 
 static void sim_init() {
     verlatorContextp = new VerilatedContext;
+	#ifdef CONFIG_SOC
     verilatorTop = new VysyxSoCFull(verlatorContextp);
+	#else
+	verilatorTop = new Vtop(verlatorContextp);
+	#endif
 	#ifdef CONFIG_WAVE_TRACE
 	#ifdef CONFIG_FST_MODE
 	verlatorTfp = new VerilatedFstC;
@@ -140,10 +150,18 @@ static void sim_init() {
 	#endif
     verlatorContextp->traceEverOn(true);
     verilatorTop->trace(verlatorTfp, 1000);
+	#ifdef CONFIG_SOC
 	#ifdef CONFIG_FST_MODE
 	verlatorTfp->open("soc_cpu.fst");
 	#else
     verlatorTfp->open("soc_cpu.vcd");
+	#endif
+	#else
+	#ifdef CONFIG_FST_MODE
+	verlatorTfp->open("npc_cpu.fst");
+	#else
+    verlatorTfp->open("npc_cpu.vcd");
+	#endif
 	#endif
 	#endif
 }
@@ -154,9 +172,12 @@ void init_monitor(int argc, char *argv[]) {
 	init_log(log_file);
 	init_elf(elf_file);
 	init_mem();
+
+	#ifdef CONFIG_SOC
 	init_mrom();
 	init_flash();
 	init_psram();
+	#endif
 
 	long img_size = load_img();
 

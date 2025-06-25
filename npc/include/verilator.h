@@ -19,10 +19,15 @@
 #endif
 #include <svdpi.h>
 #include <iostream>
+#ifdef CONFIG_SOC
 #include "VysyxSoCFull.h"
 #include "VysyxSoCFull___024root.h"
-
 extern VysyxSoCFull* verilatorTop;
+#else
+#include "Vtop.h"
+#include "Vtop___024root.h"
+extern Vtop* verilatorTop;
+#endif
 
 extern VerilatedContext* verlatorContextp;
 #ifdef CONFIG_WAVE_TRACE

@@ -29,9 +29,15 @@ static bool g_print_step = false;
 CPU_state cpu = {};
 
 char logbuf[128] = "";
-uint32_t npc_dnpc 	= 0x30000000;
-uint32_t npc_pc 	= 0x30000000;
-uint32_t base_addr 	= 0x30000000;
+#ifdef CONFIG_SOC
+uint32_t npc_dnpc 	= CONFIG_FLASHBASE;
+uint32_t npc_pc 	= CONFIG_FLASHBASE;
+uint32_t base_addr 	= CONFIG_FLASHBASE;
+#else
+uint32_t npc_dnpc 	= CONFIG_MBASE;
+uint32_t npc_pc 	= CONFIG_MBASE;
+uint32_t base_addr 	= CONFIG_MBASE;
+#endif
 
 word_t ftrace_function_call_flag;
 word_t ftrace_ret_flag;
@@ -181,7 +187,14 @@ static void exec_once() {
 
 	clk_down();
 	uint32_t loop_counter = 0;
-	while (!(verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__wbu__DOT__validPC2Reg && verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc__DOT__wbu2PCReadyReg)) {
+	while (
+	#ifdef CONFIG_SOC
+	!(verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__wbu__DOT__validPC2Reg 
+	&& verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc__DOT__wbu2PCReadyReg)
+	#else
+	!(verilatorTop->rootp->top__DOT__wbu__DOT__validPC2Reg && verilatorTop->rootp->top__DOT__pc__DOT__wbu2PCReadyReg)
+	#endif
+	) {
 		clk_up();
 		clk_down();
 		#ifdef CONFIG_LOOP_CHECK_ENABLE
@@ -207,7 +220,11 @@ static void exec_once() {
 	p += snprintf(p, sizeof(logbuf), FMT_WORD ":", npc_curPC);
 	int ilen = npc_snpc - npc_curPC;
 	int i;
+	#ifdef CONFIG_SOC
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.wbu.getCmd"));
+	#else
+	svSetScope(svGetScopeFromName("TOP.top.wbu.getCmd"));
+	#endif
 	svBitVecVal cmd = getCommond();
 	uint32_t npcCurCmd = (uint32_t) cmd;
 	uint8_t *inst = reinterpret_cast<uint8_t*>(&npcCurCmd);
@@ -229,17 +246,25 @@ static void exec_once() {
 	#endif
 	clk_up();
 
+	#ifdef CONFIG_SOC
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
-	npc_pc		= get_cur_pc(); 
+	#else
+	svSetScope(svGetScopeFromName("TOP.top.getCurPC"));	
+	#endif
+	npc_pc		= get_cur_pc();
+	#ifdef CONFIG_SOC
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
+	#else
+	svSetScope(svGetScopeFromName("TOP.top.getNextPC"));	
+	#endif
 	npc_dnpc	= get_next_pc();
 	trace_and_difftest();
 }
 
 static void execute(uint64_t n) {
-	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
+	svSetScope(svGetScopeFromName("TOP.top.getCurPC"));
 	npc_pc		= get_cur_pc(); 
-	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
+	svSetScope(svGetScopeFromName("TOP.top.getNextPC"));
 	npc_dnpc	= get_next_pc();	
 	verilatorTop->eval();
 

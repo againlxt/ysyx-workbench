@@ -84,7 +84,11 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
       "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
 
 	ref_difftest_init(port);
+	#ifdef CONFIG_SOC
 	ref_difftest_memcpy(CONFIG_FLASHBASE, guest_to_host_flash(0), img_size, DIFFTEST_TO_REF);
+	#else
+	ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF);
+	#endif
 	ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
 

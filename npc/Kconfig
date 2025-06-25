@@ -33,10 +33,6 @@ config WAVE_EREA_END
   default 0xffffffff
 endmenu
 
-config PERFORMANCE_COUNTER_ENABLE
-  bool "Performance Counter Enable"
-  default y
-
 menuconfig LOOP_CHECK_ENABLE
   bool "Enable loop check"
   default y
@@ -218,6 +214,10 @@ config NVBOARD
   depends on SOC
   bool "Enable nvboard"
   default n
+config PERFORMANCE_COUNTER_ENABLE
+  depends on SOC
+  bool "Performance Counter Enable"
+  default y
 menu "SoC Device"
 depends on SOC
 menu "UART16550"
