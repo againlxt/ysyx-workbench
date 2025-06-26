@@ -561,4 +561,11 @@ core_clock period_min = 1.46 fmax = 687.05
 
 # 提升功能测试效率
 
-npc软硬件支持要同时支持`riscv32e-npc`和`riscv32e-ysyxsoc`，其中硬件只需要退回之前的分支就行，而软件最好是能够同时支持。
+npc软硬件支持要同时支持`riscv32e-npc`和`riscv32e-ysyxsoc`，将软硬件都设置成可配置的即可。
+
+# 实现icache
+
+目前阶段要求实现的是一个直接映射Cache，其结构如下图所示：
+![avatar](/home/lxt/ysyx-workbench/my_notes/Optimize/assets/1.png)
+
+参数要求是块大小为4B，一共16个。说明每一个cache块只支持1行

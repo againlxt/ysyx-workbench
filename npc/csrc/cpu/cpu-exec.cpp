@@ -262,9 +262,17 @@ static void exec_once() {
 }
 
 static void execute(uint64_t n) {
-	svSetScope(svGetScopeFromName("TOP.top.getCurPC"));
+	#ifdef CONFIG_SOC
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
+	#else
+	svSetScope(svGetScopeFromName("TOP.top.getCurPC"));	
+	#endif	
 	npc_pc		= get_cur_pc(); 
-	svSetScope(svGetScopeFromName("TOP.top.getNextPC"));
+	#ifdef CONFIG_SOC
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
+	#else
+	svSetScope(svGetScopeFromName("TOP.top.getNextPC"));	
+	#endif
 	npc_dnpc	= get_next_pc();	
 	verilatorTop->eval();
 
