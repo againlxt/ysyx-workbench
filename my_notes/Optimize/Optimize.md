@@ -569,3 +569,67 @@ npc软硬件支持要同时支持`riscv32e-npc`和`riscv32e-ysyxsoc`，将软硬
 ![avatar](/home/lxt/ysyx-workbench/my_notes/Optimize/assets/1.png)
 
 参数要求是块大小为4B，一共16个。说明每一个cache块只支持1行
+
+# 适合缓存的地址空间
+
+ifu会访问的内存只有flash和sdram都是适合缓存的单元。
+
+# 估算dcache的理想收益
+
+使用microbench test粗略估算了以下，结果如下：
+
+```
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:101 sim_exit] total cycle = 29366265
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:102 sim_exit] total inst  = 1135133
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:103 sim_exit] IPC         = 0.038654
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:104 sim_exit] CPI         = 25.870330
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:83 performence_cnt_display] ================ Performence Counter Display =================
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:84 performence_cnt_display] The average memory access latency of the LSU: 24.93
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:85 performence_cnt_display] proportion JUMP  |  Store  |  Load  |  Cal  |  Csr  |  Other
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:86 performence_cnt_display]            3.80%   12.05%   8.63%   50.64%   0.00%   24.88%
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:88 performence_cnt_display] proportion IFUGetInst  |  LSUGetData  |  EXUFinCal
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:89 performence_cnt_display]            44.75%           19.92%         3.87%
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:90 performence_cnt_display] ============== Performence Counter Display End ===============
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:327 cpu_exec] npc: HIT GOOD TRAP at pc = 0xa0003d0c
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:291 statistic] host time spent = 81,795,175 us
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:292 statistic] total guest instructions = 1,135,134
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:293 statistic] simulation frequency = 13,877 inst/s
+```
+
+```
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:101 sim_exit] total cycle = 29366265
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:102 sim_exit] total inst  = 1135133
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:103 sim_exit] IPC         = 0.038654
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:104 sim_exit] CPI         = 25.870330
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:83 performence_cnt_display] ================ Performence Counter Display =================
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:84 performence_cnt_display] The average memory access latency of the LSU: 1.42
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:85 performence_cnt_display] proportion JUMP  |  Store  |  Load  |  Cal  |  Csr  |  Other
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:86 performence_cnt_display]            3.80%   12.05%   8.63%   50.64%   0.00%   24.88%
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:88 performence_cnt_display] proportion IFUGetInst  |  LSUGetData  |  EXUFinCal
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:89 performence_cnt_display]            44.75%           1.13%         3.87%
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:90 performence_cnt_display] ============== Performence Counter Display End ===============
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:327 cpu_exec] npc: HIT GOOD TRAP at pc = 0xa0003d0c
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:291 statistic] host time spent = 20,769,961 us
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:292 statistic] total guest instructions = 1,135,134
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:293 statistic] simulation frequency = 54,652 inst/s
+```
+
+使用的方法是将LSUGetData的计数器固定为1，这样就可以算出优化前后的差值，也就是理想的优化收益是优化后周期数减少了19%左右，这样看收益还算是比较客观，但不清楚面积需要增加多少。
+
+同样的方法在ifu上使用一次。
+
+```
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:101 sim_exit] total cycle = 29366265
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:102 sim_exit] total inst  = 1135133
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:103 sim_exit] IPC         = 0.038654
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:104 sim_exit] CPI         = 25.870330
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:83 performence_cnt_display] ================ Performence Counter Display =================
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:84 performence_cnt_display] The average memory access latency of the LSU: 24.93
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:85 performence_cnt_display] proportion JUMP  |  Store  |  Load  |  Cal  |  Csr  |  Other
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:86 performence_cnt_display]            3.80%   12.05%   8.63%   50.64%   0.00%   24.88%
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:88 performence_cnt_display] proportion IFUGetInst  |  LSUGetData  |  EXUFinCal
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:89 performence_cnt_display]            1.63%           19.92%         3.87%
+[/home/lxt/ysyx-workbench/npc/csrc/cpu/cpu-exec.cpp:90 performence_cnt_display] ============== Performence Counter Display End ===============
+```
+
+直接减少了40%多的周期数，而且还是相较于添加了简易icache之后的，如果是相较于没有添加icache的，能够优化60%多的周期数，这个收益还是十分香的。所以相较于dcache，icache显然更加适合。
