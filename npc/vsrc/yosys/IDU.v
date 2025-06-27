@@ -152,7 +152,7 @@ module IDU(
   assign immGen_io_immType = contrGen_io_immType; // @[src/main/scala/idu/IDU.scala 102:25]
   always @(posedge clock) begin
     if (reset) begin // @[src/main/scala/idu/IDU.scala 21:30]
-      pcReg <= 32'h80000000; // @[src/main/scala/idu/IDU.scala 21:30]
+      pcReg <= 32'h30000000; // @[src/main/scala/idu/IDU.scala 21:30]
     end else if (io_inst_ready & io_inst_valid) begin // @[src/main/scala/idu/IDU.scala 49:42]
       pcReg <= io_inst_bits_pc; // @[src/main/scala/idu/IDU.scala 50:21]
     end

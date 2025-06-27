@@ -1,27 +1,27 @@
 module PC(
   input         clock,
   input         reset,
-  output        io_wbu2PC_ready, // @[src/main/scala/PC.scala 9:20]
-  input         io_wbu2PC_valid, // @[src/main/scala/PC.scala 9:20]
-  input  [31:0] io_wbu2PC_bits_nextPC, // @[src/main/scala/PC.scala 9:20]
-  output [31:0] io_pc // @[src/main/scala/PC.scala 9:20]
+  output        io_wbu2PC_ready, // @[src/main/scala/PC.scala 10:20]
+  input         io_wbu2PC_valid, // @[src/main/scala/PC.scala 10:20]
+  input  [31:0] io_wbu2PC_bits_nextPC, // @[src/main/scala/PC.scala 10:20]
+  output [31:0] io_pc // @[src/main/scala/PC.scala 10:20]
 );
 `ifdef RANDOMIZE_REG_INIT
   reg [31:0] _RAND_0;
   reg [31:0] _RAND_1;
 `endif // RANDOMIZE_REG_INIT
-  reg [31:0] pcReg; // @[src/main/scala/PC.scala 15:28]
-  reg  wbu2PCReadyReg; // @[src/main/scala/PC.scala 16:37]
-  wire  _GEN_1 = io_wbu2PC_ready & io_wbu2PC_valid ? 1'h0 : 1'h1; // @[src/main/scala/PC.scala 20:51 22:32 24:32]
-  assign io_wbu2PC_ready = wbu2PCReadyReg; // @[src/main/scala/PC.scala 17:25]
-  assign io_pc = pcReg; // @[src/main/scala/PC.scala 28:15]
+  reg [31:0] pcReg; // @[src/main/scala/PC.scala 16:28]
+  reg  wbu2PCReadyReg; // @[src/main/scala/PC.scala 18:37]
+  wire  _GEN_1 = io_wbu2PC_ready & io_wbu2PC_valid ? 1'h0 : 1'h1; // @[src/main/scala/PC.scala 22:51 24:32 26:32]
+  assign io_wbu2PC_ready = wbu2PCReadyReg; // @[src/main/scala/PC.scala 19:25]
+  assign io_pc = pcReg; // @[src/main/scala/PC.scala 30:15]
   always @(posedge clock) begin
-    if (reset) begin // @[src/main/scala/PC.scala 15:28]
-      pcReg <= 32'h30000000; // @[src/main/scala/PC.scala 15:28]
-    end else if (io_wbu2PC_ready & io_wbu2PC_valid) begin // @[src/main/scala/PC.scala 20:51]
-      pcReg <= io_wbu2PC_bits_nextPC; // @[src/main/scala/PC.scala 21:23]
+    if (reset) begin // @[src/main/scala/PC.scala 16:28]
+      pcReg <= 32'h30000000; // @[src/main/scala/PC.scala 16:28]
+    end else if (io_wbu2PC_ready & io_wbu2PC_valid) begin // @[src/main/scala/PC.scala 22:51]
+      pcReg <= io_wbu2PC_bits_nextPC; // @[src/main/scala/PC.scala 23:23]
     end
-    wbu2PCReadyReg <= reset | _GEN_1; // @[src/main/scala/PC.scala 16:{37,37}]
+    wbu2PCReadyReg <= reset | _GEN_1; // @[src/main/scala/PC.scala 18:{37,37}]
   end
 // Register and memory initialization
 `ifdef RANDOMIZE_GARBAGE_ASSIGN

@@ -59,7 +59,7 @@ module ALU(
     .io_shamt(shifter_io_shamt),
     .io_dOut(shifter_io_dOut)
   );
-  ALUAdder aluAdder ( // @[src/main/scala/exu/alu/ALU.scala 34:49]
+  ALUAdderCLA aluAdder ( // @[src/main/scala/exu/alu/ALU.scala 34:49]
     .io_subOrAdd(aluAdder_io_subOrAdd),
     .io_srcAData(aluAdder_io_srcAData),
     .io_srcBData(aluAdder_io_srcBData),

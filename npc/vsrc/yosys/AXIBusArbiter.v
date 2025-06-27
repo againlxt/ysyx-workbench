@@ -9,6 +9,7 @@ module AXIBusArbiter(
   input         io_axiSlave0_rready, // @[src/main/scala/basemode/Memory.scala 143:14]
   output        io_axiSlave0_rvalid, // @[src/main/scala/basemode/Memory.scala 143:14]
   output [31:0] io_axiSlave0_rdata, // @[src/main/scala/basemode/Memory.scala 143:14]
+  output        io_axiSlave0_rlast, // @[src/main/scala/basemode/Memory.scala 143:14]
   output        io_axiSlave1_awready, // @[src/main/scala/basemode/Memory.scala 143:14]
   input         io_axiSlave1_awvalid, // @[src/main/scala/basemode/Memory.scala 143:14]
   input  [31:0] io_axiSlave1_awaddr, // @[src/main/scala/basemode/Memory.scala 143:14]
@@ -44,7 +45,8 @@ module AXIBusArbiter(
   output [2:0]  io_axiMaster_arsize, // @[src/main/scala/basemode/Memory.scala 143:14]
   output        io_axiMaster_rready, // @[src/main/scala/basemode/Memory.scala 143:14]
   input         io_axiMaster_rvalid, // @[src/main/scala/basemode/Memory.scala 143:14]
-  input  [31:0] io_axiMaster_rdata // @[src/main/scala/basemode/Memory.scala 143:14]
+  input  [31:0] io_axiMaster_rdata, // @[src/main/scala/basemode/Memory.scala 143:14]
+  input         io_axiMaster_rlast // @[src/main/scala/basemode/Memory.scala 143:14]
 );
 `ifdef RANDOMIZE_REG_INIT
   reg [31:0] _RAND_0;
@@ -92,6 +94,7 @@ module AXIBusArbiter(
   wire  _GEN_52 = state == 2'h2 | state == 2'h1 ? io_axiSlave0_rready : _GEN_23; // @[src/main/scala/basemode/Memory.scala 190:52 191:18]
   wire  _GEN_53 = (state == 2'h2 | state == 2'h1) & io_axiMaster_rvalid; // @[src/main/scala/basemode/Memory.scala 190:52 191:18 src/main/scala/basemode/Interface.scala 203:20]
   wire [31:0] _GEN_55 = state == 2'h2 | state == 2'h1 ? io_axiMaster_rdata : 32'h0; // @[src/main/scala/basemode/Memory.scala 190:52 191:18 src/main/scala/basemode/Interface.scala 205:19]
+  wire  _GEN_56 = (state == 2'h2 | state == 2'h1) & io_axiMaster_rlast; // @[src/main/scala/basemode/Memory.scala 190:52 191:18 src/main/scala/basemode/Interface.scala 206:19]
   wire  _GEN_58 = state == 2'h2 | state == 2'h1 ? 1'h0 : _GEN_0; // @[src/main/scala/basemode/Memory.scala 190:52 src/main/scala/basemode/Interface.scala 193:21]
   wire  _GEN_59 = state == 2'h2 | state == 2'h1 ? 1'h0 : _GEN_7; // @[src/main/scala/basemode/Memory.scala 190:52 src/main/scala/basemode/Interface.scala 195:20]
   wire  _GEN_60 = state == 2'h2 | state == 2'h1 ? 1'h0 : _GEN_13; // @[src/main/scala/basemode/Memory.scala 190:52 src/main/scala/basemode/Interface.scala 197:20]
@@ -102,6 +105,7 @@ module AXIBusArbiter(
   assign io_axiSlave0_arready = state == 2'h0 ? 1'h0 : _GEN_45; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 201:21]
   assign io_axiSlave0_rvalid = state == 2'h0 ? 1'h0 : _GEN_53; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 203:20]
   assign io_axiSlave0_rdata = state == 2'h0 ? 32'h0 : _GEN_55; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 205:19]
+  assign io_axiSlave0_rlast = state == 2'h0 ? 1'h0 : _GEN_56; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 206:19]
   assign io_axiSlave1_awready = state == 2'h0 ? 1'h0 : _GEN_58; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 193:21]
   assign io_axiSlave1_wready = state == 2'h0 ? 1'h0 : _GEN_59; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 195:20]
   assign io_axiSlave1_bvalid = state == 2'h0 ? 1'h0 : _GEN_60; // @[src/main/scala/basemode/Memory.scala 188:26 src/main/scala/basemode/Interface.scala 197:20]

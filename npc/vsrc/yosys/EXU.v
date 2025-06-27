@@ -170,7 +170,7 @@ module EXU(
   assign csrALU_io_csrALUOP = csrALUOPReg; // @[src/main/scala/exu/EXU.scala 146:33]
   always @(posedge clock) begin
     if (reset) begin // @[src/main/scala/exu/EXU.scala 24:42]
-      pcReg <= 32'h80000000; // @[src/main/scala/exu/EXU.scala 24:42]
+      pcReg <= 32'h30000000; // @[src/main/scala/exu/EXU.scala 24:42]
     end else if (io_idu2EXU_ready & io_idu2EXU_valid) begin // @[src/main/scala/exu/EXU.scala 73:52]
       pcReg <= io_idu2EXU_bits_pc; // @[src/main/scala/exu/EXU.scala 74:25]
     end

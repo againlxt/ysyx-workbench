@@ -12,48 +12,66 @@ module IFU(
   output [31:0] io_ifu2Mem_araddr, // @[src/main/scala/ifu/IFU.scala 15:16]
   output        io_ifu2Mem_rready, // @[src/main/scala/ifu/IFU.scala 15:16]
   input         io_ifu2Mem_rvalid, // @[src/main/scala/ifu/IFU.scala 15:16]
-  input  [31:0] io_ifu2Mem_rdata // @[src/main/scala/ifu/IFU.scala 15:16]
+  input  [31:0] io_ifu2Mem_rdata, // @[src/main/scala/ifu/IFU.scala 15:16]
+  input         io_ifu2Mem_rlast // @[src/main/scala/ifu/IFU.scala 15:16]
 );
 `ifdef RANDOMIZE_REG_INIT
   reg [31:0] _RAND_0;
-  reg [31:0] _RAND_1;
-  reg [31:0] _RAND_2;
-  reg [31:0] _RAND_3;
 `endif // RANDOMIZE_REG_INIT
-  wire  resetnWire = ~reset; // @[src/main/scala/ifu/IFU.scala 22:35]
-  reg  breadyReg; // @[src/main/scala/ifu/IFU.scala 37:42]
-  reg  arvalidReg; // @[src/main/scala/ifu/IFU.scala 39:42]
-  reg [31:0] araddrReg; // @[src/main/scala/ifu/IFU.scala 40:42]
-  reg  rreadyReg; // @[src/main/scala/ifu/IFU.scala 47:42]
-  wire  _T_1 = ~resetnWire; // @[src/main/scala/ifu/IFU.scala 95:14]
-  wire  _GEN_0 = io_ifu2Mem_bvalid | breadyReg; // @[src/main/scala/ifu/IFU.scala 100:33 99:33 37:42]
-  wire  _GEN_1 = io_ifu2Mem_bvalid & io_ifu2Mem_bready ? 1'h0 : _GEN_0; // @[src/main/scala/ifu/IFU.scala 97:54 98:33]
-  wire  _GEN_2 = ~resetnWire | _GEN_1; // @[src/main/scala/ifu/IFU.scala 95:34 96:33]
-  wire  _GEN_3 = io_ifu2Mem_arready ? 1'h0 : arvalidReg; // @[src/main/scala/ifu/IFU.scala 107:41 108:28 39:42]
-  wire  _GEN_4 = araddrReg != io_pc | _GEN_3; // @[src/main/scala/ifu/IFU.scala 105:42 106:28]
-  wire  _GEN_5 = _T_1 | _GEN_4; // @[src/main/scala/ifu/IFU.scala 103:34 104:28]
-  wire  _GEN_6 = io_ifu2Mem_rvalid | rreadyReg; // @[src/main/scala/ifu/IFU.scala 115:40 116:27 47:42]
-  wire  _GEN_7 = io_ifu2Mem_rvalid & rreadyReg ? 1'h0 : _GEN_6; // @[src/main/scala/ifu/IFU.scala 113:60 114:27]
-  wire  _GEN_8 = _T_1 | _GEN_7; // @[src/main/scala/ifu/IFU.scala 111:34 112:27]
-  assign io_inst_valid = io_ifu2Mem_rvalid & rreadyReg; // @[src/main/scala/ifu/IFU.scala 133:47]
-  assign io_inst_bits_inst = io_ifu2Mem_rdata; // @[src/main/scala/ifu/IFU.scala 134:33]
-  assign io_inst_bits_pc = araddrReg; // @[src/main/scala/ifu/IFU.scala 135:33]
-  assign io_ifu2Mem_bready = breadyReg; // @[src/main/scala/ifu/IFU.scala 65:33]
-  assign io_ifu2Mem_arvalid = arvalidReg; // @[src/main/scala/ifu/IFU.scala 71:33]
-  assign io_ifu2Mem_araddr = araddrReg; // @[src/main/scala/ifu/IFU.scala 72:33]
-  assign io_ifu2Mem_rready = rreadyReg; // @[src/main/scala/ifu/IFU.scala 78:33]
+  wire  icache_clock; // @[src/main/scala/ifu/IFU.scala 24:28]
+  wire  icache_reset; // @[src/main/scala/ifu/IFU.scala 24:28]
+  wire [31:0] icache_io_addr; // @[src/main/scala/ifu/IFU.scala 24:28]
+  wire  icache_io_enable; // @[src/main/scala/ifu/IFU.scala 24:28]
+  wire [31:0] icache_io_inst; // @[src/main/scala/ifu/IFU.scala 24:28]
+  wire  icache_io_oEnable; // @[src/main/scala/ifu/IFU.scala 24:28]
+  wire  icache_io_icache2Mem_bready; // @[src/main/scala/ifu/IFU.scala 24:28]
+  wire  icache_io_icache2Mem_bvalid; // @[src/main/scala/ifu/IFU.scala 24:28]
+  wire  icache_io_icache2Mem_arready; // @[src/main/scala/ifu/IFU.scala 24:28]
+  wire  icache_io_icache2Mem_arvalid; // @[src/main/scala/ifu/IFU.scala 24:28]
+  wire [31:0] icache_io_icache2Mem_araddr; // @[src/main/scala/ifu/IFU.scala 24:28]
+  wire  icache_io_icache2Mem_rready; // @[src/main/scala/ifu/IFU.scala 24:28]
+  wire  icache_io_icache2Mem_rvalid; // @[src/main/scala/ifu/IFU.scala 24:28]
+  wire [31:0] icache_io_icache2Mem_rdata; // @[src/main/scala/ifu/IFU.scala 24:28]
+  wire  icache_io_icache2Mem_rlast; // @[src/main/scala/ifu/IFU.scala 24:28]
+  reg [31:0] pcReg; // @[src/main/scala/ifu/IFU.scala 21:28]
+  Icache icache ( // @[src/main/scala/ifu/IFU.scala 24:28]
+    .clock(icache_clock),
+    .reset(icache_reset),
+    .io_addr(icache_io_addr),
+    .io_enable(icache_io_enable),
+    .io_inst(icache_io_inst),
+    .io_oEnable(icache_io_oEnable),
+    .io_icache2Mem_bready(icache_io_icache2Mem_bready),
+    .io_icache2Mem_bvalid(icache_io_icache2Mem_bvalid),
+    .io_icache2Mem_arready(icache_io_icache2Mem_arready),
+    .io_icache2Mem_arvalid(icache_io_icache2Mem_arvalid),
+    .io_icache2Mem_araddr(icache_io_icache2Mem_araddr),
+    .io_icache2Mem_rready(icache_io_icache2Mem_rready),
+    .io_icache2Mem_rvalid(icache_io_icache2Mem_rvalid),
+    .io_icache2Mem_rdata(icache_io_icache2Mem_rdata),
+    .io_icache2Mem_rlast(icache_io_icache2Mem_rlast)
+  );
+  assign io_inst_valid = icache_io_oEnable; // @[src/main/scala/ifu/IFU.scala 50:33]
+  assign io_inst_bits_inst = icache_io_inst; // @[src/main/scala/ifu/IFU.scala 51:33]
+  assign io_inst_bits_pc = pcReg; // @[src/main/scala/ifu/IFU.scala 52:33]
+  assign io_ifu2Mem_bready = icache_io_icache2Mem_bready; // @[src/main/scala/ifu/IFU.scala 27:30]
+  assign io_ifu2Mem_arvalid = icache_io_icache2Mem_arvalid; // @[src/main/scala/ifu/IFU.scala 27:30]
+  assign io_ifu2Mem_araddr = icache_io_icache2Mem_araddr; // @[src/main/scala/ifu/IFU.scala 27:30]
+  assign io_ifu2Mem_rready = icache_io_icache2Mem_rready; // @[src/main/scala/ifu/IFU.scala 27:30]
+  assign icache_clock = clock;
+  assign icache_reset = reset;
+  assign icache_io_addr = io_pc; // @[src/main/scala/ifu/IFU.scala 25:33]
+  assign icache_io_enable = pcReg != io_pc; // @[src/main/scala/ifu/IFU.scala 26:43]
+  assign icache_io_icache2Mem_bvalid = io_ifu2Mem_bvalid; // @[src/main/scala/ifu/IFU.scala 27:30]
+  assign icache_io_icache2Mem_arready = io_ifu2Mem_arready; // @[src/main/scala/ifu/IFU.scala 27:30]
+  assign icache_io_icache2Mem_rvalid = io_ifu2Mem_rvalid; // @[src/main/scala/ifu/IFU.scala 27:30]
+  assign icache_io_icache2Mem_rdata = io_ifu2Mem_rdata; // @[src/main/scala/ifu/IFU.scala 27:30]
+  assign icache_io_icache2Mem_rlast = io_ifu2Mem_rlast; // @[src/main/scala/ifu/IFU.scala 27:30]
   always @(posedge clock) begin
-    breadyReg <= reset | _GEN_2; // @[src/main/scala/ifu/IFU.scala 37:{42,42}]
-    arvalidReg <= reset | _GEN_5; // @[src/main/scala/ifu/IFU.scala 39:{42,42}]
-    if (reset) begin // @[src/main/scala/ifu/IFU.scala 40:42]
-      araddrReg <= 32'h80000000; // @[src/main/scala/ifu/IFU.scala 40:42]
+    if (reset) begin // @[src/main/scala/ifu/IFU.scala 21:28]
+      pcReg <= 32'h0; // @[src/main/scala/ifu/IFU.scala 21:28]
     end else begin
-      araddrReg <= io_pc; // @[src/main/scala/ifu/IFU.scala 45:41]
-    end
-    if (reset) begin // @[src/main/scala/ifu/IFU.scala 47:42]
-      rreadyReg <= 1'h0; // @[src/main/scala/ifu/IFU.scala 47:42]
-    end else begin
-      rreadyReg <= _GEN_8;
+      pcReg <= io_pc; // @[src/main/scala/ifu/IFU.scala 22:15]
     end
   end
 // Register and memory initialization
@@ -93,13 +111,7 @@ initial begin
     `endif
 `ifdef RANDOMIZE_REG_INIT
   _RAND_0 = {1{`RANDOM}};
-  breadyReg = _RAND_0[0:0];
-  _RAND_1 = {1{`RANDOM}};
-  arvalidReg = _RAND_1[0:0];
-  _RAND_2 = {1{`RANDOM}};
-  araddrReg = _RAND_2[31:0];
-  _RAND_3 = {1{`RANDOM}};
-  rreadyReg = _RAND_3[0:0];
+  pcReg = _RAND_0[31:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
