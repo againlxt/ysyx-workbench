@@ -49,7 +49,8 @@ static void step_and_dump_wave();
 static uint64_t cycle_counter = 0;
 #ifdef CONFIG_PERFORMANCE_COUNTER_ENABLE
 enum PerformanceCounterType {
-	OTHER = 0, JUMP, STROE, LOAD, CAL, CSR, IFUGETINST, LSUGETDATA, EXUFINCAL
+	OTHER = 0, JUMP, STROE, LOAD, CAL, CSR, IFUGETINST, LSUGETDATA, EXUFINCAL ,
+	ICACHE_ACCESS_TIME, ICACHE_MISS_PENALTY
 };
 static double other_counter = 0;
 static double jump_counter = 0;
@@ -61,25 +62,39 @@ static double ifu_get_inst_cnt = 0;
 static double lsu_get_data_cnt = 0;
 static double lsu_get_data_num = 0;
 static double exu_fin_cal_cnt = 0;
+static double icache_access_time_cnt = 0;
+static double icache_access_num = 0;
+static double icache_miss_penalty_cnt = 0;
+static double icache_miss_num = 0;
+static double icache_hit_rate = 0;
+static double icache_miss_rate = 0;
 extern "C" void performence_cnt_record(int cnttype, int data) {
 	switch (cnttype) {
-		case OTHER: other_counter ++; 	break;
-		case JUMP: 	jump_counter ++; 	break;
-		case STROE:	stroe_counter ++; 	break;
-		case LOAD: 	load_counter ++; 	break;
-		case CAL: 	cal_counter ++;		break;
-		case CSR: 	csr_counter ++; 	break;
+		case OTHER: other_counter ++; 		break;
+		case JUMP: 	jump_counter ++; 		break;
+		case STROE:	stroe_counter ++; 		break;
+		case LOAD: 	load_counter ++; 		break;
+		case CAL: 	cal_counter ++;			break;
+		case CSR: 	csr_counter ++; 		break;
 		case IFUGETINST:
-			ifu_get_inst_cnt += data;	break;
+			ifu_get_inst_cnt += data;		break;
 		case LSUGETDATA:
 			lsu_get_data_num += 1;
-			lsu_get_data_cnt += data;	break;
+			lsu_get_data_cnt += data;		break;
 		case EXUFINCAL:
-			exu_fin_cal_cnt  += data;	break;
+			exu_fin_cal_cnt  += data;		break;
+		case ICACHE_ACCESS_TIME:
+			icache_access_time_cnt 	+= data; 
+			icache_access_num 		+= 1; 	break;
+		case ICACHE_MISS_PENALTY:
+			icache_miss_penalty_cnt += data;
+			icache_miss_num 		+= 1;	break;
 		default: Log("Unknow Type!"); assert(0);
 	}
 }
 static void performence_cnt_display() {
+	icache_hit_rate = (icache_access_num/(icache_access_num+icache_miss_num));
+	icache_miss_rate = (icache_miss_num/(icache_access_num+icache_miss_num));
 	Log("================ Performence Counter Display =================");
 	Log("The average memory access latency of the LSU: %0.2lf", lsu_get_data_cnt/lsu_get_data_num);
 	Log("proportion JUMP  |  Store  |  Load  |  Cal  |  Csr  |  Other");
@@ -87,6 +102,7 @@ static void performence_cnt_display() {
 	100*load_counter/g_nr_guest_inst, 100*cal_counter/g_nr_guest_inst, 100*csr_counter/g_nr_guest_inst, 100*other_counter/g_nr_guest_inst);
 	Log("proportion IFUGetInst  |  LSUGetData  |  EXUFinCal");
 	Log("           %0.2lf%%           %0.2lf%%         %0.2lf%%", 100*ifu_get_inst_cnt/cycle_counter, 100*lsu_get_data_cnt/cycle_counter, 100*exu_fin_cal_cnt/cycle_counter);
+	Log("Icache hit rate: %0.2lf | Icache AMAT: %0.2lf", icache_hit_rate, (icache_access_time_cnt + icache_miss_rate * icache_miss_penalty_cnt)/(icache_access_num+icache_miss_num));
 	Log("============== Performence Counter Display End ===============");
 }
 #else
