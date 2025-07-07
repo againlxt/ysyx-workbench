@@ -29,58 +29,39 @@ config MEM_RANDOM
   bool "Initialize the memory with random values"
   default y
   help
-    This may help to find undefined behaviors.
+    This may help to find undefined behaviors
 
-menuconfig HAS_MROM
-  bool "Enable MROM"
-  default y
-
-if HAS_MROM
+menuconfig HAS_SOC
+  bool "Enable SoC"
+  default n
+if HAS_SOC
+config CACHESIM
+  bool "Enable cachesim"
+  default n
 config MROMBASE
   hex "MROM base address"
   default 0x20000000
 config MROMSIZE
   hex "MROM size"
   default 0x1000
-endif # HAS_MROM
-
-menuconfig HAS_SRAM
-  bool "Enable SRAM"
-  default y
-
-if HAS_SRAM
 config SRAMBASE
   hex "SRAM base address"
   default 0x0f000000
 config SRAMSIZE
   hex "SRAM size"
   default 0x01000000
-endif # HAS_SRAM
-
-menuconfig HAS_FLASH
-  bool "Enable FLASH"
-  default y
-
-if HAS_FLASH
 config FLASHBASE
   hex "FLASH base address"
   default 0x30000000
 config FLASHSIZE
   hex "FLASH size"
   default 0x10000000
-endif # HAS_FLASH
-
-menuconfig HAS_SDRAM
-  bool "Enable SDRAM"
-  default y
-
-if HAS_SDRAM
 config SDRAMBASE
   hex "SDRAM base address"
   default 0xa0000000
 config SDRAMSIZE
   hex "SDRAM size"
   default 0x20000000
-endif # HAS_SDRAM
+endif
 
 endmenu #MEMORY
