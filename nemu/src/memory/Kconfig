@@ -62,6 +62,12 @@ config SDRAMBASE
 config SDRAMSIZE
   hex "SDRAM size"
   default 0x20000000
+config SOC_CLINTBASE
+  hex "SoC Clint base address"
+  default 0x02000000
+config SOC_UARTBASE
+  hex "SoC UART base address"
+  default 0x10000000
 endif
 
 endmenu #MEMORY

@@ -15,6 +15,7 @@
 
 #include <isa.h>
 #include <memory/paddr.h>
+#include <memory/ysyxsoc.h>
 
 void init_rand();
 void init_log(const char *log_file);
@@ -45,6 +46,7 @@ static char *diff_so_file = NULL;
 static char *img_file = NULL;
 static char *elf_file = NULL;
 static int difftest_port = 1234;
+extern uint8_t flash[CONFIG_FLASHSIZE];
 
 static long load_img() {
   if (img_file == NULL) {
@@ -61,7 +63,11 @@ static long load_img() {
   Log("The image is %s, size = %ld", img_file, size);
 
   fseek(fp, 0, SEEK_SET);
+  #ifdef CONFIG_HAS_SOC
+  int ret = fread(flash, size, 1, fp);
+  #else
   int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
+  #endif
   assert(ret == 1);
 
   fclose(fp);
