@@ -1,48 +1,64 @@
 #include <common.h>
 #include <math.h>
+#include <inttypes.h>
 
-#define CONFIG_CACHE_SIZE   4
-#define CONFIG_CACHE_NUM    16
-#define CONFIG_CACHE_WAY    1
+#define CONFIG_CACHE_SIZE   4       // 缓存块大小(字节)
+#define CONFIG_CACHE_NUM    16      // 缓存总块数
+#define CONFIG_CACHE_WAY    1       // 相联度
 
 char *cachesim_file = NULL;
+
 /*
- 31    m+n m+n-1   m m-1    0
+地址划分：
 +---------+---------+--------+
 |   tag   |  index  | offset |
 +---------+---------+--------+
 */
-static uint8_t m = (uint8_t) log(CONFIG_CACHE_SIZE);
-static uint8_t n = (uint8_t) log(CONFIG_CACHE_NUM/CONFIG_CACHE_WAY);
-typedef struct cache_unit {
+static const uint8_t m = (uint8_t)(log(CONFIG_CACHE_SIZE) / log(2));  // offset位数
+static const uint8_t n = (uint8_t)(log(CONFIG_CACHE_NUM/CONFIG_CACHE_WAY) / log(2)); // index位数
+
+typedef struct {
     bool        valid;
     uint32_t    tag;
     uint32_t    data;
 } Cache;
-static Cache cache[CONFIG_CACHE_NUM/CONFIG_CACHE_WAY][CONFIG_CACHE_WAY] = {};
 
-static double inst_counter = 0;
+static Cache cache[CONFIG_CACHE_NUM/CONFIG_CACHE_WAY][CONFIG_CACHE_WAY] = {{{0}}};
+
+static double inst_counter = 0;   // 使用uint64_t代替double更合适
 static double hit_counter = 0;
 
-static void cache_check(uint32_t inst) {
-    uint32_t tag = inst >> (m+n-1);
-    uint32_t index = (inst - tag) >> (m-1);
-    bool hit = 0;
-    inst_counter ++;
-    size_t i = 0;
-    for (i = 0; i < CONFIG_CACHE_WAY; i++) {
-        if (cache[index][i].valid & (cache[index][i].tag == tag)) {
-            hit = 1;
-            break;
+static void cache_check(uint32_t addr) {
+    const uint32_t tag = addr >> (m + n);           // 正确计算tag
+    const uint32_t index = (addr >> m) & ((1 << n) - 1); // 正确计算index
+    
+    inst_counter++;
+    
+    // 直接映射缓存的快速路径
+    if (CONFIG_CACHE_WAY == 1) {
+        if (cache[index][0].valid && cache[index][0].tag == tag) {
+            hit_counter++;
+        } else {
+            cache[index][0].tag = tag;
+            cache[index][0].valid = true;
+            cache[index][0].data = addr;
         }
-    }
-    if (hit == 0) {
-        cache[index][i].tag     = tag;
-        cache[index][i].valid   = 1;
-        cache[index][i].data    = inst;
+        return;
     }
     
-    hit_counter += hit;
+    // 组相联缓存处理
+    for (size_t i = 0; i < CONFIG_CACHE_WAY; i++) {
+        if (cache[index][i].valid && cache[index][i].tag == tag) {
+            hit_counter++;
+            return;
+        }
+    }
+    
+    // 未命中时的替换策略(这里使用简单轮转)
+    size_t replace_idx = (uint64_t) inst_counter % CONFIG_CACHE_WAY;
+    cache[index][replace_idx].tag = tag;
+    cache[index][replace_idx].valid = true;
+    cache[index][replace_idx].data = addr;
 }
 
 void cachesim() {
@@ -59,13 +75,16 @@ void cachesim() {
     
     // 逐行读取文件
     while (fgets(line, sizeof(line), file) != NULL) {
-        printf("%s\n", line);
+        if (sscanf(line, "%x", &inst) == 1) {
+        } else {
+            printf("无法解析的行: %s", line);
+        }
         cache_check(inst);
     }
 
-    printf("Inst count: %lf\n", inst_counter);
-    printf("Hit  count: %lf\n", hit_counter);
-    printf("Miss count: %lf\n", inst_counter - hit_counter);
+    printf("Inst count: %.0lf\n", inst_counter);
+    printf("Hit  count: %.0lf\n", hit_counter);
+    printf("Miss count: %.0lf\n", inst_counter - hit_counter);
     printf("Hit   rate: %0.6lf\n", hit_counter/inst_counter);
     fclose(file);
 }
