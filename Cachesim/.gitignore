@@ -1,0 +1,14 @@
+*.*
+*
+!*/
+!Makefile
+!*.mk
+!*.[cSh]
+!*.cc
+!*.cpp
+!.gitignore
+!README.md
+build/
+!Kconfig
+include/config
+include/generated

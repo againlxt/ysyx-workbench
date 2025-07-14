@@ -12,6 +12,7 @@
 !README.md
 !.gitignore
 !init.sh
+!Cachesim/*
 /fceux-am
 /nvboard
 /am-kernels
