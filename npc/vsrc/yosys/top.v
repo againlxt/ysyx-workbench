@@ -78,6 +78,7 @@ module top(
   wire  ifu_io_ifu2Mem_arready; // @[src/main/scala/Main.scala 30:49]
   wire  ifu_io_ifu2Mem_arvalid; // @[src/main/scala/Main.scala 30:49]
   wire [31:0] ifu_io_ifu2Mem_araddr; // @[src/main/scala/Main.scala 30:49]
+  wire [7:0] ifu_io_ifu2Mem_arlen; // @[src/main/scala/Main.scala 30:49]
   wire  ifu_io_ifu2Mem_rready; // @[src/main/scala/Main.scala 30:49]
   wire  ifu_io_ifu2Mem_rvalid; // @[src/main/scala/Main.scala 30:49]
   wire [31:0] ifu_io_ifu2Mem_rdata; // @[src/main/scala/Main.scala 30:49]
@@ -246,6 +247,7 @@ module top(
   wire  xbarAXI_io_axiSlaveIFU_arready; // @[src/main/scala/Main.scala 36:49]
   wire  xbarAXI_io_axiSlaveIFU_arvalid; // @[src/main/scala/Main.scala 36:49]
   wire [31:0] xbarAXI_io_axiSlaveIFU_araddr; // @[src/main/scala/Main.scala 36:49]
+  wire [7:0] xbarAXI_io_axiSlaveIFU_arlen; // @[src/main/scala/Main.scala 36:49]
   wire  xbarAXI_io_axiSlaveIFU_rready; // @[src/main/scala/Main.scala 36:49]
   wire  xbarAXI_io_axiSlaveIFU_rvalid; // @[src/main/scala/Main.scala 36:49]
   wire [31:0] xbarAXI_io_axiSlaveIFU_rdata; // @[src/main/scala/Main.scala 36:49]
@@ -282,6 +284,7 @@ module top(
   wire  xbarAXI_io_axiMasterDevice_arready; // @[src/main/scala/Main.scala 36:49]
   wire  xbarAXI_io_axiMasterDevice_arvalid; // @[src/main/scala/Main.scala 36:49]
   wire [31:0] xbarAXI_io_axiMasterDevice_araddr; // @[src/main/scala/Main.scala 36:49]
+  wire [7:0] xbarAXI_io_axiMasterDevice_arlen; // @[src/main/scala/Main.scala 36:49]
   wire [2:0] xbarAXI_io_axiMasterDevice_arsize; // @[src/main/scala/Main.scala 36:49]
   wire  xbarAXI_io_axiMasterDevice_rready; // @[src/main/scala/Main.scala 36:49]
   wire  xbarAXI_io_axiMasterDevice_rvalid; // @[src/main/scala/Main.scala 36:49]
@@ -333,6 +336,7 @@ module top(
     .io_ifu2Mem_arready(ifu_io_ifu2Mem_arready),
     .io_ifu2Mem_arvalid(ifu_io_ifu2Mem_arvalid),
     .io_ifu2Mem_araddr(ifu_io_ifu2Mem_araddr),
+    .io_ifu2Mem_arlen(ifu_io_ifu2Mem_arlen),
     .io_ifu2Mem_rready(ifu_io_ifu2Mem_rready),
     .io_ifu2Mem_rvalid(ifu_io_ifu2Mem_rvalid),
     .io_ifu2Mem_rdata(ifu_io_ifu2Mem_rdata),
@@ -513,6 +517,7 @@ module top(
     .io_axiSlaveIFU_arready(xbarAXI_io_axiSlaveIFU_arready),
     .io_axiSlaveIFU_arvalid(xbarAXI_io_axiSlaveIFU_arvalid),
     .io_axiSlaveIFU_araddr(xbarAXI_io_axiSlaveIFU_araddr),
+    .io_axiSlaveIFU_arlen(xbarAXI_io_axiSlaveIFU_arlen),
     .io_axiSlaveIFU_rready(xbarAXI_io_axiSlaveIFU_rready),
     .io_axiSlaveIFU_rvalid(xbarAXI_io_axiSlaveIFU_rvalid),
     .io_axiSlaveIFU_rdata(xbarAXI_io_axiSlaveIFU_rdata),
@@ -549,6 +554,7 @@ module top(
     .io_axiMasterDevice_arready(xbarAXI_io_axiMasterDevice_arready),
     .io_axiMasterDevice_arvalid(xbarAXI_io_axiMasterDevice_arvalid),
     .io_axiMasterDevice_araddr(xbarAXI_io_axiMasterDevice_araddr),
+    .io_axiMasterDevice_arlen(xbarAXI_io_axiMasterDevice_arlen),
     .io_axiMasterDevice_arsize(xbarAXI_io_axiMasterDevice_arsize),
     .io_axiMasterDevice_rready(xbarAXI_io_axiMasterDevice_rready),
     .io_axiMasterDevice_rvalid(xbarAXI_io_axiMasterDevice_rvalid),
@@ -597,7 +603,7 @@ module top(
   assign io_master_arvalid = xbarAXI_io_axiMasterDevice_arvalid; // @[src/main/scala/Main.scala 64:36]
   assign io_master_araddr = xbarAXI_io_axiMasterDevice_araddr; // @[src/main/scala/Main.scala 64:36]
   assign io_master_arid = 4'h0; // @[src/main/scala/Main.scala 64:36]
-  assign io_master_arlen = 8'h0; // @[src/main/scala/Main.scala 64:36]
+  assign io_master_arlen = xbarAXI_io_axiMasterDevice_arlen; // @[src/main/scala/Main.scala 64:36]
   assign io_master_arsize = xbarAXI_io_axiMasterDevice_arsize; // @[src/main/scala/Main.scala 64:36]
   assign io_master_arburst = 2'h1; // @[src/main/scala/Main.scala 64:36]
   assign io_master_rready = xbarAXI_io_axiMasterDevice_rready; // @[src/main/scala/Main.scala 64:36]
@@ -710,6 +716,7 @@ module top(
   assign xbarAXI_io_axiSlaveIFU_bready = ifu_io_ifu2Mem_bready; // @[src/main/scala/Main.scala 47:25]
   assign xbarAXI_io_axiSlaveIFU_arvalid = ifu_io_ifu2Mem_arvalid; // @[src/main/scala/Main.scala 47:25]
   assign xbarAXI_io_axiSlaveIFU_araddr = ifu_io_ifu2Mem_araddr; // @[src/main/scala/Main.scala 47:25]
+  assign xbarAXI_io_axiSlaveIFU_arlen = ifu_io_ifu2Mem_arlen; // @[src/main/scala/Main.scala 47:25]
   assign xbarAXI_io_axiSlaveIFU_rready = ifu_io_ifu2Mem_rready; // @[src/main/scala/Main.scala 47:25]
   assign xbarAXI_io_axiSlaveWBU_awvalid = wbu_io_wbu2Mem_awvalid; // @[src/main/scala/Main.scala 60:41]
   assign xbarAXI_io_axiSlaveWBU_awaddr = wbu_io_wbu2Mem_awaddr; // @[src/main/scala/Main.scala 60:41]

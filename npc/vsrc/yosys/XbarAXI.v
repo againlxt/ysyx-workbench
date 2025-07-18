@@ -6,6 +6,7 @@ module XbarAXI(
   output        io_axiSlaveIFU_arready, // @[src/main/scala/device/Device.scala 69:16]
   input         io_axiSlaveIFU_arvalid, // @[src/main/scala/device/Device.scala 69:16]
   input  [31:0] io_axiSlaveIFU_araddr, // @[src/main/scala/device/Device.scala 69:16]
+  input  [7:0]  io_axiSlaveIFU_arlen, // @[src/main/scala/device/Device.scala 69:16]
   input         io_axiSlaveIFU_rready, // @[src/main/scala/device/Device.scala 69:16]
   output        io_axiSlaveIFU_rvalid, // @[src/main/scala/device/Device.scala 69:16]
   output [31:0] io_axiSlaveIFU_rdata, // @[src/main/scala/device/Device.scala 69:16]
@@ -42,6 +43,7 @@ module XbarAXI(
   input         io_axiMasterDevice_arready, // @[src/main/scala/device/Device.scala 69:16]
   output        io_axiMasterDevice_arvalid, // @[src/main/scala/device/Device.scala 69:16]
   output [31:0] io_axiMasterDevice_araddr, // @[src/main/scala/device/Device.scala 69:16]
+  output [7:0]  io_axiMasterDevice_arlen, // @[src/main/scala/device/Device.scala 69:16]
   output [2:0]  io_axiMasterDevice_arsize, // @[src/main/scala/device/Device.scala 69:16]
   output        io_axiMasterDevice_rready, // @[src/main/scala/device/Device.scala 69:16]
   input         io_axiMasterDevice_rvalid, // @[src/main/scala/device/Device.scala 69:16]
@@ -67,6 +69,7 @@ module XbarAXI(
   wire  axiBusarbiter_io_axiSlave0_arready; // @[src/main/scala/device/Device.scala 96:33]
   wire  axiBusarbiter_io_axiSlave0_arvalid; // @[src/main/scala/device/Device.scala 96:33]
   wire [31:0] axiBusarbiter_io_axiSlave0_araddr; // @[src/main/scala/device/Device.scala 96:33]
+  wire [7:0] axiBusarbiter_io_axiSlave0_arlen; // @[src/main/scala/device/Device.scala 96:33]
   wire  axiBusarbiter_io_axiSlave0_rready; // @[src/main/scala/device/Device.scala 96:33]
   wire  axiBusarbiter_io_axiSlave0_rvalid; // @[src/main/scala/device/Device.scala 96:33]
   wire [31:0] axiBusarbiter_io_axiSlave0_rdata; // @[src/main/scala/device/Device.scala 96:33]
@@ -103,6 +106,7 @@ module XbarAXI(
   wire  axiBusarbiter_io_axiMaster_arready; // @[src/main/scala/device/Device.scala 96:33]
   wire  axiBusarbiter_io_axiMaster_arvalid; // @[src/main/scala/device/Device.scala 96:33]
   wire [31:0] axiBusarbiter_io_axiMaster_araddr; // @[src/main/scala/device/Device.scala 96:33]
+  wire [7:0] axiBusarbiter_io_axiMaster_arlen; // @[src/main/scala/device/Device.scala 96:33]
   wire [2:0] axiBusarbiter_io_axiMaster_arsize; // @[src/main/scala/device/Device.scala 96:33]
   wire  axiBusarbiter_io_axiMaster_rready; // @[src/main/scala/device/Device.scala 96:33]
   wire  axiBusarbiter_io_axiMaster_rvalid; // @[src/main/scala/device/Device.scala 96:33]
@@ -159,6 +163,7 @@ module XbarAXI(
   wire  _GEN_4 = _T_5 ? 1'h0 : io_axiMasterDevice_rvalid; // @[src/main/scala/device/Device.scala 156:61 src/main/scala/basemode/Interface.scala 203:20 src/main/scala/device/Device.scala 187:19]
   wire  _GEN_5 = _T_5 ? 1'h0 : axiBusarbiter_io_axiMaster_rready; // @[src/main/scala/device/Device.scala 156:61 src/main/scala/basemode/Interface.scala 233:20 src/main/scala/device/Device.scala 187:19]
   wire [2:0] _GEN_7 = _T_5 ? 3'h2 : axiBusarbiter_io_axiMaster_arsize; // @[src/main/scala/device/Device.scala 156:61 src/main/scala/basemode/Interface.scala 230:20 src/main/scala/device/Device.scala 187:19]
+  wire [7:0] _GEN_8 = _T_5 ? 8'h0 : axiBusarbiter_io_axiMaster_arlen; // @[src/main/scala/device/Device.scala 156:61 src/main/scala/basemode/Interface.scala 229:19 src/main/scala/device/Device.scala 187:19]
   wire [31:0] _GEN_10 = _T_5 ? 32'h0 : axiBusarbiter_io_axiMaster_araddr; // @[src/main/scala/device/Device.scala 156:61 src/main/scala/basemode/Interface.scala 227:20 src/main/scala/device/Device.scala 187:19]
   wire  _GEN_11 = _T_5 ? 1'h0 : axiBusarbiter_io_axiMaster_arvalid; // @[src/main/scala/device/Device.scala 156:61 src/main/scala/basemode/Interface.scala 226:21 src/main/scala/device/Device.scala 187:19]
   wire  _GEN_12 = _T_5 ? 1'h0 : io_axiMasterDevice_arready; // @[src/main/scala/device/Device.scala 156:61 src/main/scala/basemode/Interface.scala 201:21 src/main/scala/device/Device.scala 187:19]
@@ -181,6 +186,7 @@ module XbarAXI(
     .io_axiSlave0_arready(axiBusarbiter_io_axiSlave0_arready),
     .io_axiSlave0_arvalid(axiBusarbiter_io_axiSlave0_arvalid),
     .io_axiSlave0_araddr(axiBusarbiter_io_axiSlave0_araddr),
+    .io_axiSlave0_arlen(axiBusarbiter_io_axiSlave0_arlen),
     .io_axiSlave0_rready(axiBusarbiter_io_axiSlave0_rready),
     .io_axiSlave0_rvalid(axiBusarbiter_io_axiSlave0_rvalid),
     .io_axiSlave0_rdata(axiBusarbiter_io_axiSlave0_rdata),
@@ -217,6 +223,7 @@ module XbarAXI(
     .io_axiMaster_arready(axiBusarbiter_io_axiMaster_arready),
     .io_axiMaster_arvalid(axiBusarbiter_io_axiMaster_arvalid),
     .io_axiMaster_araddr(axiBusarbiter_io_axiMaster_araddr),
+    .io_axiMaster_arlen(axiBusarbiter_io_axiMaster_arlen),
     .io_axiMaster_arsize(axiBusarbiter_io_axiMaster_arsize),
     .io_axiMaster_rready(axiBusarbiter_io_axiMaster_rready),
     .io_axiMaster_rvalid(axiBusarbiter_io_axiMaster_rvalid),
@@ -244,6 +251,7 @@ module XbarAXI(
   assign io_axiMasterDevice_bready = deviceID == 4'h0 ? 1'h0 : _GEN_16; // @[src/main/scala/device/Device.scala 131:39 src/main/scala/basemode/Interface.scala 224:20]
   assign io_axiMasterDevice_arvalid = deviceID == 4'h0 ? 1'h0 : _GEN_11; // @[src/main/scala/device/Device.scala 131:39 src/main/scala/basemode/Interface.scala 226:21]
   assign io_axiMasterDevice_araddr = deviceID == 4'h0 ? 32'h0 : _GEN_10; // @[src/main/scala/device/Device.scala 131:39 src/main/scala/basemode/Interface.scala 227:20]
+  assign io_axiMasterDevice_arlen = deviceID == 4'h0 ? 8'h0 : _GEN_8; // @[src/main/scala/device/Device.scala 131:39 src/main/scala/basemode/Interface.scala 229:19]
   assign io_axiMasterDevice_arsize = deviceID == 4'h0 ? 3'h2 : _GEN_7; // @[src/main/scala/device/Device.scala 131:39 src/main/scala/basemode/Interface.scala 230:20]
   assign io_axiMasterDevice_rready = deviceID == 4'h0 ? 1'h0 : _GEN_5; // @[src/main/scala/device/Device.scala 131:39 src/main/scala/basemode/Interface.scala 233:20]
   assign io_axiLiteClint_arAddr = deviceID == 4'h0 ? axiBusarbiter_io_axiMaster_araddr : 32'h0; // @[src/main/scala/device/Device.scala 131:39 148:38 78:32]
@@ -257,6 +265,7 @@ module XbarAXI(
   assign axiBusarbiter_io_axiSlave0_bready = io_axiSlaveIFU_bready; // @[src/main/scala/device/Device.scala 97:21]
   assign axiBusarbiter_io_axiSlave0_arvalid = io_axiSlaveIFU_arvalid; // @[src/main/scala/device/Device.scala 97:21]
   assign axiBusarbiter_io_axiSlave0_araddr = io_axiSlaveIFU_araddr; // @[src/main/scala/device/Device.scala 97:21]
+  assign axiBusarbiter_io_axiSlave0_arlen = io_axiSlaveIFU_arlen; // @[src/main/scala/device/Device.scala 97:21]
   assign axiBusarbiter_io_axiSlave0_rready = io_axiSlaveIFU_rready; // @[src/main/scala/device/Device.scala 97:21]
   assign axiBusarbiter_io_axiSlave1_awvalid = io_axiSlaveWBU_awvalid; // @[src/main/scala/device/Device.scala 98:21]
   assign axiBusarbiter_io_axiSlave1_awaddr = io_axiSlaveWBU_awaddr; // @[src/main/scala/device/Device.scala 98:21]

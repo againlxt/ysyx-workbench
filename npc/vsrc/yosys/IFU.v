@@ -10,6 +10,7 @@ module IFU(
   input         io_ifu2Mem_arready, // @[src/main/scala/ifu/IFU.scala 15:16]
   output        io_ifu2Mem_arvalid, // @[src/main/scala/ifu/IFU.scala 15:16]
   output [31:0] io_ifu2Mem_araddr, // @[src/main/scala/ifu/IFU.scala 15:16]
+  output [7:0]  io_ifu2Mem_arlen, // @[src/main/scala/ifu/IFU.scala 15:16]
   output        io_ifu2Mem_rready, // @[src/main/scala/ifu/IFU.scala 15:16]
   input         io_ifu2Mem_rvalid, // @[src/main/scala/ifu/IFU.scala 15:16]
   input  [31:0] io_ifu2Mem_rdata, // @[src/main/scala/ifu/IFU.scala 15:16]
@@ -29,6 +30,7 @@ module IFU(
   wire  icache_io_icache2Mem_arready; // @[src/main/scala/ifu/IFU.scala 24:28]
   wire  icache_io_icache2Mem_arvalid; // @[src/main/scala/ifu/IFU.scala 24:28]
   wire [31:0] icache_io_icache2Mem_araddr; // @[src/main/scala/ifu/IFU.scala 24:28]
+  wire [7:0] icache_io_icache2Mem_arlen; // @[src/main/scala/ifu/IFU.scala 24:28]
   wire  icache_io_icache2Mem_rready; // @[src/main/scala/ifu/IFU.scala 24:28]
   wire  icache_io_icache2Mem_rvalid; // @[src/main/scala/ifu/IFU.scala 24:28]
   wire [31:0] icache_io_icache2Mem_rdata; // @[src/main/scala/ifu/IFU.scala 24:28]
@@ -46,6 +48,7 @@ module IFU(
     .io_icache2Mem_arready(icache_io_icache2Mem_arready),
     .io_icache2Mem_arvalid(icache_io_icache2Mem_arvalid),
     .io_icache2Mem_araddr(icache_io_icache2Mem_araddr),
+    .io_icache2Mem_arlen(icache_io_icache2Mem_arlen),
     .io_icache2Mem_rready(icache_io_icache2Mem_rready),
     .io_icache2Mem_rvalid(icache_io_icache2Mem_rvalid),
     .io_icache2Mem_rdata(icache_io_icache2Mem_rdata),
@@ -57,6 +60,7 @@ module IFU(
   assign io_ifu2Mem_bready = icache_io_icache2Mem_bready; // @[src/main/scala/ifu/IFU.scala 27:30]
   assign io_ifu2Mem_arvalid = icache_io_icache2Mem_arvalid; // @[src/main/scala/ifu/IFU.scala 27:30]
   assign io_ifu2Mem_araddr = icache_io_icache2Mem_araddr; // @[src/main/scala/ifu/IFU.scala 27:30]
+  assign io_ifu2Mem_arlen = icache_io_icache2Mem_arlen; // @[src/main/scala/ifu/IFU.scala 27:30]
   assign io_ifu2Mem_rready = icache_io_icache2Mem_rready; // @[src/main/scala/ifu/IFU.scala 27:30]
   assign icache_clock = clock;
   assign icache_reset = reset;
