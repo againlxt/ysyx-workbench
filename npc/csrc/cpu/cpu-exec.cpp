@@ -102,7 +102,8 @@ static void performence_cnt_display() {
 	100*load_counter/g_nr_guest_inst, 100*cal_counter/g_nr_guest_inst, 100*csr_counter/g_nr_guest_inst, 100*other_counter/g_nr_guest_inst);
 	Log("proportion IFUGetInst  |  LSUGetData  |  EXUFinCal");
 	Log("           %0.2lf%%           %0.2lf%%         %0.2lf%%", 100*ifu_get_inst_cnt/cycle_counter, 100*lsu_get_data_cnt/cycle_counter, 100*exu_fin_cal_cnt/cycle_counter);
-	Log("Icache hit rate: %0.2lf | Icache AMAT: %0.2lf", icache_hit_rate, (icache_access_time_cnt + icache_miss_rate * icache_miss_penalty_cnt)/(icache_access_num+icache_miss_num));
+	Log("Icache hit rate: %0.2lf | Icache AMAT: %0.2lf | Icache Miss Penalty: %0.2lf", icache_hit_rate, 
+	(icache_access_time_cnt + icache_miss_rate * icache_miss_penalty_cnt)/(icache_access_num+icache_miss_num), icache_miss_penalty_cnt/icache_miss_num);
 	Log("============== Performence Counter Display End ===============");
 }
 #else
