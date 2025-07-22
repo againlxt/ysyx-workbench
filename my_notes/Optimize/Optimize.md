@@ -633,3 +633,120 @@ ifu会访问的内存只有flash和sdram都是适合缓存的单元。
 ```
 
 直接减少了40%多的周期数，而且还是相较于添加了简易icache之后的，如果是相较于没有添加icache的，能够优化60%多的周期数，这个收益还是十分香的。所以相较于dcache，icache显然更加适合。
+
+# 统计AMAT
+
+# 实现cachesim
+
+实现了支持FIFO、LRU、RANDOM三种算法的cachesim。
+
+# 使用cachesim进行设计空间探索
+
+# 快速评估缺失代价
+
+Icache hit rate: 0.98 | Icache AMAT: 1.98 | Icache Miss Penalty: 49.06
+
+Icache hit rate: 0.94 | Icache AMAT: 2.06 | Icache Miss Penalty: 46.49
+
+Icache hit rate: 0.88 | Icache AMAT: 2.40 | Icache Miss Penalty: 43.70
+
+可见缺失代价相差不大，在40到50个时钟周期。
+
+# icache的设计空间探索
+
+根据下面表格：
+
+| set  | way  | block_size |   RA   |  命中率  |    TMT    |     AREA     |    POWER    |     Freq     |
+| :--: | :--: | :--------: | :----: | :------: | :-------: | :----------: | :---------: | :----------: |
+|  16  |  1   |   4bytes   |   /    | 0.708234 | 83494324  |              |             |              |
+|  16  |  2   |   4bytes   |  FIFO  | 0.628066 | 106436090 |              |             |              |
+|  16  |  2   |   4bytes   |  LRU   | 0.628377 | 106346847 |              |             |              |
+|  16  |  2   |   4bytes   | RANDOM | 0.726572 | 78246526  |              |             |              |
+|  16  |  4   |   4bytes   |  FIFO  | 0.175554 | 235930936 |              |             |              |
+|  16  |  4   |   4bytes   |  LRU   | 0.181371 | 234266365 |              |             |              |
+|  16  |  4   |   4bytes   | RANDOM | 0.731581 | 76813325  |              |             |              |
+|  16  |  1   |   8bytes   |   /    | 0.896209 | 29701719  |              |             |              |
+|  16  |  2   |   8bytes   |  FIFO  | 0.831989 | 48079501  |              |             |              |
+|  16  |  2   |   8bytes   |  LRU   | 0.833705 | 47588469  |              |             |              |
+|  16  |  2   |   8bytes   | RANDOM | 0.927707 | 20688133  |              |             |              |
+|  16  |  4   |   8bytes   |  FIFO  | 0.790019 | 60090101  |              |             |              |
+|  16  |  4   |   8bytes   |  LRU   | 0.790159 | 60049865  |              |             |              |
+|  16  |  4   |   8bytes   | RANDOM | 0.931151 | 19702370  |              |             |              |
+|  16  |  1   |  16bytes   |   /    | 0.968519 |  9008884  | 18310.642000 | 6.166e-03 W |   580 MHz    |
+|  16  |  2   |  16bytes   |  FIFO  | 0.931573 | 19581643  | 9390.066000  | 2.938e-03 W | 905.952 MHz  |
+|  16  |  2   |  16bytes   |  LRU   | 0.939446 | 17328740  | 9241.372000  | 2.938e-03 W | 905.952 MHz  |
+|  16  |  2   |  16bytes   | RANDOM | 0.984354 |  4477332  |              |             |              |
+|  16  |  4   |  16bytes   |  FIFO  | 0.891272 | 31114633  | 4930.044000  | 1.591e-03 W | 1244.944 MHz |
+|  16  |  4   |  16bytes   |  LRU   | 0.894726 | 30126027  | 4930.044000  | 1.591e-03 W | 1244.944 MHz |
+|  16  |  4   |  16bytes   | RANDOM | 0.988445 |  3306687  |              |             |              |
+|  16  |  8   |  16bytes   |  FIFO  | 0.867601 | 37888513  | 2823.590000  | 9.946e-04 W | 1573.970 MHz |
+|  16  |  8   |  16bytes   |  LRU   | 0.868578 | 37608937  | 2823.590000  | 9.946e-04 W | 1573.970 MHz |
+|  16  |  8   |  16bytes   | RANDOM | 0.988853 |  3190016  |              |             |              |
+
+可见16  4  16bytes  LRU的组合综合面积、功耗、频率等参数都较为优秀，且芯片面积如下所示：
+
+```
+=== top ===
+
+   Number of wires:              10664
+   Number of wire bits:          13009
+   Number of public wires:       10664
+   Number of public wire bits:   13009
+   Number of ports:                 61
+   Number of port bits:            383
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              10579
+     AND2_X1                       650
+     AND2_X2                        55
+     AND2_X4                        47
+     AND3_X1                       387
+     AND3_X2                         5
+     AND3_X4                         4
+     AND4_X1                       138
+     AND4_X2                         1
+     AOI211_X1                     269
+     AOI21_X1                      849
+     AOI221_X1                       1
+     AOI221_X4                      79
+     AOI22_X1                       82
+     BUF_X2                        134
+     BUF_X4                        394
+     BUF_X8                         35
+     CLKBUF_X2                      73
+     CLKBUF_X3                       3
+     CLKGATE_X1                     58
+     DFF_X1                       2119
+     INV_X1                        574
+     INV_X2                         19
+     LOGIC0_X1                       1
+     LOGIC1_X1                       1
+     MUX2_X1                       737
+     NAND2_X1                      490
+     NAND2_X2                        1
+     NAND3_X1                      531
+     NAND4_X1                      281
+     NOR2_X1                       714
+     NOR2_X2                         6
+     NOR2_X4                         1
+     NOR3_X1                       225
+     NOR4_X1                       122
+     NOR4_X2                         2
+     OAI211_X1                     347
+     OAI21_X1                      628
+     OAI21_X2                        1
+     OAI221_X1                      40
+     OAI22_X1                        9
+     OR2_X1                        135
+     OR2_X2                          1
+     OR3_X1                        121
+     OR4_X1                         41
+     XNOR2_X1                      135
+     XOR2_X1                        32
+     XOR2_X2                         1
+
+   Chip area for module '\top': 19999.476000
+     of which used for sequential elements: 9582.118000 (47.91%)
+```
+
