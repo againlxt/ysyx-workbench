@@ -237,6 +237,7 @@ module top(
   wire  wbu_io_wbu2Mem_rready; // @[src/main/scala/Main.scala 35:49]
   wire  wbu_io_wbu2Mem_rvalid; // @[src/main/scala/Main.scala 35:49]
   wire [31:0] wbu_io_wbu2Mem_rdata; // @[src/main/scala/Main.scala 35:49]
+  wire  wbu_io_wbu2Mem_rlast; // @[src/main/scala/Main.scala 35:49]
   wire  wbu_io_wbu2PC_ready; // @[src/main/scala/Main.scala 35:49]
   wire  wbu_io_wbu2PC_valid; // @[src/main/scala/Main.scala 35:49]
   wire [31:0] wbu_io_wbu2PC_bits_nextPC; // @[src/main/scala/Main.scala 35:49]
@@ -270,6 +271,7 @@ module top(
   wire  xbarAXI_io_axiSlaveWBU_rready; // @[src/main/scala/Main.scala 36:49]
   wire  xbarAXI_io_axiSlaveWBU_rvalid; // @[src/main/scala/Main.scala 36:49]
   wire [31:0] xbarAXI_io_axiSlaveWBU_rdata; // @[src/main/scala/Main.scala 36:49]
+  wire  xbarAXI_io_axiSlaveWBU_rlast; // @[src/main/scala/Main.scala 36:49]
   wire  xbarAXI_io_axiMasterDevice_awready; // @[src/main/scala/Main.scala 36:49]
   wire  xbarAXI_io_axiMasterDevice_awvalid; // @[src/main/scala/Main.scala 36:49]
   wire [31:0] xbarAXI_io_axiMasterDevice_awaddr; // @[src/main/scala/Main.scala 36:49]
@@ -505,6 +507,7 @@ module top(
     .io_wbu2Mem_rready(wbu_io_wbu2Mem_rready),
     .io_wbu2Mem_rvalid(wbu_io_wbu2Mem_rvalid),
     .io_wbu2Mem_rdata(wbu_io_wbu2Mem_rdata),
+    .io_wbu2Mem_rlast(wbu_io_wbu2Mem_rlast),
     .io_wbu2PC_ready(wbu_io_wbu2PC_ready),
     .io_wbu2PC_valid(wbu_io_wbu2PC_valid),
     .io_wbu2PC_bits_nextPC(wbu_io_wbu2PC_bits_nextPC)
@@ -540,6 +543,7 @@ module top(
     .io_axiSlaveWBU_rready(xbarAXI_io_axiSlaveWBU_rready),
     .io_axiSlaveWBU_rvalid(xbarAXI_io_axiSlaveWBU_rvalid),
     .io_axiSlaveWBU_rdata(xbarAXI_io_axiSlaveWBU_rdata),
+    .io_axiSlaveWBU_rlast(xbarAXI_io_axiSlaveWBU_rlast),
     .io_axiMasterDevice_awready(xbarAXI_io_axiMasterDevice_awready),
     .io_axiMasterDevice_awvalid(xbarAXI_io_axiMasterDevice_awvalid),
     .io_axiMasterDevice_awaddr(xbarAXI_io_axiMasterDevice_awaddr),
@@ -710,6 +714,7 @@ module top(
   assign wbu_io_wbu2Mem_arready = xbarAXI_io_axiSlaveWBU_arready; // @[src/main/scala/Main.scala 60:41]
   assign wbu_io_wbu2Mem_rvalid = xbarAXI_io_axiSlaveWBU_rvalid; // @[src/main/scala/Main.scala 60:41]
   assign wbu_io_wbu2Mem_rdata = xbarAXI_io_axiSlaveWBU_rdata; // @[src/main/scala/Main.scala 60:41]
+  assign wbu_io_wbu2Mem_rlast = xbarAXI_io_axiSlaveWBU_rlast; // @[src/main/scala/Main.scala 60:41]
   assign wbu_io_wbu2PC_ready = pc_io_wbu2PC_ready; // @[src/main/scala/Main.scala 39:25]
   assign xbarAXI_clock = clock;
   assign xbarAXI_reset = reset;

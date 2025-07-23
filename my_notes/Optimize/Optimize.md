@@ -640,6 +640,12 @@ ifu会访问的内存只有flash和sdram都是适合缓存的单元。
 
 实现了支持FIFO、LRU、RANDOM三种算法的cachesim。
 
+# 评估突发传输方式的性能表现
+
+![Screenshot from 2025-07-22 19-35-08](/home/lxt/ysyx-workbench/my_notes/Optimize/assets/Screenshot from 2025-07-22 19-35-08.png)
+
+感觉计算的应该有些问题，后续需要进行修改
+
 # 使用cachesim进行设计空间探索
 
 # 快速评估缺失代价

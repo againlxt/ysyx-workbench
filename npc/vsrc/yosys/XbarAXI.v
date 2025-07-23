@@ -29,6 +29,7 @@ module XbarAXI(
   input         io_axiSlaveWBU_rready, // @[src/main/scala/device/Device.scala 69:16]
   output        io_axiSlaveWBU_rvalid, // @[src/main/scala/device/Device.scala 69:16]
   output [31:0] io_axiSlaveWBU_rdata, // @[src/main/scala/device/Device.scala 69:16]
+  output        io_axiSlaveWBU_rlast, // @[src/main/scala/device/Device.scala 69:16]
   input         io_axiMasterDevice_awready, // @[src/main/scala/device/Device.scala 69:16]
   output        io_axiMasterDevice_awvalid, // @[src/main/scala/device/Device.scala 69:16]
   output [31:0] io_axiMasterDevice_awaddr, // @[src/main/scala/device/Device.scala 69:16]
@@ -92,6 +93,7 @@ module XbarAXI(
   wire  axiBusarbiter_io_axiSlave1_rready; // @[src/main/scala/device/Device.scala 96:33]
   wire  axiBusarbiter_io_axiSlave1_rvalid; // @[src/main/scala/device/Device.scala 96:33]
   wire [31:0] axiBusarbiter_io_axiSlave1_rdata; // @[src/main/scala/device/Device.scala 96:33]
+  wire  axiBusarbiter_io_axiSlave1_rlast; // @[src/main/scala/device/Device.scala 96:33]
   wire  axiBusarbiter_io_axiMaster_awready; // @[src/main/scala/device/Device.scala 96:33]
   wire  axiBusarbiter_io_axiMaster_awvalid; // @[src/main/scala/device/Device.scala 96:33]
   wire [31:0] axiBusarbiter_io_axiMaster_awaddr; // @[src/main/scala/device/Device.scala 96:33]
@@ -209,6 +211,7 @@ module XbarAXI(
     .io_axiSlave1_rready(axiBusarbiter_io_axiSlave1_rready),
     .io_axiSlave1_rvalid(axiBusarbiter_io_axiSlave1_rvalid),
     .io_axiSlave1_rdata(axiBusarbiter_io_axiSlave1_rdata),
+    .io_axiSlave1_rlast(axiBusarbiter_io_axiSlave1_rlast),
     .io_axiMaster_awready(axiBusarbiter_io_axiMaster_awready),
     .io_axiMaster_awvalid(axiBusarbiter_io_axiMaster_awvalid),
     .io_axiMaster_awaddr(axiBusarbiter_io_axiMaster_awaddr),
@@ -241,6 +244,7 @@ module XbarAXI(
   assign io_axiSlaveWBU_arready = axiBusarbiter_io_axiSlave1_arready; // @[src/main/scala/device/Device.scala 98:21]
   assign io_axiSlaveWBU_rvalid = axiBusarbiter_io_axiSlave1_rvalid; // @[src/main/scala/device/Device.scala 98:21]
   assign io_axiSlaveWBU_rdata = axiBusarbiter_io_axiSlave1_rdata; // @[src/main/scala/device/Device.scala 98:21]
+  assign io_axiSlaveWBU_rlast = axiBusarbiter_io_axiSlave1_rlast; // @[src/main/scala/device/Device.scala 98:21]
   assign io_axiMasterDevice_awvalid = deviceID == 4'h0 ? 1'h0 : _GEN_27; // @[src/main/scala/device/Device.scala 131:39 src/main/scala/basemode/Interface.scala 212:21]
   assign io_axiMasterDevice_awaddr = deviceID == 4'h0 ? 32'h0 : _GEN_26; // @[src/main/scala/device/Device.scala 131:39 src/main/scala/basemode/Interface.scala 213:20]
   assign io_axiMasterDevice_awsize = deviceID == 4'h0 ? 3'h2 : _GEN_23; // @[src/main/scala/device/Device.scala 131:39 src/main/scala/basemode/Interface.scala 216:20]
