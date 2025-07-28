@@ -206,8 +206,7 @@ static void exec_once() {
 	uint32_t loop_counter = 0;
 	while (
 	#ifdef CONFIG_SOC
-	!(verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__wbu__DOT__validPC2Reg 
-	&& verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc__DOT__wbu2PCReadyReg)
+	!(verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__wbu__DOT__wb_end)
 	#else
 	!(verilatorTop->rootp->top__DOT__wbu__DOT__validPC2Reg && verilatorTop->rootp->top__DOT__pc__DOT__wbu2PCReadyReg)
 	#endif
