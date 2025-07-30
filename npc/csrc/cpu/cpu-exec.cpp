@@ -135,6 +135,7 @@ void set_ftrace_ret_flag() {
 extern "C" svBitVecVal getCommond();
 extern "C" svBitVecVal get_cur_pc();
 extern "C" svBitVecVal get_next_pc();
+extern "C" svBit pcUpdate();
 // DPI-C END
 
 // Simulate stepping and record waveform
@@ -204,12 +205,13 @@ static void exec_once() {
 
 	clk_down();
 	uint32_t loop_counter = 0;
-	while (
 	#ifdef CONFIG_SOC
-	!(verilatorTop->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__wbu__DOT__wb_end)
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.pc.pcUpdate"));
 	#else
-	!(verilatorTop->rootp->top__DOT__wbu__DOT__validPC2Reg && verilatorTop->rootp->top__DOT__pc__DOT__wbu2PCReadyReg)
+	svSetScope(svGetScopeFromName("TOP.top.pc.pcUpdate"));
 	#endif
+	while (
+	!((uint8_t) pcUpdate() ==1)
 	) {
 		clk_up();
 		clk_down();

@@ -239,15 +239,13 @@ module top(
   wire [31:0] lsu_io_lsu2WBU_bits_inst; // @[src/main/scala/Main.scala 37:49]
   wire  lsu_io_lsu2WBU_bits_regWR; // @[src/main/scala/Main.scala 37:49]
   wire [1:0] lsu_io_lsu2WBU_bits_toReg; // @[src/main/scala/Main.scala 37:49]
-  wire [3:0] lsu_io_lsu2WBU_bits_branchCtr; // @[src/main/scala/Main.scala 37:49]
-  wire  lsu_io_lsu2WBU_bits_less; // @[src/main/scala/Main.scala 37:49]
-  wire  lsu_io_lsu2WBU_bits_zero; // @[src/main/scala/Main.scala 37:49]
+  wire [1:0] lsu_io_lsu2WBU_bits_pcASrc; // @[src/main/scala/Main.scala 37:49]
+  wire [1:0] lsu_io_lsu2WBU_bits_pcBSrc; // @[src/main/scala/Main.scala 37:49]
   wire  lsu_io_lsu2WBU_bits_ecall; // @[src/main/scala/Main.scala 37:49]
   wire  lsu_io_lsu2WBU_bits_csrEn; // @[src/main/scala/Main.scala 37:49]
   wire  lsu_io_lsu2WBU_bits_csrWr; // @[src/main/scala/Main.scala 37:49]
   wire  lsu_io_lsu2WBU_bits_fencei; // @[src/main/scala/Main.scala 37:49]
   wire  wbu_clock; // @[src/main/scala/Main.scala 38:49]
-  wire  wbu_reset; // @[src/main/scala/Main.scala 38:49]
   wire  wbu_io_lsu2WBU_ready; // @[src/main/scala/Main.scala 38:49]
   wire  wbu_io_lsu2WBU_valid; // @[src/main/scala/Main.scala 38:49]
   wire [31:0] wbu_io_lsu2WBU_bits_pc; // @[src/main/scala/Main.scala 38:49]
@@ -260,9 +258,8 @@ module top(
   wire [31:0] wbu_io_lsu2WBU_bits_inst; // @[src/main/scala/Main.scala 38:49]
   wire  wbu_io_lsu2WBU_bits_regWR; // @[src/main/scala/Main.scala 38:49]
   wire [1:0] wbu_io_lsu2WBU_bits_toReg; // @[src/main/scala/Main.scala 38:49]
-  wire [3:0] wbu_io_lsu2WBU_bits_branchCtr; // @[src/main/scala/Main.scala 38:49]
-  wire  wbu_io_lsu2WBU_bits_less; // @[src/main/scala/Main.scala 38:49]
-  wire  wbu_io_lsu2WBU_bits_zero; // @[src/main/scala/Main.scala 38:49]
+  wire [1:0] wbu_io_lsu2WBU_bits_pcASrc; // @[src/main/scala/Main.scala 38:49]
+  wire [1:0] wbu_io_lsu2WBU_bits_pcBSrc; // @[src/main/scala/Main.scala 38:49]
   wire  wbu_io_lsu2WBU_bits_ecall; // @[src/main/scala/Main.scala 38:49]
   wire  wbu_io_lsu2WBU_bits_csrEn; // @[src/main/scala/Main.scala 38:49]
   wire  wbu_io_lsu2WBU_bits_csrWr; // @[src/main/scala/Main.scala 38:49]
@@ -276,7 +273,6 @@ module top(
   wire [3:0] wbu_io_wbu2BaseReg_rdIndex; // @[src/main/scala/Main.scala 38:49]
   wire [31:0] wbu_io_wbu2BaseReg_data; // @[src/main/scala/Main.scala 38:49]
   wire  wbu_io_wbu2BaseReg_regWR; // @[src/main/scala/Main.scala 38:49]
-  wire  wbu_io_wbu2PC_ready; // @[src/main/scala/Main.scala 38:49]
   wire  wbu_io_wbu2PC_valid; // @[src/main/scala/Main.scala 38:49]
   wire [31:0] wbu_io_wbu2PC_bits_nextPC; // @[src/main/scala/Main.scala 38:49]
   wire  wbu_io_wbu2Icache; // @[src/main/scala/Main.scala 38:49]
@@ -582,9 +578,8 @@ module top(
     .io_lsu2WBU_bits_inst(lsu_io_lsu2WBU_bits_inst),
     .io_lsu2WBU_bits_regWR(lsu_io_lsu2WBU_bits_regWR),
     .io_lsu2WBU_bits_toReg(lsu_io_lsu2WBU_bits_toReg),
-    .io_lsu2WBU_bits_branchCtr(lsu_io_lsu2WBU_bits_branchCtr),
-    .io_lsu2WBU_bits_less(lsu_io_lsu2WBU_bits_less),
-    .io_lsu2WBU_bits_zero(lsu_io_lsu2WBU_bits_zero),
+    .io_lsu2WBU_bits_pcASrc(lsu_io_lsu2WBU_bits_pcASrc),
+    .io_lsu2WBU_bits_pcBSrc(lsu_io_lsu2WBU_bits_pcBSrc),
     .io_lsu2WBU_bits_ecall(lsu_io_lsu2WBU_bits_ecall),
     .io_lsu2WBU_bits_csrEn(lsu_io_lsu2WBU_bits_csrEn),
     .io_lsu2WBU_bits_csrWr(lsu_io_lsu2WBU_bits_csrWr),
@@ -592,7 +587,6 @@ module top(
   );
   WBU wbu ( // @[src/main/scala/Main.scala 38:49]
     .clock(wbu_clock),
-    .reset(wbu_reset),
     .io_lsu2WBU_ready(wbu_io_lsu2WBU_ready),
     .io_lsu2WBU_valid(wbu_io_lsu2WBU_valid),
     .io_lsu2WBU_bits_pc(wbu_io_lsu2WBU_bits_pc),
@@ -605,9 +599,8 @@ module top(
     .io_lsu2WBU_bits_inst(wbu_io_lsu2WBU_bits_inst),
     .io_lsu2WBU_bits_regWR(wbu_io_lsu2WBU_bits_regWR),
     .io_lsu2WBU_bits_toReg(wbu_io_lsu2WBU_bits_toReg),
-    .io_lsu2WBU_bits_branchCtr(wbu_io_lsu2WBU_bits_branchCtr),
-    .io_lsu2WBU_bits_less(wbu_io_lsu2WBU_bits_less),
-    .io_lsu2WBU_bits_zero(wbu_io_lsu2WBU_bits_zero),
+    .io_lsu2WBU_bits_pcASrc(wbu_io_lsu2WBU_bits_pcASrc),
+    .io_lsu2WBU_bits_pcBSrc(wbu_io_lsu2WBU_bits_pcBSrc),
     .io_lsu2WBU_bits_ecall(wbu_io_lsu2WBU_bits_ecall),
     .io_lsu2WBU_bits_csrEn(wbu_io_lsu2WBU_bits_csrEn),
     .io_lsu2WBU_bits_csrWr(wbu_io_lsu2WBU_bits_csrWr),
@@ -621,7 +614,6 @@ module top(
     .io_wbu2BaseReg_rdIndex(wbu_io_wbu2BaseReg_rdIndex),
     .io_wbu2BaseReg_data(wbu_io_wbu2BaseReg_data),
     .io_wbu2BaseReg_regWR(wbu_io_wbu2BaseReg_regWR),
-    .io_wbu2PC_ready(wbu_io_wbu2PC_ready),
     .io_wbu2PC_valid(wbu_io_wbu2PC_valid),
     .io_wbu2PC_bits_nextPC(wbu_io_wbu2PC_bits_nextPC),
     .io_wbu2Icache(wbu_io_wbu2Icache)
@@ -761,17 +753,17 @@ module top(
   assign io_master_arsize = xbarAXI_io_axiMasterDevice_arsize; // @[src/main/scala/Main.scala 74:36]
   assign io_master_arburst = xbarAXI_io_axiMasterDevice_arburst; // @[src/main/scala/Main.scala 74:36]
   assign io_master_rready = xbarAXI_io_axiMasterDevice_rready; // @[src/main/scala/Main.scala 74:36]
-  assign io_slave_awready = 1'h0; // @[src/main/scala/basemode/Interface.scala 214:21]
-  assign io_slave_wready = 1'h0; // @[src/main/scala/basemode/Interface.scala 216:20]
-  assign io_slave_bvalid = 1'h0; // @[src/main/scala/basemode/Interface.scala 218:20]
-  assign io_slave_bresp = 2'h0; // @[src/main/scala/basemode/Interface.scala 219:19]
-  assign io_slave_bid = 4'h0; // @[src/main/scala/basemode/Interface.scala 220:17]
-  assign io_slave_arready = 1'h0; // @[src/main/scala/basemode/Interface.scala 222:21]
-  assign io_slave_rvalid = 1'h0; // @[src/main/scala/basemode/Interface.scala 224:20]
-  assign io_slave_rresp = 2'h0; // @[src/main/scala/basemode/Interface.scala 225:19]
-  assign io_slave_rdata = 32'h0; // @[src/main/scala/basemode/Interface.scala 226:19]
-  assign io_slave_rlast = 1'h0; // @[src/main/scala/basemode/Interface.scala 227:19]
-  assign io_slave_rid = 4'h0; // @[src/main/scala/basemode/Interface.scala 228:17]
+  assign io_slave_awready = 1'h0; // @[src/main/scala/basemode/Interface.scala 215:21]
+  assign io_slave_wready = 1'h0; // @[src/main/scala/basemode/Interface.scala 217:20]
+  assign io_slave_bvalid = 1'h0; // @[src/main/scala/basemode/Interface.scala 219:20]
+  assign io_slave_bresp = 2'h0; // @[src/main/scala/basemode/Interface.scala 220:19]
+  assign io_slave_bid = 4'h0; // @[src/main/scala/basemode/Interface.scala 221:17]
+  assign io_slave_arready = 1'h0; // @[src/main/scala/basemode/Interface.scala 223:21]
+  assign io_slave_rvalid = 1'h0; // @[src/main/scala/basemode/Interface.scala 225:20]
+  assign io_slave_rresp = 2'h0; // @[src/main/scala/basemode/Interface.scala 226:19]
+  assign io_slave_rdata = 32'h0; // @[src/main/scala/basemode/Interface.scala 227:19]
+  assign io_slave_rlast = 1'h0; // @[src/main/scala/basemode/Interface.scala 228:19]
+  assign io_slave_rid = 4'h0; // @[src/main/scala/basemode/Interface.scala 229:17]
   assign pc_clock = clock;
   assign pc_reset = reset;
   assign pc_io_wbu2PC_valid = wbu_io_wbu2PC_valid; // @[src/main/scala/Main.scala 43:25]
@@ -866,7 +858,6 @@ module top(
   assign lsu_io_lsu2Mem_rdata = xbarAXI_io_axiSlaveWBU_rdata; // @[src/main/scala/Main.scala 63:25]
   assign lsu_io_lsu2Mem_rlast = xbarAXI_io_axiSlaveWBU_rlast; // @[src/main/scala/Main.scala 63:25]
   assign wbu_clock = clock;
-  assign wbu_reset = reset;
   assign wbu_io_lsu2WBU_valid = lsu_io_lsu2WBU_valid; // @[src/main/scala/Main.scala 64:25]
   assign wbu_io_lsu2WBU_bits_pc = lsu_io_lsu2WBU_bits_pc; // @[src/main/scala/Main.scala 64:25]
   assign wbu_io_lsu2WBU_bits_memData = lsu_io_lsu2WBU_bits_memData; // @[src/main/scala/Main.scala 64:25]
@@ -878,14 +869,12 @@ module top(
   assign wbu_io_lsu2WBU_bits_inst = lsu_io_lsu2WBU_bits_inst; // @[src/main/scala/Main.scala 64:25]
   assign wbu_io_lsu2WBU_bits_regWR = lsu_io_lsu2WBU_bits_regWR; // @[src/main/scala/Main.scala 64:25]
   assign wbu_io_lsu2WBU_bits_toReg = lsu_io_lsu2WBU_bits_toReg; // @[src/main/scala/Main.scala 64:25]
-  assign wbu_io_lsu2WBU_bits_branchCtr = lsu_io_lsu2WBU_bits_branchCtr; // @[src/main/scala/Main.scala 64:25]
-  assign wbu_io_lsu2WBU_bits_less = lsu_io_lsu2WBU_bits_less; // @[src/main/scala/Main.scala 64:25]
-  assign wbu_io_lsu2WBU_bits_zero = lsu_io_lsu2WBU_bits_zero; // @[src/main/scala/Main.scala 64:25]
+  assign wbu_io_lsu2WBU_bits_pcASrc = lsu_io_lsu2WBU_bits_pcASrc; // @[src/main/scala/Main.scala 64:25]
+  assign wbu_io_lsu2WBU_bits_pcBSrc = lsu_io_lsu2WBU_bits_pcBSrc; // @[src/main/scala/Main.scala 64:25]
   assign wbu_io_lsu2WBU_bits_ecall = lsu_io_lsu2WBU_bits_ecall; // @[src/main/scala/Main.scala 64:25]
   assign wbu_io_lsu2WBU_bits_csrEn = lsu_io_lsu2WBU_bits_csrEn; // @[src/main/scala/Main.scala 64:25]
   assign wbu_io_lsu2WBU_bits_csrWr = lsu_io_lsu2WBU_bits_csrWr; // @[src/main/scala/Main.scala 64:25]
   assign wbu_io_lsu2WBU_bits_fencei = lsu_io_lsu2WBU_bits_fencei; // @[src/main/scala/Main.scala 64:25]
-  assign wbu_io_wbu2PC_ready = pc_io_wbu2PC_ready; // @[src/main/scala/Main.scala 43:25]
   assign xbarAXI_clock = clock;
   assign xbarAXI_reset = reset;
   assign xbarAXI_io_axiSlaveIFU_bready = ifuSkidBuffer_io_axiMaster_bready; // @[src/main/scala/Main.scala 52:41]
