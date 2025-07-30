@@ -5,7 +5,6 @@ module IDU(
   input         io_inst_valid, // @[src/main/scala/idu/IDU.scala 15:16]
   input  [31:0] io_inst_bits_inst, // @[src/main/scala/idu/IDU.scala 15:16]
   input  [31:0] io_inst_bits_pc, // @[src/main/scala/idu/IDU.scala 15:16]
-  input         io_idu2EXU_ready, // @[src/main/scala/idu/IDU.scala 15:16]
   output        io_idu2EXU_valid, // @[src/main/scala/idu/IDU.scala 15:16]
   output [31:0] io_idu2EXU_bits_pc, // @[src/main/scala/idu/IDU.scala 15:16]
   output [31:0] io_idu2EXU_bits_rs1Data, // @[src/main/scala/idu/IDU.scala 15:16]
@@ -70,8 +69,7 @@ module IDU(
   reg [31:0] instReg; // @[src/main/scala/idu/IDU.scala 22:30]
   reg  ready2IFUReg; // @[src/main/scala/idu/IDU.scala 23:30]
   reg  valid2EXUReg; // @[src/main/scala/idu/IDU.scala 25:30]
-  wire  _T_1 = io_idu2EXU_valid & io_idu2EXU_ready; // @[src/main/scala/idu/IDU.scala 30:31]
-  wire  _GEN_0 = io_idu2EXU_valid & io_idu2EXU_ready | ready2IFUReg; // @[src/main/scala/idu/IDU.scala 30:52 31:26 23:30]
+  wire  _GEN_0 = io_idu2EXU_valid | ready2IFUReg; // @[src/main/scala/idu/IDU.scala 30:52 31:26 23:30]
   wire  _T_2 = io_inst_valid & io_inst_ready; // @[src/main/scala/idu/IDU.scala 34:28]
   wire  _GEN_1 = io_inst_valid & io_inst_ready ? 1'h0 : ready2IFUReg; // @[src/main/scala/idu/IDU.scala 34:46 35:26 23:30]
   wire  _GEN_2 = ~ready2IFUReg ? _GEN_0 : _GEN_1; // @[src/main/scala/idu/IDU.scala 29:32]
@@ -165,7 +163,7 @@ module IDU(
       valid2EXUReg <= 1'h0; // @[src/main/scala/idu/IDU.scala 25:30]
     end else if (~valid2EXUReg) begin // @[src/main/scala/idu/IDU.scala 38:32]
       valid2EXUReg <= _GEN_3;
-    end else if (_T_1) begin // @[src/main/scala/idu/IDU.scala 43:52]
+    end else if (io_idu2EXU_valid) begin // @[src/main/scala/idu/IDU.scala 43:52]
       valid2EXUReg <= 1'h0; // @[src/main/scala/idu/IDU.scala 44:26]
     end
   end

@@ -111,7 +111,6 @@ module top(
   wire  idu_io_inst_valid; // @[src/main/scala/Main.scala 35:49]
   wire [31:0] idu_io_inst_bits_inst; // @[src/main/scala/Main.scala 35:49]
   wire [31:0] idu_io_inst_bits_pc; // @[src/main/scala/Main.scala 35:49]
-  wire  idu_io_idu2EXU_ready; // @[src/main/scala/Main.scala 35:49]
   wire  idu_io_idu2EXU_valid; // @[src/main/scala/Main.scala 35:49]
   wire [31:0] idu_io_idu2EXU_bits_pc; // @[src/main/scala/Main.scala 35:49]
   wire [31:0] idu_io_idu2EXU_bits_rs1Data; // @[src/main/scala/Main.scala 35:49]
@@ -139,7 +138,6 @@ module top(
   wire [3:0] idu_io_idu2BaseReg_rs1Index; // @[src/main/scala/Main.scala 35:49]
   wire [3:0] idu_io_idu2BaseReg_rs2Index; // @[src/main/scala/Main.scala 35:49]
   wire  exu_clock; // @[src/main/scala/Main.scala 36:49]
-  wire  exu_reset; // @[src/main/scala/Main.scala 36:49]
   wire  exu_io_idu2EXU_ready; // @[src/main/scala/Main.scala 36:49]
   wire  exu_io_idu2EXU_valid; // @[src/main/scala/Main.scala 36:49]
   wire [31:0] exu_io_idu2EXU_bits_pc; // @[src/main/scala/Main.scala 36:49]
@@ -163,7 +161,6 @@ module top(
   wire  exu_io_idu2EXU_bits_csrWr; // @[src/main/scala/Main.scala 36:49]
   wire  exu_io_idu2EXU_bits_csrOP; // @[src/main/scala/Main.scala 36:49]
   wire [1:0] exu_io_idu2EXU_bits_csrALUOP; // @[src/main/scala/Main.scala 36:49]
-  wire  exu_io_exu2LSU_ready; // @[src/main/scala/Main.scala 36:49]
   wire  exu_io_exu2LSU_valid; // @[src/main/scala/Main.scala 36:49]
   wire [31:0] exu_io_exu2LSU_bits_pc; // @[src/main/scala/Main.scala 36:49]
   wire [31:0] exu_io_exu2LSU_bits_memData; // @[src/main/scala/Main.scala 36:49]
@@ -446,7 +443,6 @@ module top(
     .io_inst_valid(idu_io_inst_valid),
     .io_inst_bits_inst(idu_io_inst_bits_inst),
     .io_inst_bits_pc(idu_io_inst_bits_pc),
-    .io_idu2EXU_ready(idu_io_idu2EXU_ready),
     .io_idu2EXU_valid(idu_io_idu2EXU_valid),
     .io_idu2EXU_bits_pc(idu_io_idu2EXU_bits_pc),
     .io_idu2EXU_bits_rs1Data(idu_io_idu2EXU_bits_rs1Data),
@@ -476,7 +472,6 @@ module top(
   );
   EXU exu ( // @[src/main/scala/Main.scala 36:49]
     .clock(exu_clock),
-    .reset(exu_reset),
     .io_idu2EXU_ready(exu_io_idu2EXU_ready),
     .io_idu2EXU_valid(exu_io_idu2EXU_valid),
     .io_idu2EXU_bits_pc(exu_io_idu2EXU_bits_pc),
@@ -500,7 +495,6 @@ module top(
     .io_idu2EXU_bits_csrWr(exu_io_idu2EXU_bits_csrWr),
     .io_idu2EXU_bits_csrOP(exu_io_idu2EXU_bits_csrOP),
     .io_idu2EXU_bits_csrALUOP(exu_io_idu2EXU_bits_csrALUOP),
-    .io_exu2LSU_ready(exu_io_exu2LSU_ready),
     .io_exu2LSU_valid(exu_io_exu2LSU_valid),
     .io_exu2LSU_bits_pc(exu_io_exu2LSU_bits_pc),
     .io_exu2LSU_bits_memData(exu_io_exu2LSU_bits_memData),
@@ -800,11 +794,9 @@ module top(
   assign idu_io_inst_valid = ifu_io_inst_valid; // @[src/main/scala/Main.scala 50:25]
   assign idu_io_inst_bits_inst = ifu_io_inst_bits_inst; // @[src/main/scala/Main.scala 50:25]
   assign idu_io_inst_bits_pc = ifu_io_inst_bits_pc; // @[src/main/scala/Main.scala 50:25]
-  assign idu_io_idu2EXU_ready = exu_io_idu2EXU_ready; // @[src/main/scala/Main.scala 55:33]
   assign idu_io_idu2BaseReg_rs1Data = riscv32BaseReg_io_idu2BaseReg_rs1Data; // @[src/main/scala/Main.scala 56:33]
   assign idu_io_idu2BaseReg_rs2Data = riscv32BaseReg_io_idu2BaseReg_rs2Data; // @[src/main/scala/Main.scala 56:33]
   assign exu_clock = clock;
-  assign exu_reset = reset;
   assign exu_io_idu2EXU_valid = idu_io_idu2EXU_valid; // @[src/main/scala/Main.scala 55:33]
   assign exu_io_idu2EXU_bits_pc = idu_io_idu2EXU_bits_pc; // @[src/main/scala/Main.scala 55:33]
   assign exu_io_idu2EXU_bits_rs1Data = idu_io_idu2EXU_bits_rs1Data; // @[src/main/scala/Main.scala 55:33]
@@ -827,7 +819,6 @@ module top(
   assign exu_io_idu2EXU_bits_csrWr = idu_io_idu2EXU_bits_csrWr; // @[src/main/scala/Main.scala 55:33]
   assign exu_io_idu2EXU_bits_csrOP = idu_io_idu2EXU_bits_csrOP; // @[src/main/scala/Main.scala 55:33]
   assign exu_io_idu2EXU_bits_csrALUOP = idu_io_idu2EXU_bits_csrALUOP; // @[src/main/scala/Main.scala 55:33]
-  assign exu_io_exu2LSU_ready = lsu_io_exu2LSU_ready; // @[src/main/scala/Main.scala 59:25]
   assign exu_io_exu2CSR_csrData = csrReg_io_exu2CSR_csrData; // @[src/main/scala/Main.scala 60:25]
   assign lsu_clock = clock;
   assign lsu_reset = reset;
