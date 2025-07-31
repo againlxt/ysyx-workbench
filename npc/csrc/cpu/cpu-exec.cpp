@@ -135,7 +135,7 @@ void set_ftrace_ret_flag() {
 extern "C" svBitVecVal getCommond();
 extern "C" svBitVecVal get_cur_pc();
 extern "C" svBitVecVal get_next_pc();
-extern "C" svBit pcUpdate();
+extern "C" svBit wbuEnd();
 // DPI-C END
 
 // Simulate stepping and record waveform
@@ -206,12 +206,12 @@ static void exec_once() {
 	clk_down();
 	uint32_t loop_counter = 0;
 	#ifdef CONFIG_SOC
-	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.ifu.pcUpdate"));
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.wbu.wbuEnd"));
 	#else
 	svSetScope(svGetScopeFromName("TOP.top.ifu.pcUpdate"));
 	#endif
 	while (
-	!((uint8_t) pcUpdate() ==1)
+	!((uint8_t) wbuEnd() ==1)
 	) {
 		clk_up();
 		clk_down();
@@ -265,13 +265,13 @@ static void exec_once() {
 	clk_up();
 
 	#ifdef CONFIG_SOC
-	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.wbu.getCurPC"));
 	#else
 	svSetScope(svGetScopeFromName("TOP.top.getCurPC"));	
 	#endif
 	npc_pc		= get_cur_pc();
 	#ifdef CONFIG_SOC
-	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.wbu.getNextPC"));
 	#else
 	svSetScope(svGetScopeFromName("TOP.top.getNextPC"));	
 	#endif
@@ -281,13 +281,13 @@ static void exec_once() {
 
 static void execute(uint64_t n) {
 	#ifdef CONFIG_SOC
-	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getCurPC"));
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.wbu.getCurPC"));
 	#else
 	svSetScope(svGetScopeFromName("TOP.top.getCurPC"));	
 	#endif	
 	npc_pc		= get_cur_pc(); 
 	#ifdef CONFIG_SOC
-	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.getNextPC"));
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.wbu.getNextPC"));
 	#else
 	svSetScope(svGetScopeFromName("TOP.top.getNextPC"));	
 	#endif
