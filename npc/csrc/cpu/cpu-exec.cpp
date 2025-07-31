@@ -206,9 +206,9 @@ static void exec_once() {
 	clk_down();
 	uint32_t loop_counter = 0;
 	#ifdef CONFIG_SOC
-	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.pc.pcUpdate"));
+	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.ifu.pcUpdate"));
 	#else
-	svSetScope(svGetScopeFromName("TOP.top.pc.pcUpdate"));
+	svSetScope(svGetScopeFromName("TOP.top.ifu.pcUpdate"));
 	#endif
 	while (
 	!((uint8_t) pcUpdate() ==1)
