@@ -49,8 +49,8 @@ static void step_and_dump_wave();
 static uint64_t cycle_counter = 0;
 #ifdef CONFIG_PERFORMANCE_COUNTER_ENABLE
 enum PerformanceCounterType {
-	OTHER = 0, JUMP, STROE, LOAD, CAL, CSR, IFUGETINST, LSUGETDATA, EXUFINCAL ,
-	ICACHE_ACCESS_TIME, ICACHE_MISS_PENALTY
+	OTHER = 0, JUMP, STROE, LOAD, CAL, CSR, IFUGETINST, LSUGETDATA, EXUFINCAL,
+	ICACHE_ACCESS_TIME, ICACHE_MISS_PENALTY, FLUSHCNT, RAWCNT
 };
 static double other_counter = 0;
 static double jump_counter = 0;
@@ -68,6 +68,10 @@ static double icache_miss_penalty_cnt = 0;
 static double icache_miss_num = 0;
 static double icache_hit_rate = 0;
 static double icache_miss_rate = 0;
+static double flush_cnt = 0;
+static double flush_num = 0;
+static double raw_cnt = 0;
+static double raw_num = 0;
 extern "C" void performence_cnt_record(int cnttype, int data) {
 	switch (cnttype) {
 		case OTHER: other_counter ++; 		break;
@@ -89,6 +93,12 @@ extern "C" void performence_cnt_record(int cnttype, int data) {
 		case ICACHE_MISS_PENALTY:
 			icache_miss_penalty_cnt += data;
 			icache_miss_num 		+= 1;	break;
+		case FLUSHCNT:
+			flush_num ++;
+			flush_cnt	 += data;		break;
+		case RAWCNT:
+			raw_num ++;
+			raw_cnt	+= data; 				break;
 		default: Log("Unknow Type!"); assert(0);
 	}
 }
@@ -104,6 +114,7 @@ static void performence_cnt_display() {
 	Log("           %0.2lf%%           %0.2lf%%         %0.2lf%%", 100*ifu_get_inst_cnt/cycle_counter, 100*lsu_get_data_cnt/cycle_counter, 100*exu_fin_cal_cnt/cycle_counter);
 	Log("Icache hit rate: %0.2lf | Icache AMAT: %0.2lf | Icache Miss Penalty: %0.2lf", icache_hit_rate, 
 	(icache_access_time_cnt + icache_miss_rate * icache_miss_penalty_cnt)/(icache_access_num+icache_miss_num), icache_miss_penalty_cnt/icache_miss_num);
+	Log("EXU Flush Penalty: %0.2lf %0.2lf%% | RAW Penalty: %0.2lf %0.2lf%%", flush_cnt/flush_num, 100*flush_cnt/cycle_counter, raw_cnt/raw_num, 100*raw_cnt/cycle_counter);
 	Log("============== Performence Counter Display End ===============");
 }
 #else
