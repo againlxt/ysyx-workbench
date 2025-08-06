@@ -21,9 +21,21 @@ idu要访问的寄存器，还没有被写入，这是会产生数据冒险。�
 
 对比于没有添加流水线的CPU性能优化了14%，由于删除了部分冗余的逻辑，所以面积也有所下降，但组合逻辑增多，导致频率下降了一部分，目前关键路径在EXU的加法器相关部分。
 
+# 流水线优化
+
 ## 定位性能瓶颈
 
 ![Screenshot from 2025-08-06 10-13-16](/home/lxt/ysyx-workbench/my_notes/pipeline/assets/Screenshot from 2025-08-06 10-13-16.png)
 
 目前CPU大部分时间还是用在访存，流水线冲刷浪费了23.73%的时间，RAW数据冒险浪费了16.76%的时间。
 
+## 估算icache流水化带来的性能收益
+
+理想的icache流水化后icache命中后访问icache只需要一个时钟周期，流水化后性能大概如下：
+![Screenshot from 2025-08-06 10-22-49](/home/lxt/ysyx-workbench/my_notes/pipeline/assets/Screenshot from 2025-08-06 10-22-49.png)
+
+可以优化的时间应该在5%左右。
+
+## 估算转发技术的理想性能提升
+
+理想化的转发技术可以完全消除RAW阻塞，根据性能技术器可得大概能带来16.76%的性能提升，当然是在主频没有变化的前提下。
