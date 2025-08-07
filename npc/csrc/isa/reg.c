@@ -23,6 +23,7 @@ const char *regs[] = {
 
 void isa_reg_display() {
 	printf("Reg display begin\n");
+	printf("PC:\t%#x\n", cpu.pc);
 	for (int i = 0; i < REGS_SIZE; i++) {
 		printf("%s:\t%#x\n", regs[i], cpu.gpr[i]);
 	}

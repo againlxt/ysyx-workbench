@@ -12,6 +12,7 @@
 #include <getopt.h>
 #include <verilator.h>
 #include <isa/reg.h>
+#include <isa/isa-def.h>
 #include <memory/paddr.h>
 #include <memory/memory.h>
 #ifdef CONFIG_NVBOARD
@@ -133,6 +134,10 @@ static void init_npc() {
 		verilatorTop->clock = 0; step_and_dump_wave();
 		verilatorTop->clock = 1; step_and_dump_wave();
 	}
+	cpu.pc = 0x30000000;
+	cpu.csr[0x300] = 0x1800;
+  	cpu.csr[0xf11] = 0x79737978;
+  	cpu.csr[0xf12] = 0X78957352;
 }
 
 static void sim_init() {
