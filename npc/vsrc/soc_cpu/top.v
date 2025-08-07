@@ -163,8 +163,8 @@ module top(
   wire [31:0] idu_io_idu2EXU_bits_imm; // @[src/main/scala/Main.scala 36:49]
   wire [31:0] idu_io_idu2EXU_bits_inst; // @[src/main/scala/Main.scala 36:49]
   wire  idu_io_idu2EXU_bits_regWR; // @[src/main/scala/Main.scala 36:49]
-  wire [31:0] idu_io_idu2EXU_bits_srcAALU; // @[src/main/scala/Main.scala 36:49]
-  wire [31:0] idu_io_idu2EXU_bits_srcBALU; // @[src/main/scala/Main.scala 36:49]
+  wire [1:0] idu_io_idu2EXU_bits_srcAALU; // @[src/main/scala/Main.scala 36:49]
+  wire [1:0] idu_io_idu2EXU_bits_srcBALU; // @[src/main/scala/Main.scala 36:49]
   wire [3:0] idu_io_idu2EXU_bits_ctrALU; // @[src/main/scala/Main.scala 36:49]
   wire [3:0] idu_io_idu2EXU_bits_branch; // @[src/main/scala/Main.scala 36:49]
   wire [1:0] idu_io_idu2EXU_bits_toReg; // @[src/main/scala/Main.scala 36:49]
@@ -194,8 +194,8 @@ module top(
   wire [31:0] exu_io_idu2EXU_bits_imm; // @[src/main/scala/Main.scala 37:49]
   wire [31:0] exu_io_idu2EXU_bits_inst; // @[src/main/scala/Main.scala 37:49]
   wire  exu_io_idu2EXU_bits_regWR; // @[src/main/scala/Main.scala 37:49]
-  wire [31:0] exu_io_idu2EXU_bits_srcAALU; // @[src/main/scala/Main.scala 37:49]
-  wire [31:0] exu_io_idu2EXU_bits_srcBALU; // @[src/main/scala/Main.scala 37:49]
+  wire [1:0] exu_io_idu2EXU_bits_srcAALU; // @[src/main/scala/Main.scala 37:49]
+  wire [1:0] exu_io_idu2EXU_bits_srcBALU; // @[src/main/scala/Main.scala 37:49]
   wire [3:0] exu_io_idu2EXU_bits_ctrALU; // @[src/main/scala/Main.scala 37:49]
   wire [3:0] exu_io_idu2EXU_bits_branch; // @[src/main/scala/Main.scala 37:49]
   wire [1:0] exu_io_idu2EXU_bits_toReg; // @[src/main/scala/Main.scala 37:49]
@@ -481,8 +481,8 @@ module top(
   reg [31:0] exu_io_idu2EXU_bits_r_imm; // @[src/main/scala/Main.scala 61:45]
   reg [31:0] exu_io_idu2EXU_bits_r_inst; // @[src/main/scala/Main.scala 61:45]
   reg  exu_io_idu2EXU_bits_r_regWR; // @[src/main/scala/Main.scala 61:45]
-  reg [31:0] exu_io_idu2EXU_bits_r_srcAALU; // @[src/main/scala/Main.scala 61:45]
-  reg [31:0] exu_io_idu2EXU_bits_r_srcBALU; // @[src/main/scala/Main.scala 61:45]
+  reg [1:0] exu_io_idu2EXU_bits_r_srcAALU; // @[src/main/scala/Main.scala 61:45]
+  reg [1:0] exu_io_idu2EXU_bits_r_srcBALU; // @[src/main/scala/Main.scala 61:45]
   reg [3:0] exu_io_idu2EXU_bits_r_ctrALU; // @[src/main/scala/Main.scala 61:45]
   reg [3:0] exu_io_idu2EXU_bits_r_branch; // @[src/main/scala/Main.scala 61:45]
   reg [1:0] exu_io_idu2EXU_bits_r_toReg; // @[src/main/scala/Main.scala 61:45]
@@ -1327,9 +1327,9 @@ initial begin
   _RAND_8 = {1{`RANDOM}};
   exu_io_idu2EXU_bits_r_regWR = _RAND_8[0:0];
   _RAND_9 = {1{`RANDOM}};
-  exu_io_idu2EXU_bits_r_srcAALU = _RAND_9[31:0];
+  exu_io_idu2EXU_bits_r_srcAALU = _RAND_9[1:0];
   _RAND_10 = {1{`RANDOM}};
-  exu_io_idu2EXU_bits_r_srcBALU = _RAND_10[31:0];
+  exu_io_idu2EXU_bits_r_srcBALU = _RAND_10[1:0];
   _RAND_11 = {1{`RANDOM}};
   exu_io_idu2EXU_bits_r_ctrALU = _RAND_11[3:0];
   _RAND_12 = {1{`RANDOM}};

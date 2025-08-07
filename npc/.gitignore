@@ -9,6 +9,7 @@
 !.gitignore
 !*.v
 !*.sv
+!*.nxdc
 !README.md
 build/
 !Kconfig
