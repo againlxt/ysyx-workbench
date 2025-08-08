@@ -15,6 +15,7 @@ module WBU(
   input         io_lsu2WBU_bits_csrEn, // @[src/main/scala/wbu/WBU.scala 14:20]
   input         io_lsu2WBU_bits_csrWr, // @[src/main/scala/wbu/WBU.scala 14:20]
   input         io_lsu2WBU_bits_fencei, // @[src/main/scala/wbu/WBU.scala 14:20]
+  input         io_lsu2WBU_bits_skip, // @[src/main/scala/wbu/WBU.scala 14:20]
   output [31:0] io_wbu2CSR_pc, // @[src/main/scala/wbu/WBU.scala 14:20]
   output [31:0] io_wbu2CSR_csrWData, // @[src/main/scala/wbu/WBU.scala 14:20]
   input  [31:0] io_wbu2CSR_mtvec, // @[src/main/scala/wbu/WBU.scala 14:20]
@@ -33,26 +34,25 @@ module WBU(
 `ifdef RANDOMIZE_REG_INIT
   reg [31:0] _RAND_0;
   reg [31:0] _RAND_1;
-  reg [31:0] _RAND_2;
 `endif // RANDOMIZE_REG_INIT
   wire [31:0] getCurPC_pc; // @[src/main/scala/wbu/WBU.scala 49:41]
   wire [31:0] getNextPC_nextPC; // @[src/main/scala/wbu/WBU.scala 50:41]
   wire [31:0] getCmd_cmd; // @[src/main/scala/wbu/WBU.scala 51:49]
   wire  wbuEnd_handshake; // @[src/main/scala/wbu/WBU.scala 52:33]
+  wire  skipDiff_en; // @[src/main/scala/wbu/WBU.scala 57:38]
   wire  handWire = io_lsu2WBU_valid & io_lsu2WBU_ready; // @[src/main/scala/wbu/WBU.scala 23:44]
   reg  handReg; // @[src/main/scala/wbu/WBU.scala 36:42]
-  reg  handRReg; // @[src/main/scala/wbu/WBU.scala 37:42]
   reg  state; // @[src/main/scala/wbu/WBU.scala 41:42]
   wire  _nextState_T_2 = handWire ? 1'h0 : 1'h1; // @[src/main/scala/wbu/WBU.scala 44:31]
   wire  _nextState_T_3 = ~state; // @[src/main/scala/wbu/WBU.scala 42:52]
   wire  nextState = state ? _nextState_T_2 : ~state & io_lsu2WBU_bits_ecall; // @[src/main/scala/wbu/WBU.scala 42:52]
-  wire  _io_wbu2BaseReg_data_T = io_lsu2WBU_bits_toReg == 2'h0; // @[src/main/scala/wbu/WBU.scala 68:20]
-  wire  _io_wbu2BaseReg_data_T_1 = io_lsu2WBU_bits_toReg == 2'h1; // @[src/main/scala/wbu/WBU.scala 69:28]
-  wire  _io_wbu2BaseReg_data_T_2 = io_lsu2WBU_bits_toReg == 2'h2; // @[src/main/scala/wbu/WBU.scala 70:28]
+  wire  _io_wbu2BaseReg_data_T = io_lsu2WBU_bits_toReg == 2'h0; // @[src/main/scala/wbu/WBU.scala 70:20]
+  wire  _io_wbu2BaseReg_data_T_1 = io_lsu2WBU_bits_toReg == 2'h1; // @[src/main/scala/wbu/WBU.scala 71:28]
+  wire  _io_wbu2BaseReg_data_T_2 = io_lsu2WBU_bits_toReg == 2'h2; // @[src/main/scala/wbu/WBU.scala 72:28]
   wire [31:0] _io_wbu2BaseReg_data_T_3 = _io_wbu2BaseReg_data_T_2 ? io_lsu2WBU_bits_csrData : 32'h0; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
   wire [31:0] _io_wbu2BaseReg_data_T_4 = _io_wbu2BaseReg_data_T_1 ? io_lsu2WBU_bits_memData : _io_wbu2BaseReg_data_T_3; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
-  wire [4:0] _io_rd_T_2 = handReg ? io_lsu2WBU_bits_inst[11:7] : 5'h0; // @[src/main/scala/wbu/WBU.scala 76:53]
-  wire [4:0] _io_rd_T_3 = io_lsu2WBU_bits_regWR ? _io_rd_T_2 : 5'h0; // @[src/main/scala/wbu/WBU.scala 76:31]
+  wire [4:0] _io_rd_T_2 = handReg ? io_lsu2WBU_bits_inst[11:7] : 5'h0; // @[src/main/scala/wbu/WBU.scala 78:53]
+  wire [4:0] _io_rd_T_3 = io_lsu2WBU_bits_regWR ? _io_rd_T_2 : 5'h0; // @[src/main/scala/wbu/WBU.scala 78:31]
   GetCurPC getCurPC ( // @[src/main/scala/wbu/WBU.scala 49:41]
     .pc(getCurPC_pc)
   );
@@ -65,27 +65,30 @@ module WBU(
   WBUEnd wbuEnd ( // @[src/main/scala/wbu/WBU.scala 52:33]
     .handshake(wbuEnd_handshake)
   );
-  assign io_lsu2WBU_ready = 1'h1; // @[src/main/scala/wbu/WBU.scala 60:33]
-  assign io_wbu2CSR_pc = io_lsu2WBU_bits_pc; // @[src/main/scala/wbu/WBU.scala 61:25]
-  assign io_wbu2CSR_csrWData = io_lsu2WBU_bits_csrWData; // @[src/main/scala/wbu/WBU.scala 62:25]
-  assign io_wbu2CSR_csr = io_lsu2WBU_bits_inst[31:20]; // @[src/main/scala/wbu/WBU.scala 63:36]
-  assign io_wbu2CSR_ecall = io_lsu2WBU_bits_ecall; // @[src/main/scala/wbu/WBU.scala 64:25]
-  assign io_wbu2CSR_csrEn = io_lsu2WBU_bits_csrEn; // @[src/main/scala/wbu/WBU.scala 65:25]
-  assign io_wbu2CSR_csrWr = io_lsu2WBU_bits_csrWr; // @[src/main/scala/wbu/WBU.scala 66:25]
-  assign io_wbu2BaseReg_rdIndex = io_lsu2WBU_bits_inst[10:7]; // @[src/main/scala/wbu/WBU.scala 72:29]
+  SkipDiff skipDiff ( // @[src/main/scala/wbu/WBU.scala 57:38]
+    .en(skipDiff_en)
+  );
+  assign io_lsu2WBU_ready = 1'h1; // @[src/main/scala/wbu/WBU.scala 62:33]
+  assign io_wbu2CSR_pc = io_lsu2WBU_bits_pc; // @[src/main/scala/wbu/WBU.scala 63:25]
+  assign io_wbu2CSR_csrWData = io_lsu2WBU_bits_csrWData; // @[src/main/scala/wbu/WBU.scala 64:25]
+  assign io_wbu2CSR_csr = io_lsu2WBU_bits_inst[31:20]; // @[src/main/scala/wbu/WBU.scala 65:36]
+  assign io_wbu2CSR_ecall = io_lsu2WBU_bits_ecall; // @[src/main/scala/wbu/WBU.scala 66:25]
+  assign io_wbu2CSR_csrEn = io_lsu2WBU_bits_csrEn; // @[src/main/scala/wbu/WBU.scala 67:25]
+  assign io_wbu2CSR_csrWr = io_lsu2WBU_bits_csrWr; // @[src/main/scala/wbu/WBU.scala 68:25]
+  assign io_wbu2BaseReg_rdIndex = io_lsu2WBU_bits_inst[10:7]; // @[src/main/scala/wbu/WBU.scala 74:29]
   assign io_wbu2BaseReg_data = _io_wbu2BaseReg_data_T ? io_lsu2WBU_bits_aluData : _io_wbu2BaseReg_data_T_4; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
-  assign io_wbu2BaseReg_regWR = io_lsu2WBU_bits_regWR; // @[src/main/scala/wbu/WBU.scala 73:29]
-  assign io_wbu2Icache = io_lsu2WBU_bits_fencei; // @[src/main/scala/wbu/WBU.scala 75:25]
-  assign io_rd = _io_rd_T_3[3:0]; // @[src/main/scala/wbu/WBU.scala 76:25]
-  assign io_flush = _nextState_T_3 & nextState; // @[src/main/scala/wbu/WBU.scala 78:47]
-  assign io_correctPC = io_wbu2CSR_mtvec; // @[src/main/scala/wbu/WBU.scala 79:21]
+  assign io_wbu2BaseReg_regWR = io_lsu2WBU_bits_regWR; // @[src/main/scala/wbu/WBU.scala 75:29]
+  assign io_wbu2Icache = io_lsu2WBU_bits_fencei; // @[src/main/scala/wbu/WBU.scala 77:25]
+  assign io_rd = _io_rd_T_3[3:0]; // @[src/main/scala/wbu/WBU.scala 78:25]
+  assign io_flush = _nextState_T_3 & nextState; // @[src/main/scala/wbu/WBU.scala 80:47]
+  assign io_correctPC = io_wbu2CSR_mtvec; // @[src/main/scala/wbu/WBU.scala 81:21]
   assign getCurPC_pc = io_lsu2WBU_bits_pc; // @[src/main/scala/wbu/WBU.scala 53:41]
   assign getNextPC_nextPC = io_lsu2WBU_bits_pc; // @[src/main/scala/wbu/WBU.scala 54:41]
   assign getCmd_cmd = io_lsu2WBU_bits_inst; // @[src/main/scala/wbu/WBU.scala 55:41]
-  assign wbuEnd_handshake = handRReg; // @[src/main/scala/wbu/WBU.scala 56:29]
+  assign wbuEnd_handshake = handReg; // @[src/main/scala/wbu/WBU.scala 56:29]
+  assign skipDiff_en = handWire & io_lsu2WBU_bits_skip; // @[src/main/scala/wbu/WBU.scala 58:36]
   always @(posedge clock) begin
     handReg <= io_lsu2WBU_valid & io_lsu2WBU_ready; // @[src/main/scala/wbu/WBU.scala 23:44]
-    handRReg <= handReg; // @[src/main/scala/wbu/WBU.scala 37:42]
     if (reset) begin // @[src/main/scala/wbu/WBU.scala 41:42]
       state <= 1'h0; // @[src/main/scala/wbu/WBU.scala 41:42]
     end else if (state) begin // @[src/main/scala/wbu/WBU.scala 42:52]
@@ -137,9 +140,7 @@ initial begin
   _RAND_0 = {1{`RANDOM}};
   handReg = _RAND_0[0:0];
   _RAND_1 = {1{`RANDOM}};
-  handRReg = _RAND_1[0:0];
-  _RAND_2 = {1{`RANDOM}};
-  state = _RAND_2[0:0];
+  state = _RAND_1[0:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial

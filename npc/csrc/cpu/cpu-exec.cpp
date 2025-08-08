@@ -274,7 +274,6 @@ static void exec_once() {
 	new_irbn(logbuf);
 	#endif
 
-	clk_up();
 	#ifdef CONFIG_SOC
 	svSetScope(svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.wbu.getCurPC"));
 	#else
@@ -287,6 +286,7 @@ static void exec_once() {
 	svSetScope(svGetScopeFromName("TOP.top.getNextPC"));	
 	#endif
 	npc_dnpc	= get_next_pc();
+	clk_up();
 	trace_and_difftest();
 }
 

@@ -97,6 +97,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
 		if (ref_r->gpr[check_reg_idx(i)] != cpu.gpr[i]){
 			printf("------- Difftest begin -------\n");
 			printf("Diff %#X\t\n", pc);
+			printf("ref-pc %#X\t\n", ref_r->pc);
 			printf("ref-reg:\t%#X\n", ref_r->gpr[check_reg_idx(i)]);
 			printf("reg  %s:\t%#X\n", reg_name(i), cpu.gpr[i]);
 			printf("------------- end ------------\n");
@@ -136,6 +137,7 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
 		// to skip the checking of an instruction, just copy the reg state to reference design
 		ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 		is_skip_ref = false;
+		printf("skip pc: %x\n", cpu.pc);
 		return;
 	}
 
