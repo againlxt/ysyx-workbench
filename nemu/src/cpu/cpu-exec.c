@@ -145,20 +145,44 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 		ftrace_function_symbol = find_func_call(dnpc);
 		log_write("f %#X: ", _this->pc);
 		ftrace_call_depth ++;
+    #ifndef CONFIG_CACHESIM
 		for (uint32_t i = 0; i < ftrace_call_depth; i++) { log_write("  "); }
-    if(ftrace_function_symbol != NULL)
+    #endif
+    if(ftrace_function_symbol != NULL) {
+      #ifndef CONFIG_CACHESIM
 		  log_write("call [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);
-    else
-      log_write("call [UNKOWN@%#X]\n", dnpc);
+      #else
+      log_write("%#X\n", ftrace_function_symbol->st_value);
+      #endif
+    }
+    else {
+      #ifndef CONFIG_CACHESIM
+		  log_write("call [UNKOWN@%#X]\n", dnpc);
+      #else
+      log_write("%#X\n", dnpc);
+      #endif
+    }
 	} else if (ftrace_ret_flag == true) {
 		ftrace_ret_flag = false;
 		ftrace_function_symbol = find_func_call(dnpc);
 		log_write("f %#X: ", _this->pc);
+    #ifndef CONFIG_CACHESIM
 		for (uint32_t i = 0; i < ftrace_call_depth; i++) { log_write("  "); }
-    if(ftrace_function_symbol != NULL)
+    #endif
+    if(ftrace_function_symbol != NULL) {
+      #ifndef CONFIG_CACHESIM
 		  log_write("ret [%s@%#X]\n", find_string(ftrace_function_symbol), ftrace_function_symbol->st_value);
-    else
+      #else
+      log_write("%#X\n", ftrace_function_symbol->st_value);
+      #endif
+    }
+    else {
+      #ifndef CONFIG_CACHESIM
       log_write("ret [UNKOWN@%#X]\n", dnpc);
+      #else
+      log_write("%#X\n", dnpc);
+      #endif
+    }
     if(ftrace_call_depth >= 1) ftrace_call_depth --;
 	} else { }
 #endif
