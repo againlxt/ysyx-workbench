@@ -11,7 +11,7 @@
 /* 预测器类型 */
 typedef enum { P_BIMODAL, P_GSHARE, P_ALWAYS_T, P_ALWAYS_N, P_BTFN } PredType;
 #ifndef CONFIG_PRED_TYPE
-#define CONFIG_PRED_TYPE P_BIMODAL
+#define CONFIG_PRED_TYPE P_BTFN
 #endif
 
 /* 预测表项数（必须为 2 的幂）*/

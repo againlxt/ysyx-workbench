@@ -13,6 +13,7 @@
 !.gitignore
 !init.sh
 !Cachesim/*
+!assets/*
 /fceux-am
 /nvboard
 /am-kernels
