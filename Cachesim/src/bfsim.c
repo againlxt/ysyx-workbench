@@ -8,220 +8,259 @@
 #include <assert.h>
 
 /* ========== 配置 ========== */
-/* 选择预测器类型（编译前宏可以改）*/
-typedef enum { P_BIMODAL, P_GSHARE, P_ALWAYS_T, P_ALWAYS_N } PredType;
-
+/* 预测器类型 */
+typedef enum { P_BIMODAL, P_GSHARE, P_ALWAYS_T, P_ALWAYS_N, P_BTFN } PredType;
 #ifndef CONFIG_PRED_TYPE
 #define CONFIG_PRED_TYPE P_BIMODAL
 #endif
 
-/* 表项数（必须为 2 的幂） */
+/* 预测表项数（必须为 2 的幂）*/
 #ifndef CONFIG_TABLE_ENTRIES
-#define CONFIG_TABLE_ENTRIES 32
+#define CONFIG_TABLE_ENTRIES 8
 #endif
 
-/* gshare 全局历史位数（仅当使用 GSHARE 时有意义） */
+/* gshare 全局历史位数 */
 #ifndef CONFIG_GHIST_BITS
 #define CONFIG_GHIST_BITS 8
 #endif
 
-/* 假定指令字节数（判断 next PC） */
 #ifndef CONFIG_INSTR_BYTES
 #define CONFIG_INSTR_BYTES 4
 #endif
 
-/* ========== 全局变量（风格与 cachesim 保持一致） ========== */
+/* ====== BTB 配置 ====== */
+/* BTB 总行数（必须为 2 的幂） */
+#ifndef CONFIG_BTB_ENTRIES
+#define CONFIG_BTB_ENTRIES 8
+#endif
+/* BTB 相联度 */
+#ifndef CONFIG_BTB_WAY
+#define CONFIG_BTB_WAY 1
+#endif
+/* BTB 替换策略 */
+typedef enum { BTB_LRU, BTB_FIFO, BTB_RANDOM } BTBReplacePolicy;
+#ifndef CONFIG_BTB_POLICY
+#define CONFIG_BTB_POLICY BTB_LRU
+#endif
+
+/* ========== 全局变量 ========== */
 char *pred_file = NULL;
 
-/* 2-bit 饱和计数器表（每项用 uint8_t 存 0..3） */
-static uint8_t pred_table[CONFIG_TABLE_ENTRIES] = {0};
+/* 2-bit 饱和计数器预测表 */
+static uint8_t pred_table[CONFIG_TABLE_ENTRIES];
 
-/* gshare 全局历史寄存器（低位有效）*/
-#if CONFIG_PRED_TYPE == P_GSHARE || defined(CONFIG_PRED_TYPE)
+/* Gshare 历史寄存器 */
+#if CONFIG_PRED_TYPE == P_GSHARE
 static uint32_t ghist = 0;
 #endif
 
+/* ====== BTB 数据结构 ====== */
+typedef struct {
+    uint8_t  valid;
+    uint32_t tag;
+    uint64_t target;
+    uint64_t last_access_time; // LRU
+    uint64_t insert_time;      // FIFO
+} BTBEntry;
+
+/* BTB 集合数 */
+static const uint32_t BTB_SETS = CONFIG_BTB_ENTRIES / CONFIG_BTB_WAY;
+/* BTB 表 */
+static BTBEntry btb[CONFIG_BTB_ENTRIES / CONFIG_BTB_WAY][CONFIG_BTB_WAY];
+/* 全局时间戳 */
+static uint64_t global_time = 0;
+
 /* 统计 */
-static double inst_counter = 0;   /* 被认为需要预测的分支数（trace 中的控制转移计数） */
+static double inst_counter = 0;   
 static double correct_counter = 0;
 static double miss_counter = 0;
 
-/* 随机种子，以便实现 random 策略（若将来扩展） */
+/* 随机种子 */
 static unsigned int seed_time = 0;
 
-/* 辅助：检查 CONFIG_TABLE_ENTRIES 是否为 2 的幂 */
-static void check_table_pow2(void) {
-    uint32_t n = CONFIG_TABLE_ENTRIES;
+/* 检查表项数为 2 的幂 */
+static void check_pow2(uint32_t n, const char *name) {
     if ((n & (n - 1)) != 0) {
-        fprintf(stderr, "CONFIG_TABLE_ENTRIES must be a power of two\n");
+        fprintf(stderr, "%s must be a power of two\n", name);
         exit(1);
     }
 }
 
-/* 初始化表，默认初始化为弱 Taken (2) —— 你可以改为弱 NotTaken (1) */
+/* 初始化 */
 static void pred_init(void) {
-    check_table_pow2();
-    for (uint32_t i = 0; i < CONFIG_TABLE_ENTRIES; i++) pred_table[i] = 2; /* weak taken */
+    check_pow2(CONFIG_TABLE_ENTRIES, "CONFIG_TABLE_ENTRIES");
+    check_pow2(CONFIG_BTB_ENTRIES, "CONFIG_BTB_ENTRIES");
+    for (uint32_t i = 0; i < CONFIG_TABLE_ENTRIES; i++) pred_table[i] = 2;
+    memset(btb, 0, sizeof(btb));
     seed_time = (unsigned int)time(NULL);
     srand(seed_time);
+#if CONFIG_PRED_TYPE == P_GSHARE
     ghist = 0;
+#endif
+    global_time = 0;
 }
 
-/* 计算索引：
-   - 使用 PC 的低位（丢弃对齐的 m bits）并 mask 到表大小
-   - 对于 gshare，使用 ghist 与索引 XOR（只使用 ghist 的低 CONFIG_GHIST_BITS）
-*/
-static inline uint32_t get_index(uint64_t pc) {
-    /* 忽略最低对齐位 */
+/* 预测表索引 */
+static inline uint32_t get_pred_index(uint64_t pc) {
     uint64_t pc_shift = pc >> (uint32_t)(log(CONFIG_INSTR_BYTES)/log(2));
     uint32_t mask = CONFIG_TABLE_ENTRIES - 1;
     uint32_t idx = (uint32_t)(pc_shift & mask);
-#if defined(CONFIG_GHIST_BITS)
-#if CONFIG_GHIST_BITS > 0
-    /* 仅在使用 gshare 时进行 xor */
 #if CONFIG_PRED_TYPE == P_GSHARE
-    uint32_t hist_mask = ( (CONFIG_GHIST_BITS>=32) ? 0xFFFFFFFFu : ((1u << CONFIG_GHIST_BITS) - 1u) );
+    uint32_t hist_mask = ((CONFIG_GHIST_BITS >= 32) ? 0xFFFFFFFFu : ((1u << CONFIG_GHIST_BITS) - 1u));
     uint32_t hist = ghist & hist_mask;
     idx = (idx ^ hist) & mask;
-#endif
-#endif
 #endif
     return idx;
 }
 
-/* 预测：基于2-bit计数器返回 0（not-taken）或 1（taken） */
-static inline int predict_from_counter(uint8_t c) {
-    return c >= 2 ? 1 : 0;
+/* BTB 索引与 tag */
+static inline void get_btb_index_tag(uint64_t pc, uint32_t *index, uint32_t *tag) {
+    uint64_t pc_shift = pc >> 2; // 去掉低2位
+    *index = pc_shift & (BTB_SETS - 1);
+    *tag = (uint32_t)(pc_shift >> (uint32_t)(log(BTB_SETS)/log(2)));
 }
 
-/* 更新2-bit计数器 */
-static inline void update_counter(uint8_t *c, int taken) {
-    if (taken) {
-        if (*c < 3) (*c)++;
-    } else {
-        if (*c > 0) (*c)--;
+/* BTB 查找 */
+static BTBEntry* btb_lookup(uint64_t pc) {
+    uint32_t index, tag;
+    get_btb_index_tag(pc, &index, &tag);
+    for (size_t i = 0; i < CONFIG_BTB_WAY; i++) {
+        if (btb[index][i].valid && btb[index][i].tag == tag) {
+            btb[index][i].last_access_time = global_time;
+            return &btb[index][i];
+        }
     }
+    return NULL;
 }
 
-/* 对单条 trace 进行预测与更新
-   - from_pc: 控制转移指令地址
-   - to_pc: 目标地址
-*/
-static void handle_transfer(uint64_t from_pc, uint64_t to_pc) {
-    /* 认为 taken 当且仅当 to_pc != from_pc + CONFIG_INSTR_BYTES */
-    uint64_t fall_through = from_pc + (uint64_t)CONFIG_INSTR_BYTES;
-    int is_taken = (to_pc != fall_through) ? 1 : 0;
+/* BTB 选择替换行 */
+static BTBEntry* btb_find_replacement(uint32_t index) {
+    /* 找空行 */
+    for (size_t i = 0; i < CONFIG_BTB_WAY; i++) {
+        if (!btb[index][i].valid) return &btb[index][i];
+    }
+    /* 替换策略 */
+    BTBEntry *victim = &btb[index][0];
+    if (CONFIG_BTB_POLICY == BTB_LRU) {
+        uint64_t oldest = btb[index][0].last_access_time;
+        for (size_t i = 1; i < CONFIG_BTB_WAY; i++) {
+            if (btb[index][i].last_access_time < oldest) {
+                oldest = btb[index][i].last_access_time;
+                victim = &btb[index][i];
+            }
+        }
+    } else if (CONFIG_BTB_POLICY == BTB_FIFO) {
+        uint64_t oldest = btb[index][0].insert_time;
+        for (size_t i = 1; i < CONFIG_BTB_WAY; i++) {
+            if (btb[index][i].insert_time < oldest) {
+                oldest = btb[index][i].insert_time;
+                victim = &btb[index][i];
+            }
+        }
+    } else { // RANDOM
+        victim = &btb[index][rand() % CONFIG_BTB_WAY];
+    }
+    return victim;
+}
 
-    /* 依据选择的 predictor 做出预测 */
+/* BTB 更新 */
+static void btb_update(uint64_t pc, uint64_t target) {
+    uint32_t index, tag;
+    get_btb_index_tag(pc, &index, &tag);
+    BTBEntry *e = btb_lookup(pc);
+    if (!e) {
+        e = btb_find_replacement(index);
+    }
+    e->valid = 1;
+    e->tag = tag;
+    e->target = target;
+    e->last_access_time = global_time;
+    e->insert_time = global_time;
+}
+
+/* 预测器辅助函数 */
+static inline int predict_from_counter(uint8_t c) { return c >= 2; }
+static inline void update_counter(uint8_t *c, int taken) {
+    if (taken) { if (*c < 3) (*c)++; }
+    else       { if (*c > 0) (*c)--; }
+}
+
+/* 处理分支 */
+static void handle_transfer(uint64_t from_pc, uint64_t to_pc) {
+    global_time++;
+    uint64_t fall_through = from_pc + CONFIG_INSTR_BYTES;
+    int is_taken = (to_pc != fall_through);
+
+    /* BTB 查询 */
+    BTBEntry *btb_entry = btb_lookup(from_pc);
+    int btb_hit = (btb_entry != NULL);
+
     int prediction = 0;
     switch (CONFIG_PRED_TYPE) {
-        case P_ALWAYS_T:
-            prediction = 1; break;
-        case P_ALWAYS_N:
-            prediction = 0; break;
-        case P_BIMODAL: {
-            uint32_t idx = get_index(from_pc);
-            prediction = predict_from_counter(pred_table[idx]);
+        case P_ALWAYS_T: prediction = 1; break;
+        case P_ALWAYS_N: prediction = 0; break;
+        case P_BTFN: prediction = (to_pc < from_pc); break;
+        case P_BIMODAL:
+        case P_GSHARE:
+            prediction = predict_from_counter(pred_table[get_pred_index(from_pc)]);
             break;
-        }
-        case P_GSHARE: {
-            uint32_t idx = get_index(from_pc);
-            prediction = predict_from_counter(pred_table[idx]);
-            break;
-        }
-        default:
-            prediction = 0; break;
     }
 
     /* 统计 */
     inst_counter++;
-    if (prediction == is_taken) correct_counter++;
-    else miss_counter++;
-
-    /* 更新表（除 Always 类型之外都要更新） */
-    if (CONFIG_PRED_TYPE == P_BIMODAL || CONFIG_PRED_TYPE == P_GSHARE) {
-        uint32_t idx = get_index(from_pc);
-        update_counter(&pred_table[idx], is_taken);
+    if (prediction == is_taken && (!is_taken || (btb_hit && btb_entry->target == to_pc))) {
+        correct_counter++;
+    } else {
+        miss_counter++;
     }
 
-    /* gshare 更新 global history */
+    /* 更新预测表 */
+    if (CONFIG_PRED_TYPE == P_BIMODAL || CONFIG_PRED_TYPE == P_GSHARE) {
+        update_counter(&pred_table[get_pred_index(from_pc)], is_taken);
+    }
+
+    /* 更新 BTB（仅 taken 分支存储目标） */
+    if (is_taken) {
+        btb_update(from_pc, to_pc);
+    }
+
 #if CONFIG_PRED_TYPE == P_GSHARE
-    {
-        if (CONFIG_GHIST_BITS > 0) {
-            ghist = ((ghist << 1) | (is_taken ? 1u : 0u)) & ((CONFIG_GHIST_BITS>=32) ? 0xFFFFFFFFu : ((1u<<CONFIG_GHIST_BITS)-1u));
-        } else {
-            ghist = 0;
-        }
+    if (CONFIG_GHIST_BITS > 0) {
+        ghist = ((ghist << 1) | (is_taken ? 1u : 0u)) &
+                ((CONFIG_GHIST_BITS >= 32) ? 0xFFFFFFFFu : ((1u << CONFIG_GHIST_BITS) - 1u));
     }
 #endif
 }
 
-/* 解析行：
-   支持形式：
-     f 0X3000000C: 0X30000010
-     f 0x3000000c: 0x30000010
-     0x3000000c  （若只有一个地址，则认为是顺序指令地址，不做分支预测）
-   我们将只对以 'f' 开始的行或含有两个 hex 值的行进行预测
-*/
+/* 处理 trace 文件 */
 static void process_trace_file(const char *filename) {
     FILE *f = fopen(filename, "r");
-    if (!f) {
-        perror("fopen");
-        exit(1);
-    }
+    if (!f) { perror("fopen"); exit(1); }
     char line[256];
-    while (fgets(line, sizeof(line), f) != NULL) {
-        /* 忽略空行与注释 */
+    while (fgets(line, sizeof(line), f)) {
         if (line[0] == '\n' || line[0] == '#') continue;
-
-        /* 尝试 parse 两个 hex 值 */
-        uint64_t from = 0, to = 0;
-        char ch;
-        //int got = 0;
-        /* 先尝试 'f %x : %x' 格式（兼容大小写 X） */
+        uint64_t from = 0, to = 0; char ch;
         if (sscanf(line, " %c %" SCNx64 " : %" SCNx64, &ch, &from, &to) == 3) {
-            if (ch == 'f' || ch == 'F') {
-                handle_transfer(from, to);
-                continue;
-            }
-        }
-        /* 再尝试两个 hex 并列的情况： '0x.. 0x..' */
-        if (sscanf(line, " %" SCNx64 " %" SCNx64, &from, &to) == 2) {
+            if (ch == 'f' || ch == 'F') handle_transfer(from, to);
+        } else if (sscanf(line, " %" SCNx64 " %" SCNx64, &from, &to) == 2) {
             handle_transfer(from, to);
-            continue;
         }
-        /* 若只是单个地址（或格式不匹配），跳过 */
     }
     fclose(f);
 }
 
-/* 外部接口：类似于 cachesim() 的函数名与行为 */
 void branchsim(void) {
     if (!pred_file) {
-        fprintf(stderr, "pred_file is NULL, set the global pred_file to trace path\n");
+        fprintf(stderr, "pred_file is NULL\n");
         return;
     }
     pred_init();
     process_trace_file(pred_file);
 
     printf("Trace: %s\n", pred_file);
-#if CONFIG_PRED_TYPE == P_BIMODAL
-    printf("Predictor: Bimodal (2-bit counters)\n");
-#elif CONFIG_PRED_TYPE == P_GSHARE
-    printf("Predictor: Gshare (ghist %d bits)\n", CONFIG_GHIST_BITS);
-#elif CONFIG_PRED_TYPE == P_ALWAYS_T
-    printf("Predictor: Always-Taken\n");
-#elif CONFIG_PRED_TYPE == P_ALWAYS_N
-    printf("Predictor: Always-Not\n");
-#else
-    printf("Predictor: Unknown\n");
-#endif
-
-    printf("Table entries: %d\n", CONFIG_TABLE_ENTRIES);
-    printf("Instr bytes assumed: %d\n", CONFIG_INSTR_BYTES);
-    printf("Total branch transfers considered: %.0f\n", inst_counter);
-    printf("Correct: %.0f\n", correct_counter);
-    printf("Mispred: %.0f\n", miss_counter);
-    double mr = inst_counter ? (miss_counter / inst_counter) : 0.0;
-    printf("Mispredict rate: %.6f\n", mr);
+    printf("Predictor: %d\n", CONFIG_PRED_TYPE);
+    printf("BTB: %d entries, %d-way, policy=%d\n", CONFIG_BTB_ENTRIES, CONFIG_BTB_WAY, CONFIG_BTB_POLICY);
+    printf("Branches: %.0f, Correct: %.0f, Mispred: %.0f, Mispredict rate: %.6f\n",
+           inst_counter, correct_counter, miss_counter,
+           inst_counter ? (miss_counter / inst_counter) : 0.0);
 }

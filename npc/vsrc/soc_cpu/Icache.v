@@ -100,13 +100,13 @@ module Icache(
   wire  _GEN_7 = 2'h2 == indexWire ? cacheValidReg_2_0 : _GEN_6; // @[src/main/scala/ifu/Icache.scala 39:{93,93}]
   wire  _GEN_8 = 2'h3 == indexWire ? cacheValidReg_3_0 : _GEN_7; // @[src/main/scala/ifu/Icache.scala 39:{93,93}]
   wire  hitVec_0 = _GEN_8 & _GEN_4 == tagWire; // @[src/main/scala/ifu/Icache.scala 39:93]
-  reg [4:0] state; // @[src/main/scala/ifu/Icache.scala 56:30]
+  reg [4:0] state; // @[src/main/scala/ifu/Icache.scala 47:30]
   reg [7:0] busrtCnt; // @[src/main/scala/ifu/Icache.scala 58:42]
   wire  _findEndWire_T = io_icache2Mem_rvalid & io_icache2Mem_rready; // @[src/main/scala/ifu/Icache.scala 60:53]
   wire [2:0] _findEndWire_T_4 = 3'h4 - 3'h1; // @[src/main/scala/ifu/Icache.scala 60:133]
-  wire [7:0] _GEN_455 = {{5'd0}, _findEndWire_T_4}; // @[src/main/scala/ifu/Icache.scala 60:110]
-  wire  _findEndWire_T_5 = busrtCnt == _GEN_455; // @[src/main/scala/ifu/Icache.scala 60:110]
-  wire  findEndWire = io_icache2Mem_rvalid & io_icache2Mem_rready & io_icache2Mem_rlast & busrtCnt == _GEN_455; // @[src/main/scala/ifu/Icache.scala 60:98]
+  wire [7:0] _GEN_123 = {{5'd0}, _findEndWire_T_4}; // @[src/main/scala/ifu/Icache.scala 60:110]
+  wire  _findEndWire_T_5 = busrtCnt == _GEN_123; // @[src/main/scala/ifu/Icache.scala 60:110]
+  wire  findEndWire = io_icache2Mem_rvalid & io_icache2Mem_rready & io_icache2Mem_rlast & busrtCnt == _GEN_123; // @[src/main/scala/ifu/Icache.scala 60:98]
   wire  isSdram = addrReg[31:28] >= 4'ha; // @[src/main/scala/ifu/Icache.scala 64:43]
   wire [1:0] _state_T = io_enable ? 2'h2 : 2'h1; // @[src/main/scala/ifu/Icache.scala 66:27]
   wire [3:0] _state_T_1 = isSdram ? 4'h8 : 4'h4; // @[src/main/scala/ifu/Icache.scala 67:48]
@@ -127,32 +127,32 @@ module Icache(
   reg  rreadyReg; // @[src/main/scala/ifu/Icache.scala 93:42]
   wire [31:0] _io_icache2Mem_araddr_T_1 = {addrReg[31:4],4'h0}; // @[src/main/scala/ifu/Icache.scala 118:52]
   wire [9:0] _io_icache2Mem_araddr_T_4 = {busrtCnt, 2'h0}; // @[src/main/scala/ifu/Icache.scala 118:120]
-  wire [31:0] _GEN_456 = {{22'd0}, _io_icache2Mem_araddr_T_4}; // @[src/main/scala/ifu/Icache.scala 118:108]
-  wire [31:0] _io_icache2Mem_araddr_T_6 = _io_icache2Mem_araddr_T_1 + _GEN_456; // @[src/main/scala/ifu/Icache.scala 118:108]
-  wire  _GEN_457 = 2'h0 == indexWire; // @[src/main/scala/ifu/Icache.scala 133:{62,62} 31:50]
-  wire  _GEN_465 = 2'h1 == indexWire; // @[src/main/scala/ifu/Icache.scala 133:{62,62} 31:50]
-  wire  _GEN_473 = 2'h2 == indexWire; // @[src/main/scala/ifu/Icache.scala 133:{62,62} 31:50]
-  wire  _GEN_481 = 2'h3 == indexWire; // @[src/main/scala/ifu/Icache.scala 133:{62,62} 31:50]
+  wire [31:0] _GEN_124 = {{22'd0}, _io_icache2Mem_araddr_T_4}; // @[src/main/scala/ifu/Icache.scala 118:108]
+  wire [31:0] _io_icache2Mem_araddr_T_6 = _io_icache2Mem_araddr_T_1 + _GEN_124; // @[src/main/scala/ifu/Icache.scala 118:108]
+  wire  _GEN_125 = 2'h0 == indexWire; // @[src/main/scala/ifu/Icache.scala 133:{62,62} 31:50]
+  wire  _GEN_133 = 2'h1 == indexWire; // @[src/main/scala/ifu/Icache.scala 133:{62,62} 31:50]
+  wire  _GEN_141 = 2'h2 == indexWire; // @[src/main/scala/ifu/Icache.scala 133:{62,62} 31:50]
+  wire  _GEN_149 = 2'h3 == indexWire; // @[src/main/scala/ifu/Icache.scala 133:{62,62} 31:50]
   wire [7:0] _busrtCnt_T_1 = busrtCnt + 8'h1; // @[src/main/scala/ifu/Icache.scala 137:46]
-  wire  _cacheValidReg_T_2 = tagWire == _GEN_4 & _GEN_8; // @[src/main/scala/ifu/Icache.scala 149:28]
-  wire  _GEN_211 = 2'h0 == indexWire ? findEndWire : cacheValidReg_0_0; // @[src/main/scala/ifu/Icache.scala 150:{89,89} 29:42]
-  wire  _GEN_215 = 2'h1 == indexWire ? findEndWire : cacheValidReg_1_0; // @[src/main/scala/ifu/Icache.scala 150:{89,89} 29:42]
-  wire  _GEN_219 = 2'h2 == indexWire ? findEndWire : cacheValidReg_2_0; // @[src/main/scala/ifu/Icache.scala 150:{89,89} 29:42]
-  wire  _GEN_223 = 2'h3 == indexWire ? findEndWire : cacheValidReg_3_0; // @[src/main/scala/ifu/Icache.scala 150:{89,89} 29:42]
-  wire  _GEN_243 = _state_T_11 ? _GEN_211 : cacheValidReg_0_0; // @[src/main/scala/ifu/Icache.scala 147:31 29:42]
-  wire  _GEN_247 = _state_T_11 ? _GEN_215 : cacheValidReg_1_0; // @[src/main/scala/ifu/Icache.scala 147:31 29:42]
-  wire  _GEN_251 = _state_T_11 ? _GEN_219 : cacheValidReg_2_0; // @[src/main/scala/ifu/Icache.scala 147:31 29:42]
-  wire  _GEN_255 = _state_T_11 ? _GEN_223 : cacheValidReg_3_0; // @[src/main/scala/ifu/Icache.scala 147:31 29:42]
-  wire [25:0] _GEN_307 = 2'h0 == indexWire ? tagWire : tagReg_0_0; // @[src/main/scala/ifu/Icache.scala 155:{58,58} 30:42]
-  wire [25:0] _GEN_311 = 2'h1 == indexWire ? tagWire : tagReg_1_0; // @[src/main/scala/ifu/Icache.scala 155:{58,58} 30:42]
-  wire [25:0] _GEN_315 = 2'h2 == indexWire ? tagWire : tagReg_2_0; // @[src/main/scala/ifu/Icache.scala 155:{58,58} 30:42]
-  wire [25:0] _GEN_319 = 2'h3 == indexWire ? tagWire : tagReg_3_0; // @[src/main/scala/ifu/Icache.scala 155:{58,58} 30:42]
+  wire  _cacheValidReg_0_T_2 = tagWire == _GEN_4 & _GEN_8; // @[src/main/scala/ifu/Icache.scala 149:28]
+  wire  _GEN_47 = 2'h0 == indexWire ? findEndWire : cacheValidReg_0_0; // @[src/main/scala/ifu/Icache.scala 150:{89,89} 29:42]
+  wire  _GEN_48 = 2'h1 == indexWire ? findEndWire : cacheValidReg_1_0; // @[src/main/scala/ifu/Icache.scala 150:{89,89} 29:42]
+  wire  _GEN_49 = 2'h2 == indexWire ? findEndWire : cacheValidReg_2_0; // @[src/main/scala/ifu/Icache.scala 150:{89,89} 29:42]
+  wire  _GEN_50 = 2'h3 == indexWire ? findEndWire : cacheValidReg_3_0; // @[src/main/scala/ifu/Icache.scala 150:{89,89} 29:42]
+  wire  _GEN_55 = _state_T_11 ? _GEN_47 : cacheValidReg_0_0; // @[src/main/scala/ifu/Icache.scala 147:31 29:42]
+  wire  _GEN_56 = _state_T_11 ? _GEN_48 : cacheValidReg_1_0; // @[src/main/scala/ifu/Icache.scala 147:31 29:42]
+  wire  _GEN_57 = _state_T_11 ? _GEN_49 : cacheValidReg_2_0; // @[src/main/scala/ifu/Icache.scala 147:31 29:42]
+  wire  _GEN_58 = _state_T_11 ? _GEN_50 : cacheValidReg_3_0; // @[src/main/scala/ifu/Icache.scala 147:31 29:42]
+  wire [25:0] _GEN_71 = 2'h0 == indexWire ? tagWire : tagReg_0_0; // @[src/main/scala/ifu/Icache.scala 155:{58,58} 30:42]
+  wire [25:0] _GEN_72 = 2'h1 == indexWire ? tagWire : tagReg_1_0; // @[src/main/scala/ifu/Icache.scala 155:{58,58} 30:42]
+  wire [25:0] _GEN_73 = 2'h2 == indexWire ? tagWire : tagReg_2_0; // @[src/main/scala/ifu/Icache.scala 155:{58,58} 30:42]
+  wire [25:0] _GEN_74 = 2'h3 == indexWire ? tagWire : tagReg_3_0; // @[src/main/scala/ifu/Icache.scala 155:{58,58} 30:42]
   wire [2:0] _arlenReg_T_2 = isSdram ? _findEndWire_T_4 : 3'h0; // @[src/main/scala/ifu/Icache.scala 161:47]
   wire  _T_16 = io_icache2Mem_arvalid & io_icache2Mem_arready; // @[src/main/scala/ifu/Icache.scala 164:53]
-  wire  _GEN_371 = _findEndWire_T & busrtCnt < _GEN_455 | arvalidReg; // @[src/main/scala/ifu/Icache.scala 166:122 167:44 87:42]
-  wire  _GEN_373 = _T_16 ? 1'h0 : arvalidReg; // @[src/main/scala/ifu/Icache.scala 171:78 172:44 87:42]
-  wire  _GEN_380 = breadyReg ? ~io_icache2Mem_bvalid : breadyReg; // @[src/main/scala/ifu/Icache.scala 180:27 182:37 85:42]
-  wire  _GEN_381 = ~breadyReg ? io_icache2Mem_bvalid : _GEN_380; // @[src/main/scala/ifu/Icache.scala 180:27 181:37]
+  wire  _GEN_87 = _findEndWire_T & busrtCnt < _GEN_123 | arvalidReg; // @[src/main/scala/ifu/Icache.scala 166:122 167:44 87:42]
+  wire  _GEN_89 = _T_16 ? 1'h0 : arvalidReg; // @[src/main/scala/ifu/Icache.scala 171:78 172:44 87:42]
+  wire  _GEN_96 = breadyReg ? ~io_icache2Mem_bvalid : breadyReg; // @[src/main/scala/ifu/Icache.scala 180:27 182:37 85:42]
+  wire  _GEN_97 = ~breadyReg ? io_icache2Mem_bvalid : _GEN_96; // @[src/main/scala/ifu/Icache.scala 180:27 181:37]
   reg [31:0] accessTimeCounter; // @[src/main/scala/ifu/Icache.scala 192:50]
   reg [31:0] missPenaltyCounter; // @[src/main/scala/ifu/Icache.scala 193:50]
   reg  hitReg; // @[src/main/scala/ifu/Icache.scala 196:66]
@@ -160,22 +160,22 @@ module Icache(
   wire [31:0] _missPenaltyCounter_T_2 = findEndWire ? 32'h0 : _missPenaltyCounter_T_1; // @[src/main/scala/ifu/Icache.scala 206:42]
   reg  oValidReg; // @[src/main/scala/ifu/Icache.scala 223:34]
   reg [31:0] rdataReg; // @[src/main/scala/ifu/Icache.scala 224:36]
-  wire  _GEN_387 = _state_T_11 ? findEndWire : oValidReg; // @[src/main/scala/ifu/Icache.scala 225:23 223:34 236:35]
-  wire [31:0] _GEN_392 = _GEN_457 & 2'h1 == offsetWire ? cache_0_0_1 : cache_0_0_0; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
-  wire [31:0] _GEN_393 = _GEN_457 & 2'h2 == offsetWire ? cache_0_0_2 : _GEN_392; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
-  wire [31:0] _GEN_394 = _GEN_457 & 2'h3 == offsetWire ? cache_0_0_3 : _GEN_393; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
-  wire [31:0] _GEN_407 = _GEN_465 & 2'h0 == offsetWire ? cache_1_0_0 : _GEN_394; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
-  wire [31:0] _GEN_408 = _GEN_465 & 2'h1 == offsetWire ? cache_1_0_1 : _GEN_407; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
-  wire [31:0] _GEN_409 = _GEN_465 & 2'h2 == offsetWire ? cache_1_0_2 : _GEN_408; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
-  wire [31:0] _GEN_410 = _GEN_465 & 2'h3 == offsetWire ? cache_1_0_3 : _GEN_409; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
-  wire [31:0] _GEN_423 = _GEN_473 & 2'h0 == offsetWire ? cache_2_0_0 : _GEN_410; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
-  wire [31:0] _GEN_424 = _GEN_473 & 2'h1 == offsetWire ? cache_2_0_1 : _GEN_423; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
-  wire [31:0] _GEN_425 = _GEN_473 & 2'h2 == offsetWire ? cache_2_0_2 : _GEN_424; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
-  wire [31:0] _GEN_426 = _GEN_473 & 2'h3 == offsetWire ? cache_2_0_3 : _GEN_425; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
-  wire [31:0] _GEN_439 = _GEN_481 & 2'h0 == offsetWire ? cache_3_0_0 : _GEN_426; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
-  wire [31:0] _GEN_440 = _GEN_481 & 2'h1 == offsetWire ? cache_3_0_1 : _GEN_439; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
-  wire [31:0] _GEN_441 = _GEN_481 & 2'h2 == offsetWire ? cache_3_0_2 : _GEN_440; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
-  wire [31:0] _GEN_442 = _GEN_481 & 2'h3 == offsetWire ? cache_3_0_3 : _GEN_441; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
+  wire  _GEN_103 = _state_T_11 ? findEndWire : oValidReg; // @[src/main/scala/ifu/Icache.scala 225:23 223:34 236:35]
+  wire [31:0] _GEN_108 = _GEN_125 & 2'h1 == offsetWire ? cache_0_0_1 : cache_0_0_0; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
+  wire [31:0] _GEN_109 = _GEN_125 & 2'h2 == offsetWire ? cache_0_0_2 : _GEN_108; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
+  wire [31:0] _GEN_110 = _GEN_125 & 2'h3 == offsetWire ? cache_0_0_3 : _GEN_109; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
+  wire [31:0] _GEN_111 = _GEN_133 & 2'h0 == offsetWire ? cache_1_0_0 : _GEN_110; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
+  wire [31:0] _GEN_112 = _GEN_133 & 2'h1 == offsetWire ? cache_1_0_1 : _GEN_111; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
+  wire [31:0] _GEN_113 = _GEN_133 & 2'h2 == offsetWire ? cache_1_0_2 : _GEN_112; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
+  wire [31:0] _GEN_114 = _GEN_133 & 2'h3 == offsetWire ? cache_1_0_3 : _GEN_113; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
+  wire [31:0] _GEN_115 = _GEN_141 & 2'h0 == offsetWire ? cache_2_0_0 : _GEN_114; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
+  wire [31:0] _GEN_116 = _GEN_141 & 2'h1 == offsetWire ? cache_2_0_1 : _GEN_115; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
+  wire [31:0] _GEN_117 = _GEN_141 & 2'h2 == offsetWire ? cache_2_0_2 : _GEN_116; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
+  wire [31:0] _GEN_118 = _GEN_141 & 2'h3 == offsetWire ? cache_2_0_3 : _GEN_117; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
+  wire [31:0] _GEN_119 = _GEN_149 & 2'h0 == offsetWire ? cache_3_0_0 : _GEN_118; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
+  wire [31:0] _GEN_120 = _GEN_149 & 2'h1 == offsetWire ? cache_3_0_1 : _GEN_119; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
+  wire [31:0] _GEN_121 = _GEN_149 & 2'h2 == offsetWire ? cache_3_0_2 : _GEN_120; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
+  wire [31:0] _GEN_122 = _GEN_149 & 2'h3 == offsetWire ? cache_3_0_3 : _GEN_121; // @[src/main/scala/ifu/Icache.scala 241:{22,22}]
   AXIAccessFault axiAccessFault ( // @[src/main/scala/ifu/Icache.scala 185:44]
     .valid(axiAccessFault_valid),
     .ready(axiAccessFault_ready),
@@ -191,7 +191,7 @@ module Icache(
     .counterType(MPC_counterType),
     .data(MPC_data)
   );
-  assign io_inst = state != 5'h2 & findEndWire & offsetWire == 2'h3 ? rdataReg : _GEN_442; // @[src/main/scala/ifu/Icache.scala 241:22]
+  assign io_inst = state != 5'h2 & findEndWire & offsetWire == 2'h3 ? rdataReg : _GEN_122; // @[src/main/scala/ifu/Icache.scala 241:22]
   assign io_oEnable = oValidReg; // @[src/main/scala/ifu/Icache.scala 240:16]
   assign io_icache2Mem_bready = breadyReg; // @[src/main/scala/ifu/Icache.scala 111:33]
   assign io_icache2Mem_arvalid = arvalidReg; // @[src/main/scala/ifu/Icache.scala 117:33]
@@ -214,12 +214,12 @@ module Icache(
       cacheValidReg_0_0 <= 1'h0; // @[src/main/scala/ifu/Icache.scala 143:49]
     end else if (_state_T_7) begin // @[src/main/scala/ifu/Icache.scala 147:31]
       if (2'h0 == indexWire) begin // @[src/main/scala/ifu/Icache.scala 148:81]
-        cacheValidReg_0_0 <= _cacheValidReg_T_2; // @[src/main/scala/ifu/Icache.scala 148:81]
+        cacheValidReg_0_0 <= _cacheValidReg_0_T_2; // @[src/main/scala/ifu/Icache.scala 148:81]
       end
     end else if (_state_T_9) begin // @[src/main/scala/ifu/Icache.scala 147:31]
-      cacheValidReg_0_0 <= _GEN_211;
+      cacheValidReg_0_0 <= _GEN_47;
     end else begin
-      cacheValidReg_0_0 <= _GEN_243;
+      cacheValidReg_0_0 <= _GEN_55;
     end
     if (reset) begin // @[src/main/scala/ifu/Icache.scala 29:42]
       cacheValidReg_1_0 <= 1'h0; // @[src/main/scala/ifu/Icache.scala 29:42]
@@ -227,12 +227,12 @@ module Icache(
       cacheValidReg_1_0 <= 1'h0; // @[src/main/scala/ifu/Icache.scala 143:49]
     end else if (_state_T_7) begin // @[src/main/scala/ifu/Icache.scala 147:31]
       if (2'h1 == indexWire) begin // @[src/main/scala/ifu/Icache.scala 148:81]
-        cacheValidReg_1_0 <= _cacheValidReg_T_2; // @[src/main/scala/ifu/Icache.scala 148:81]
+        cacheValidReg_1_0 <= _cacheValidReg_0_T_2; // @[src/main/scala/ifu/Icache.scala 148:81]
       end
     end else if (_state_T_9) begin // @[src/main/scala/ifu/Icache.scala 147:31]
-      cacheValidReg_1_0 <= _GEN_215;
+      cacheValidReg_1_0 <= _GEN_48;
     end else begin
-      cacheValidReg_1_0 <= _GEN_247;
+      cacheValidReg_1_0 <= _GEN_56;
     end
     if (reset) begin // @[src/main/scala/ifu/Icache.scala 29:42]
       cacheValidReg_2_0 <= 1'h0; // @[src/main/scala/ifu/Icache.scala 29:42]
@@ -240,12 +240,12 @@ module Icache(
       cacheValidReg_2_0 <= 1'h0; // @[src/main/scala/ifu/Icache.scala 143:49]
     end else if (_state_T_7) begin // @[src/main/scala/ifu/Icache.scala 147:31]
       if (2'h2 == indexWire) begin // @[src/main/scala/ifu/Icache.scala 148:81]
-        cacheValidReg_2_0 <= _cacheValidReg_T_2; // @[src/main/scala/ifu/Icache.scala 148:81]
+        cacheValidReg_2_0 <= _cacheValidReg_0_T_2; // @[src/main/scala/ifu/Icache.scala 148:81]
       end
     end else if (_state_T_9) begin // @[src/main/scala/ifu/Icache.scala 147:31]
-      cacheValidReg_2_0 <= _GEN_219;
+      cacheValidReg_2_0 <= _GEN_49;
     end else begin
-      cacheValidReg_2_0 <= _GEN_251;
+      cacheValidReg_2_0 <= _GEN_57;
     end
     if (reset) begin // @[src/main/scala/ifu/Icache.scala 29:42]
       cacheValidReg_3_0 <= 1'h0; // @[src/main/scala/ifu/Icache.scala 29:42]
@@ -253,40 +253,40 @@ module Icache(
       cacheValidReg_3_0 <= 1'h0; // @[src/main/scala/ifu/Icache.scala 143:49]
     end else if (_state_T_7) begin // @[src/main/scala/ifu/Icache.scala 147:31]
       if (2'h3 == indexWire) begin // @[src/main/scala/ifu/Icache.scala 148:81]
-        cacheValidReg_3_0 <= _cacheValidReg_T_2; // @[src/main/scala/ifu/Icache.scala 148:81]
+        cacheValidReg_3_0 <= _cacheValidReg_0_T_2; // @[src/main/scala/ifu/Icache.scala 148:81]
       end
     end else if (_state_T_9) begin // @[src/main/scala/ifu/Icache.scala 147:31]
-      cacheValidReg_3_0 <= _GEN_223;
+      cacheValidReg_3_0 <= _GEN_50;
     end else begin
-      cacheValidReg_3_0 <= _GEN_255;
+      cacheValidReg_3_0 <= _GEN_58;
     end
     if (reset) begin // @[src/main/scala/ifu/Icache.scala 30:42]
       tagReg_0_0 <= 26'h0; // @[src/main/scala/ifu/Icache.scala 30:42]
     end else if (_state_T_9) begin // @[src/main/scala/ifu/Icache.scala 154:23]
-      tagReg_0_0 <= _GEN_307;
+      tagReg_0_0 <= _GEN_71;
     end else if (_state_T_11) begin // @[src/main/scala/ifu/Icache.scala 154:23]
-      tagReg_0_0 <= _GEN_307;
+      tagReg_0_0 <= _GEN_71;
     end
     if (reset) begin // @[src/main/scala/ifu/Icache.scala 30:42]
       tagReg_1_0 <= 26'h0; // @[src/main/scala/ifu/Icache.scala 30:42]
     end else if (_state_T_9) begin // @[src/main/scala/ifu/Icache.scala 154:23]
-      tagReg_1_0 <= _GEN_311;
+      tagReg_1_0 <= _GEN_72;
     end else if (_state_T_11) begin // @[src/main/scala/ifu/Icache.scala 154:23]
-      tagReg_1_0 <= _GEN_311;
+      tagReg_1_0 <= _GEN_72;
     end
     if (reset) begin // @[src/main/scala/ifu/Icache.scala 30:42]
       tagReg_2_0 <= 26'h0; // @[src/main/scala/ifu/Icache.scala 30:42]
     end else if (_state_T_9) begin // @[src/main/scala/ifu/Icache.scala 154:23]
-      tagReg_2_0 <= _GEN_315;
+      tagReg_2_0 <= _GEN_73;
     end else if (_state_T_11) begin // @[src/main/scala/ifu/Icache.scala 154:23]
-      tagReg_2_0 <= _GEN_315;
+      tagReg_2_0 <= _GEN_73;
     end
     if (reset) begin // @[src/main/scala/ifu/Icache.scala 30:42]
       tagReg_3_0 <= 26'h0; // @[src/main/scala/ifu/Icache.scala 30:42]
     end else if (_state_T_9) begin // @[src/main/scala/ifu/Icache.scala 154:23]
-      tagReg_3_0 <= _GEN_319;
+      tagReg_3_0 <= _GEN_74;
     end else if (_state_T_11) begin // @[src/main/scala/ifu/Icache.scala 154:23]
-      tagReg_3_0 <= _GEN_319;
+      tagReg_3_0 <= _GEN_74;
     end
     if (reset) begin // @[src/main/scala/ifu/Icache.scala 31:50]
       cache_0_0_0 <= 32'h0; // @[src/main/scala/ifu/Icache.scala 31:50]
@@ -403,8 +403,8 @@ module Icache(
     if (io_enable) begin // @[src/main/scala/ifu/Icache.scala 33:36]
       addrReg <= io_addr; // @[src/main/scala/ifu/Icache.scala 33:36]
     end
-    if (reset) begin // @[src/main/scala/ifu/Icache.scala 56:30]
-      state <= 5'h1; // @[src/main/scala/ifu/Icache.scala 56:30]
+    if (reset) begin // @[src/main/scala/ifu/Icache.scala 47:30]
+      state <= 5'h1; // @[src/main/scala/ifu/Icache.scala 47:30]
     end else begin
       state <= {{1'd0}, _state_T_12}; // @[src/main/scala/ifu/Icache.scala 65:11]
     end
@@ -417,7 +417,7 @@ module Icache(
         busrtCnt <= _busrtCnt_T_1; // @[src/main/scala/ifu/Icache.scala 137:34]
       end
     end
-    breadyReg <= reset | _GEN_381; // @[src/main/scala/ifu/Icache.scala 85:{42,42}]
+    breadyReg <= reset | _GEN_97; // @[src/main/scala/ifu/Icache.scala 85:{42,42}]
     if (reset) begin // @[src/main/scala/ifu/Icache.scala 87:42]
       arvalidReg <= 1'h0; // @[src/main/scala/ifu/Icache.scala 87:42]
     end else if (_state_T_7) begin // @[src/main/scala/ifu/Icache.scala 158:19]
@@ -426,10 +426,10 @@ module Icache(
       if (io_icache2Mem_arvalid & io_icache2Mem_arready) begin // @[src/main/scala/ifu/Icache.scala 164:78]
         arvalidReg <= 1'h0; // @[src/main/scala/ifu/Icache.scala 165:44]
       end else begin
-        arvalidReg <= _GEN_371;
+        arvalidReg <= _GEN_87;
       end
     end else if (_state_T_11) begin // @[src/main/scala/ifu/Icache.scala 158:19]
-      arvalidReg <= _GEN_373;
+      arvalidReg <= _GEN_89;
     end
     if (reset) begin // @[src/main/scala/ifu/Icache.scala 89:42]
       arlenReg <= 8'h0; // @[src/main/scala/ifu/Icache.scala 89:42]
@@ -469,7 +469,7 @@ module Icache(
     end else if (_state_T_9) begin // @[src/main/scala/ifu/Icache.scala 225:23]
       oValidReg <= findEndWire; // @[src/main/scala/ifu/Icache.scala 233:35]
     end else begin
-      oValidReg <= _GEN_387;
+      oValidReg <= _GEN_103;
     end
     if (findEndWire) begin // @[src/main/scala/ifu/Icache.scala 224:36]
       rdataReg <= io_icache2Mem_rdata; // @[src/main/scala/ifu/Icache.scala 224:36]
