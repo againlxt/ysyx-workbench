@@ -1,6 +1,6 @@
 #include <common.h>
-#define PRED 1
-// #define CACHE 1
+// #define PRED 1
+#define CACHE 1
 extern char *cachesim_file;
 extern char *pred_file;
 extern void cachesim();
