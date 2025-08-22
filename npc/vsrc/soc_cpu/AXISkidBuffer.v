@@ -1,5 +1,4 @@
 module AXISkidBuffer(
-  output        io_axiMaster_bready, // @[src/main/scala/basemode/Memory.scala 651:16]
   input         io_axiMaster_bvalid, // @[src/main/scala/basemode/Memory.scala 651:16]
   input  [1:0]  io_axiMaster_bresp, // @[src/main/scala/basemode/Memory.scala 651:16]
   input         io_axiMaster_arready, // @[src/main/scala/basemode/Memory.scala 651:16]
@@ -10,7 +9,6 @@ module AXISkidBuffer(
   input         io_axiMaster_rvalid, // @[src/main/scala/basemode/Memory.scala 651:16]
   input  [31:0] io_axiMaster_rdata, // @[src/main/scala/basemode/Memory.scala 651:16]
   input         io_axiMaster_rlast, // @[src/main/scala/basemode/Memory.scala 651:16]
-  input         io_axiSlave_bready, // @[src/main/scala/basemode/Memory.scala 651:16]
   output        io_axiSlave_bvalid, // @[src/main/scala/basemode/Memory.scala 651:16]
   output [1:0]  io_axiSlave_bresp, // @[src/main/scala/basemode/Memory.scala 651:16]
   output        io_axiSlave_arready, // @[src/main/scala/basemode/Memory.scala 651:16]
@@ -22,7 +20,6 @@ module AXISkidBuffer(
   output [31:0] io_axiSlave_rdata, // @[src/main/scala/basemode/Memory.scala 651:16]
   output        io_axiSlave_rlast // @[src/main/scala/basemode/Memory.scala 651:16]
 );
-  assign io_axiMaster_bready = io_axiSlave_bready; // @[src/main/scala/basemode/Memory.scala 722:37]
   assign io_axiMaster_arvalid = io_axiSlave_arvalid; // @[src/main/scala/basemode/Memory.scala 748:37]
   assign io_axiMaster_araddr = io_axiSlave_araddr; // @[src/main/scala/basemode/Memory.scala 749:37]
   assign io_axiMaster_arlen = io_axiSlave_arlen; // @[src/main/scala/basemode/Memory.scala 751:37]

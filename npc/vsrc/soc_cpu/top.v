@@ -348,7 +348,6 @@ module top(
   wire [31:0] wbu_io_correctPC; // @[src/main/scala/Main.scala 39:49]
   wire  xbarAXI_clock; // @[src/main/scala/Main.scala 40:49]
   wire  xbarAXI_reset; // @[src/main/scala/Main.scala 40:49]
-  wire  xbarAXI_io_axiSlaveIFU_bready; // @[src/main/scala/Main.scala 40:49]
   wire  xbarAXI_io_axiSlaveIFU_bvalid; // @[src/main/scala/Main.scala 40:49]
   wire [1:0] xbarAXI_io_axiSlaveIFU_bresp; // @[src/main/scala/Main.scala 40:49]
   wire  xbarAXI_io_axiSlaveIFU_arready; // @[src/main/scala/Main.scala 40:49]
@@ -411,7 +410,6 @@ module top(
   wire  xbarAXI_io_axiLiteClint_wReady; // @[src/main/scala/Main.scala 40:49]
   wire  xbarAXI_io_axiLiteClint_bValid; // @[src/main/scala/Main.scala 40:49]
   wire  xbarAXI_io_axiLiteClint_bReady; // @[src/main/scala/Main.scala 40:49]
-  wire  icacheSkidBuffer_io_axiMaster_bready; // @[src/main/scala/Main.scala 41:37]
   wire  icacheSkidBuffer_io_axiMaster_bvalid; // @[src/main/scala/Main.scala 41:37]
   wire [1:0] icacheSkidBuffer_io_axiMaster_bresp; // @[src/main/scala/Main.scala 41:37]
   wire  icacheSkidBuffer_io_axiMaster_arready; // @[src/main/scala/Main.scala 41:37]
@@ -422,7 +420,6 @@ module top(
   wire  icacheSkidBuffer_io_axiMaster_rvalid; // @[src/main/scala/Main.scala 41:37]
   wire [31:0] icacheSkidBuffer_io_axiMaster_rdata; // @[src/main/scala/Main.scala 41:37]
   wire  icacheSkidBuffer_io_axiMaster_rlast; // @[src/main/scala/Main.scala 41:37]
-  wire  icacheSkidBuffer_io_axiSlave_bready; // @[src/main/scala/Main.scala 41:37]
   wire  icacheSkidBuffer_io_axiSlave_bvalid; // @[src/main/scala/Main.scala 41:37]
   wire [1:0] icacheSkidBuffer_io_axiSlave_bresp; // @[src/main/scala/Main.scala 41:37]
   wire  icacheSkidBuffer_io_axiSlave_arready; // @[src/main/scala/Main.scala 41:37]
@@ -442,7 +439,6 @@ module top(
   wire  icache_io_icache2IFU_valid; // @[src/main/scala/Main.scala 49:28]
   wire [31:0] icache_io_icache2IFU_bits_pc; // @[src/main/scala/Main.scala 49:28]
   wire [31:0] icache_io_icache2IFU_bits_inst; // @[src/main/scala/Main.scala 49:28]
-  wire  icache_io_icache2Mem_bready; // @[src/main/scala/Main.scala 49:28]
   wire  icache_io_icache2Mem_bvalid; // @[src/main/scala/Main.scala 49:28]
   wire [1:0] icache_io_icache2Mem_bresp; // @[src/main/scala/Main.scala 49:28]
   wire  icache_io_icache2Mem_arready; // @[src/main/scala/Main.scala 49:28]
@@ -858,7 +854,6 @@ module top(
   XbarAXI xbarAXI ( // @[src/main/scala/Main.scala 40:49]
     .clock(xbarAXI_clock),
     .reset(xbarAXI_reset),
-    .io_axiSlaveIFU_bready(xbarAXI_io_axiSlaveIFU_bready),
     .io_axiSlaveIFU_bvalid(xbarAXI_io_axiSlaveIFU_bvalid),
     .io_axiSlaveIFU_bresp(xbarAXI_io_axiSlaveIFU_bresp),
     .io_axiSlaveIFU_arready(xbarAXI_io_axiSlaveIFU_arready),
@@ -923,7 +918,6 @@ module top(
     .io_axiLiteClint_bReady(xbarAXI_io_axiLiteClint_bReady)
   );
   AXISkidBuffer icacheSkidBuffer ( // @[src/main/scala/Main.scala 41:37]
-    .io_axiMaster_bready(icacheSkidBuffer_io_axiMaster_bready),
     .io_axiMaster_bvalid(icacheSkidBuffer_io_axiMaster_bvalid),
     .io_axiMaster_bresp(icacheSkidBuffer_io_axiMaster_bresp),
     .io_axiMaster_arready(icacheSkidBuffer_io_axiMaster_arready),
@@ -934,7 +928,6 @@ module top(
     .io_axiMaster_rvalid(icacheSkidBuffer_io_axiMaster_rvalid),
     .io_axiMaster_rdata(icacheSkidBuffer_io_axiMaster_rdata),
     .io_axiMaster_rlast(icacheSkidBuffer_io_axiMaster_rlast),
-    .io_axiSlave_bready(icacheSkidBuffer_io_axiSlave_bready),
     .io_axiSlave_bvalid(icacheSkidBuffer_io_axiSlave_bvalid),
     .io_axiSlave_bresp(icacheSkidBuffer_io_axiSlave_bresp),
     .io_axiSlave_arready(icacheSkidBuffer_io_axiSlave_arready),
@@ -946,7 +939,7 @@ module top(
     .io_axiSlave_rdata(icacheSkidBuffer_io_axiSlave_rdata),
     .io_axiSlave_rlast(icacheSkidBuffer_io_axiSlave_rlast)
   );
-  Icache icache ( // @[src/main/scala/Main.scala 49:28]
+  IcachePipe icache ( // @[src/main/scala/Main.scala 49:28]
     .clock(icache_clock),
     .reset(icache_reset),
     .io_ifu2ICache_ready(icache_io_ifu2ICache_ready),
@@ -956,7 +949,6 @@ module top(
     .io_icache2IFU_valid(icache_io_icache2IFU_valid),
     .io_icache2IFU_bits_pc(icache_io_icache2IFU_bits_pc),
     .io_icache2IFU_bits_inst(icache_io_icache2IFU_bits_inst),
-    .io_icache2Mem_bready(icache_io_icache2Mem_bready),
     .io_icache2Mem_bvalid(icache_io_icache2Mem_bvalid),
     .io_icache2Mem_bresp(icache_io_icache2Mem_bresp),
     .io_icache2Mem_arready(icache_io_icache2Mem_arready),
@@ -1031,17 +1023,17 @@ module top(
   assign io_master_arsize = xbarAXI_io_axiMasterDevice_arsize; // @[src/main/scala/Main.scala 205:36]
   assign io_master_arburst = 2'h1; // @[src/main/scala/Main.scala 205:36]
   assign io_master_rready = xbarAXI_io_axiMasterDevice_rready; // @[src/main/scala/Main.scala 205:36]
-  assign io_slave_awready = 1'h0; // @[src/main/scala/basemode/Interface.scala 233:21]
-  assign io_slave_wready = 1'h0; // @[src/main/scala/basemode/Interface.scala 235:20]
-  assign io_slave_bvalid = 1'h0; // @[src/main/scala/basemode/Interface.scala 237:20]
-  assign io_slave_bresp = 2'h0; // @[src/main/scala/basemode/Interface.scala 238:19]
-  assign io_slave_bid = 4'h0; // @[src/main/scala/basemode/Interface.scala 239:17]
-  assign io_slave_arready = 1'h0; // @[src/main/scala/basemode/Interface.scala 241:21]
-  assign io_slave_rvalid = 1'h0; // @[src/main/scala/basemode/Interface.scala 243:20]
-  assign io_slave_rresp = 2'h0; // @[src/main/scala/basemode/Interface.scala 244:19]
-  assign io_slave_rdata = 32'h0; // @[src/main/scala/basemode/Interface.scala 245:19]
-  assign io_slave_rlast = 1'h0; // @[src/main/scala/basemode/Interface.scala 246:19]
-  assign io_slave_rid = 4'h0; // @[src/main/scala/basemode/Interface.scala 247:17]
+  assign io_slave_awready = 1'h0; // @[src/main/scala/basemode/Interface.scala 279:21]
+  assign io_slave_wready = 1'h0; // @[src/main/scala/basemode/Interface.scala 281:20]
+  assign io_slave_bvalid = 1'h0; // @[src/main/scala/basemode/Interface.scala 283:20]
+  assign io_slave_bresp = 2'h0; // @[src/main/scala/basemode/Interface.scala 284:19]
+  assign io_slave_bid = 4'h0; // @[src/main/scala/basemode/Interface.scala 285:17]
+  assign io_slave_arready = 1'h0; // @[src/main/scala/basemode/Interface.scala 287:21]
+  assign io_slave_rvalid = 1'h0; // @[src/main/scala/basemode/Interface.scala 289:20]
+  assign io_slave_rresp = 2'h0; // @[src/main/scala/basemode/Interface.scala 290:19]
+  assign io_slave_rdata = 32'h0; // @[src/main/scala/basemode/Interface.scala 291:19]
+  assign io_slave_rlast = 1'h0; // @[src/main/scala/basemode/Interface.scala 292:19]
+  assign io_slave_rid = 4'h0; // @[src/main/scala/basemode/Interface.scala 293:17]
   assign ifu_clock = clock;
   assign ifu_reset = reset;
   assign ifu_io_inst_ready = idu_io_inst_ready; // @[src/main/scala/Main.scala 126:33]
@@ -1162,7 +1154,6 @@ module top(
   assign wbu_io_wbu2CSR_mtvec = csrReg_io_wbu2CSR_mtvec; // @[src/main/scala/Main.scala 198:41]
   assign xbarAXI_clock = clock;
   assign xbarAXI_reset = reset;
-  assign xbarAXI_io_axiSlaveIFU_bready = icacheSkidBuffer_io_axiMaster_bready; // @[src/main/scala/Main.scala 184:41]
   assign xbarAXI_io_axiSlaveIFU_arvalid = icacheSkidBuffer_io_axiMaster_arvalid; // @[src/main/scala/Main.scala 184:41]
   assign xbarAXI_io_axiSlaveIFU_araddr = icacheSkidBuffer_io_axiMaster_araddr; // @[src/main/scala/Main.scala 184:41]
   assign xbarAXI_io_axiSlaveIFU_arlen = icacheSkidBuffer_io_axiMaster_arlen; // @[src/main/scala/Main.scala 184:41]
@@ -1198,7 +1189,6 @@ module top(
   assign icacheSkidBuffer_io_axiMaster_rvalid = xbarAXI_io_axiSlaveIFU_rvalid; // @[src/main/scala/Main.scala 184:41]
   assign icacheSkidBuffer_io_axiMaster_rdata = xbarAXI_io_axiSlaveIFU_rdata; // @[src/main/scala/Main.scala 184:41]
   assign icacheSkidBuffer_io_axiMaster_rlast = xbarAXI_io_axiSlaveIFU_rlast; // @[src/main/scala/Main.scala 184:41]
-  assign icacheSkidBuffer_io_axiSlave_bready = icache_io_icache2Mem_bready; // @[src/main/scala/Main.scala 183:41]
   assign icacheSkidBuffer_io_axiSlave_arvalid = icache_io_icache2Mem_arvalid; // @[src/main/scala/Main.scala 183:41]
   assign icacheSkidBuffer_io_axiSlave_araddr = icache_io_icache2Mem_araddr; // @[src/main/scala/Main.scala 183:41]
   assign icacheSkidBuffer_io_axiSlave_arlen = icache_io_icache2Mem_arlen; // @[src/main/scala/Main.scala 183:41]
@@ -1228,7 +1218,7 @@ module top(
   assign EFC_counterType = 32'hb; // @[src/main/scala/Main.scala 172:41]
   assign EFC_data = flushCnt; // @[src/main/scala/Main.scala 173:41]
   assign axiAccessFault_valid = icache_io_icache2Mem_bvalid; // @[src/main/scala/Main.scala 188:41]
-  assign axiAccessFault_ready = icache_io_icache2Mem_bready; // @[src/main/scala/Main.scala 187:41]
+  assign axiAccessFault_ready = 1'h1; // @[src/main/scala/Main.scala 187:41]
   assign axiAccessFault_resp = icache_io_icache2Mem_bresp; // @[src/main/scala/Main.scala 189:41]
   assign axiLiteClint_clock = clock;
   assign axiLiteClint_reset = reset;
