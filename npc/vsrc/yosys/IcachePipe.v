@@ -25,10 +25,6 @@ module IcachePipe(
   reg [31:0] _RAND_6;
   reg [31:0] _RAND_9;
   reg [31:0] _RAND_12;
-  reg [31:0] _RAND_15;
-  reg [31:0] _RAND_18;
-  reg [31:0] _RAND_21;
-  reg [31:0] _RAND_24;
 `endif // RANDOMIZE_MEM_INIT
 `ifdef RANDOMIZE_REG_INIT
   reg [31:0] _RAND_1;
@@ -41,108 +37,60 @@ module IcachePipe(
   reg [31:0] _RAND_11;
   reg [31:0] _RAND_13;
   reg [31:0] _RAND_14;
+  reg [31:0] _RAND_15;
   reg [31:0] _RAND_16;
   reg [31:0] _RAND_17;
-  reg [31:0] _RAND_19;
-  reg [31:0] _RAND_20;
-  reg [31:0] _RAND_22;
-  reg [31:0] _RAND_23;
-  reg [31:0] _RAND_25;
-  reg [31:0] _RAND_26;
-  reg [31:0] _RAND_27;
-  reg [31:0] _RAND_28;
-  reg [31:0] _RAND_29;
 `endif // RANDOMIZE_REG_INIT
-  reg [31:0] cacheMem_0_0 [0:1]; // @[src/main/scala/ifu/Icache.scala 261:52]
+  reg [31:0] cacheMem_0_0 [0:3]; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire  cacheMem_0_0_cacheLineVec_0_en; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_0_0_cacheLineVec_0_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
+  wire [1:0] cacheMem_0_0_cacheLineVec_0_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire [31:0] cacheMem_0_0_cacheLineVec_0_data; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire [31:0] cacheMem_0_0_MPORT_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_0_0_MPORT_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
+  wire [1:0] cacheMem_0_0_MPORT_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire  cacheMem_0_0_MPORT_mask; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire  cacheMem_0_0_MPORT_en; // @[src/main/scala/ifu/Icache.scala 261:52]
   reg  cacheMem_0_0_cacheLineVec_0_en_pipe_0;
-  reg  cacheMem_0_0_cacheLineVec_0_addr_pipe_0;
-  reg [31:0] cacheMem_0_1 [0:1]; // @[src/main/scala/ifu/Icache.scala 261:52]
+  reg [1:0] cacheMem_0_0_cacheLineVec_0_addr_pipe_0;
+  reg [31:0] cacheMem_0_1 [0:3]; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire  cacheMem_0_1_cacheLineVec_0_en; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_0_1_cacheLineVec_0_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
+  wire [1:0] cacheMem_0_1_cacheLineVec_0_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire [31:0] cacheMem_0_1_cacheLineVec_0_data; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire [31:0] cacheMem_0_1_MPORT_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_0_1_MPORT_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
+  wire [1:0] cacheMem_0_1_MPORT_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire  cacheMem_0_1_MPORT_mask; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire  cacheMem_0_1_MPORT_en; // @[src/main/scala/ifu/Icache.scala 261:52]
   reg  cacheMem_0_1_cacheLineVec_0_en_pipe_0;
-  reg  cacheMem_0_1_cacheLineVec_0_addr_pipe_0;
-  reg [31:0] cacheMem_0_2 [0:1]; // @[src/main/scala/ifu/Icache.scala 261:52]
+  reg [1:0] cacheMem_0_1_cacheLineVec_0_addr_pipe_0;
+  reg [31:0] cacheMem_0_2 [0:3]; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire  cacheMem_0_2_cacheLineVec_0_en; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_0_2_cacheLineVec_0_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
+  wire [1:0] cacheMem_0_2_cacheLineVec_0_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire [31:0] cacheMem_0_2_cacheLineVec_0_data; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire [31:0] cacheMem_0_2_MPORT_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_0_2_MPORT_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
+  wire [1:0] cacheMem_0_2_MPORT_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire  cacheMem_0_2_MPORT_mask; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire  cacheMem_0_2_MPORT_en; // @[src/main/scala/ifu/Icache.scala 261:52]
   reg  cacheMem_0_2_cacheLineVec_0_en_pipe_0;
-  reg  cacheMem_0_2_cacheLineVec_0_addr_pipe_0;
-  reg [31:0] cacheMem_0_3 [0:1]; // @[src/main/scala/ifu/Icache.scala 261:52]
+  reg [1:0] cacheMem_0_2_cacheLineVec_0_addr_pipe_0;
+  reg [31:0] cacheMem_0_3 [0:3]; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire  cacheMem_0_3_cacheLineVec_0_en; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_0_3_cacheLineVec_0_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
+  wire [1:0] cacheMem_0_3_cacheLineVec_0_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire [31:0] cacheMem_0_3_cacheLineVec_0_data; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire [31:0] cacheMem_0_3_MPORT_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_0_3_MPORT_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
+  wire [1:0] cacheMem_0_3_MPORT_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire  cacheMem_0_3_MPORT_mask; // @[src/main/scala/ifu/Icache.scala 261:52]
   wire  cacheMem_0_3_MPORT_en; // @[src/main/scala/ifu/Icache.scala 261:52]
   reg  cacheMem_0_3_cacheLineVec_0_en_pipe_0;
-  reg  cacheMem_0_3_cacheLineVec_0_addr_pipe_0;
-  reg [31:0] cacheMem_1_0 [0:1]; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_0_cacheLineVec_1_en; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_0_cacheLineVec_1_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire [31:0] cacheMem_1_0_cacheLineVec_1_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire [31:0] cacheMem_1_0_MPORT_2_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_0_MPORT_2_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_0_MPORT_2_mask; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_0_MPORT_2_en; // @[src/main/scala/ifu/Icache.scala 261:52]
-  reg  cacheMem_1_0_cacheLineVec_1_en_pipe_0;
-  reg  cacheMem_1_0_cacheLineVec_1_addr_pipe_0;
-  reg [31:0] cacheMem_1_1 [0:1]; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_1_cacheLineVec_1_en; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_1_cacheLineVec_1_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire [31:0] cacheMem_1_1_cacheLineVec_1_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire [31:0] cacheMem_1_1_MPORT_2_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_1_MPORT_2_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_1_MPORT_2_mask; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_1_MPORT_2_en; // @[src/main/scala/ifu/Icache.scala 261:52]
-  reg  cacheMem_1_1_cacheLineVec_1_en_pipe_0;
-  reg  cacheMem_1_1_cacheLineVec_1_addr_pipe_0;
-  reg [31:0] cacheMem_1_2 [0:1]; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_2_cacheLineVec_1_en; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_2_cacheLineVec_1_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire [31:0] cacheMem_1_2_cacheLineVec_1_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire [31:0] cacheMem_1_2_MPORT_2_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_2_MPORT_2_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_2_MPORT_2_mask; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_2_MPORT_2_en; // @[src/main/scala/ifu/Icache.scala 261:52]
-  reg  cacheMem_1_2_cacheLineVec_1_en_pipe_0;
-  reg  cacheMem_1_2_cacheLineVec_1_addr_pipe_0;
-  reg [31:0] cacheMem_1_3 [0:1]; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_3_cacheLineVec_1_en; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_3_cacheLineVec_1_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire [31:0] cacheMem_1_3_cacheLineVec_1_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire [31:0] cacheMem_1_3_MPORT_2_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_3_MPORT_2_addr; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_3_MPORT_2_mask; // @[src/main/scala/ifu/Icache.scala 261:52]
-  wire  cacheMem_1_3_MPORT_2_en; // @[src/main/scala/ifu/Icache.scala 261:52]
-  reg  cacheMem_1_3_cacheLineVec_1_en_pipe_0;
-  reg  cacheMem_1_3_cacheLineVec_1_addr_pipe_0;
-  reg [26:0] tagMem_0 [0:1]; // @[src/main/scala/ifu/Icache.scala 262:60]
+  reg [1:0] cacheMem_0_3_cacheLineVec_0_addr_pipe_0;
+  reg [25:0] tagMem_0 [0:3]; // @[src/main/scala/ifu/Icache.scala 262:60]
   wire  tagMem_0_tagVec_0_en; // @[src/main/scala/ifu/Icache.scala 262:60]
-  wire  tagMem_0_tagVec_0_addr; // @[src/main/scala/ifu/Icache.scala 262:60]
-  wire [26:0] tagMem_0_tagVec_0_data; // @[src/main/scala/ifu/Icache.scala 262:60]
-  wire [26:0] tagMem_0_MPORT_1_data; // @[src/main/scala/ifu/Icache.scala 262:60]
-  wire  tagMem_0_MPORT_1_addr; // @[src/main/scala/ifu/Icache.scala 262:60]
+  wire [1:0] tagMem_0_tagVec_0_addr; // @[src/main/scala/ifu/Icache.scala 262:60]
+  wire [25:0] tagMem_0_tagVec_0_data; // @[src/main/scala/ifu/Icache.scala 262:60]
+  wire [25:0] tagMem_0_MPORT_1_data; // @[src/main/scala/ifu/Icache.scala 262:60]
+  wire [1:0] tagMem_0_MPORT_1_addr; // @[src/main/scala/ifu/Icache.scala 262:60]
   wire  tagMem_0_MPORT_1_mask; // @[src/main/scala/ifu/Icache.scala 262:60]
   wire  tagMem_0_MPORT_1_en; // @[src/main/scala/ifu/Icache.scala 262:60]
   reg  tagMem_0_tagVec_0_en_pipe_0;
-  reg  tagMem_0_tagVec_0_addr_pipe_0;
+  reg [1:0] tagMem_0_tagVec_0_addr_pipe_0;
   wire  fetchReq_clock; // @[src/main/scala/ifu/Icache.scala 263:33]
   wire  fetchReq_reset; // @[src/main/scala/ifu/Icache.scala 263:33]
   wire  fetchReq_io_fetchReqIO_ifu2FetchReq_ready; // @[src/main/scala/ifu/Icache.scala 263:33]
@@ -173,17 +121,13 @@ module IcachePipe(
   wire [31:0] checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_1; // @[src/main/scala/ifu/Icache.scala 264:33]
   wire [31:0] checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_2; // @[src/main/scala/ifu/Icache.scala 264:33]
   wire [31:0] checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_3; // @[src/main/scala/ifu/Icache.scala 264:33]
-  wire [31:0] checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_0; // @[src/main/scala/ifu/Icache.scala 264:33]
-  wire [31:0] checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_1; // @[src/main/scala/ifu/Icache.scala 264:33]
-  wire [31:0] checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_2; // @[src/main/scala/ifu/Icache.scala 264:33]
-  wire [31:0] checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_3; // @[src/main/scala/ifu/Icache.scala 264:33]
-  wire [26:0] checkUnit_io_checkUnitIO_checkUnit2Sram_tagVec_0; // @[src/main/scala/ifu/Icache.scala 264:33]
+  wire [25:0] checkUnit_io_checkUnitIO_checkUnit2Sram_tagVec_0; // @[src/main/scala/ifu/Icache.scala 264:33]
   wire [31:0] checkUnit_io_checkUnitIO_checkUnit2Sram_cacheBuf_0; // @[src/main/scala/ifu/Icache.scala 264:33]
   wire [31:0] checkUnit_io_checkUnitIO_checkUnit2Sram_cacheBuf_1; // @[src/main/scala/ifu/Icache.scala 264:33]
   wire [31:0] checkUnit_io_checkUnitIO_checkUnit2Sram_cacheBuf_2; // @[src/main/scala/ifu/Icache.scala 264:33]
   wire [31:0] checkUnit_io_checkUnitIO_checkUnit2Sram_cacheBuf_3; // @[src/main/scala/ifu/Icache.scala 264:33]
-  wire [26:0] checkUnit_io_checkUnitIO_checkUnit2Sram_tagBuf; // @[src/main/scala/ifu/Icache.scala 264:33]
-  wire  checkUnit_io_checkUnitIO_checkUnit2Sram_replaceIndex; // @[src/main/scala/ifu/Icache.scala 264:33]
+  wire [25:0] checkUnit_io_checkUnitIO_checkUnit2Sram_tagBuf; // @[src/main/scala/ifu/Icache.scala 264:33]
+  wire [1:0] checkUnit_io_checkUnitIO_checkUnit2Sram_replaceIndex; // @[src/main/scala/ifu/Icache.scala 264:33]
   wire  checkUnit_io_checkUnitIO_checkUnit2Sram_wen; // @[src/main/scala/ifu/Icache.scala 264:33]
   wire  checkUnit_io_checkUnitIO_wbu2Icache; // @[src/main/scala/ifu/Icache.scala 264:33]
   wire  checkUnit_io_checkUnitIO_flush; // @[src/main/scala/ifu/Icache.scala 264:33]
@@ -234,10 +178,6 @@ module IcachePipe(
     .io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_1(checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_1),
     .io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_2(checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_2),
     .io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_3(checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_3),
-    .io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_0(checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_0),
-    .io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_1(checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_1),
-    .io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_2(checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_2),
-    .io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_3(checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_3),
     .io_checkUnitIO_checkUnit2Sram_tagVec_0(checkUnit_io_checkUnitIO_checkUnit2Sram_tagVec_0),
     .io_checkUnitIO_checkUnit2Sram_cacheBuf_0(checkUnit_io_checkUnitIO_checkUnit2Sram_cacheBuf_0),
     .io_checkUnitIO_checkUnit2Sram_cacheBuf_1(checkUnit_io_checkUnitIO_checkUnit2Sram_cacheBuf_1),
@@ -290,34 +230,6 @@ module IcachePipe(
   assign cacheMem_0_3_MPORT_addr = checkUnit_io_checkUnitIO_checkUnit2Sram_replaceIndex;
   assign cacheMem_0_3_MPORT_mask = 1'h1;
   assign cacheMem_0_3_MPORT_en = checkUnit_io_checkUnitIO_checkUnit2Sram_wen;
-  assign cacheMem_1_0_cacheLineVec_1_en = cacheMem_1_0_cacheLineVec_1_en_pipe_0;
-  assign cacheMem_1_0_cacheLineVec_1_addr = cacheMem_1_0_cacheLineVec_1_addr_pipe_0;
-  assign cacheMem_1_0_cacheLineVec_1_data = cacheMem_1_0[cacheMem_1_0_cacheLineVec_1_addr]; // @[src/main/scala/ifu/Icache.scala 261:52]
-  assign cacheMem_1_0_MPORT_2_data = checkUnit_io_checkUnitIO_checkUnit2Sram_cacheBuf_0;
-  assign cacheMem_1_0_MPORT_2_addr = checkUnit_io_checkUnitIO_checkUnit2Sram_replaceIndex;
-  assign cacheMem_1_0_MPORT_2_mask = 1'h1;
-  assign cacheMem_1_0_MPORT_2_en = 1'h0;
-  assign cacheMem_1_1_cacheLineVec_1_en = cacheMem_1_1_cacheLineVec_1_en_pipe_0;
-  assign cacheMem_1_1_cacheLineVec_1_addr = cacheMem_1_1_cacheLineVec_1_addr_pipe_0;
-  assign cacheMem_1_1_cacheLineVec_1_data = cacheMem_1_1[cacheMem_1_1_cacheLineVec_1_addr]; // @[src/main/scala/ifu/Icache.scala 261:52]
-  assign cacheMem_1_1_MPORT_2_data = checkUnit_io_checkUnitIO_checkUnit2Sram_cacheBuf_1;
-  assign cacheMem_1_1_MPORT_2_addr = checkUnit_io_checkUnitIO_checkUnit2Sram_replaceIndex;
-  assign cacheMem_1_1_MPORT_2_mask = 1'h1;
-  assign cacheMem_1_1_MPORT_2_en = 1'h0;
-  assign cacheMem_1_2_cacheLineVec_1_en = cacheMem_1_2_cacheLineVec_1_en_pipe_0;
-  assign cacheMem_1_2_cacheLineVec_1_addr = cacheMem_1_2_cacheLineVec_1_addr_pipe_0;
-  assign cacheMem_1_2_cacheLineVec_1_data = cacheMem_1_2[cacheMem_1_2_cacheLineVec_1_addr]; // @[src/main/scala/ifu/Icache.scala 261:52]
-  assign cacheMem_1_2_MPORT_2_data = checkUnit_io_checkUnitIO_checkUnit2Sram_cacheBuf_2;
-  assign cacheMem_1_2_MPORT_2_addr = checkUnit_io_checkUnitIO_checkUnit2Sram_replaceIndex;
-  assign cacheMem_1_2_MPORT_2_mask = 1'h1;
-  assign cacheMem_1_2_MPORT_2_en = 1'h0;
-  assign cacheMem_1_3_cacheLineVec_1_en = cacheMem_1_3_cacheLineVec_1_en_pipe_0;
-  assign cacheMem_1_3_cacheLineVec_1_addr = cacheMem_1_3_cacheLineVec_1_addr_pipe_0;
-  assign cacheMem_1_3_cacheLineVec_1_data = cacheMem_1_3[cacheMem_1_3_cacheLineVec_1_addr]; // @[src/main/scala/ifu/Icache.scala 261:52]
-  assign cacheMem_1_3_MPORT_2_data = checkUnit_io_checkUnitIO_checkUnit2Sram_cacheBuf_3;
-  assign cacheMem_1_3_MPORT_2_addr = checkUnit_io_checkUnitIO_checkUnit2Sram_replaceIndex;
-  assign cacheMem_1_3_MPORT_2_mask = 1'h1;
-  assign cacheMem_1_3_MPORT_2_en = 1'h0;
   assign tagMem_0_tagVec_0_en = tagMem_0_tagVec_0_en_pipe_0;
   assign tagMem_0_tagVec_0_addr = tagMem_0_tagVec_0_addr_pipe_0;
   assign tagMem_0_tagVec_0_data = tagMem_0[tagMem_0_tagVec_0_addr]; // @[src/main/scala/ifu/Icache.scala 262:60]
@@ -353,10 +265,6 @@ module IcachePipe(
   assign checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_1 = cacheMem_0_1_cacheLineVec_0_data; // @[src/main/scala/ifu/Icache.scala 274:65]
   assign checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_2 = cacheMem_0_2_cacheLineVec_0_data; // @[src/main/scala/ifu/Icache.scala 274:65]
   assign checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_3 = cacheMem_0_3_cacheLineVec_0_data; // @[src/main/scala/ifu/Icache.scala 274:65]
-  assign checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_0 = cacheMem_1_0_cacheLineVec_1_data; // @[src/main/scala/ifu/Icache.scala 274:65]
-  assign checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_1 = cacheMem_1_1_cacheLineVec_1_data; // @[src/main/scala/ifu/Icache.scala 274:65]
-  assign checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_2 = cacheMem_1_2_cacheLineVec_1_data; // @[src/main/scala/ifu/Icache.scala 274:65]
-  assign checkUnit_io_checkUnitIO_checkUnit2Sram_cacheLineVec_1_3 = cacheMem_1_3_cacheLineVec_1_data; // @[src/main/scala/ifu/Icache.scala 274:65]
   assign checkUnit_io_checkUnitIO_checkUnit2Sram_tagVec_0 = tagMem_0_tagVec_0_data; // @[src/main/scala/ifu/Icache.scala 275:73]
   assign checkUnit_io_checkUnitIO_wbu2Icache = io_wbu2Icache; // @[src/main/scala/ifu/Icache.scala 287:49]
   assign checkUnit_io_checkUnitIO_flush = io_flush; // @[src/main/scala/ifu/Icache.scala 286:49]
@@ -377,7 +285,7 @@ module IcachePipe(
     cacheMem_0_0_cacheLineVec_0_en_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid &
       fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready;
     if (fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid & fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready) begin
-      cacheMem_0_0_cacheLineVec_0_addr_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_bits[4];
+      cacheMem_0_0_cacheLineVec_0_addr_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_bits[5:4];
     end
     if (cacheMem_0_1_MPORT_en & cacheMem_0_1_MPORT_mask) begin
       cacheMem_0_1[cacheMem_0_1_MPORT_addr] <= cacheMem_0_1_MPORT_data; // @[src/main/scala/ifu/Icache.scala 261:52]
@@ -385,7 +293,7 @@ module IcachePipe(
     cacheMem_0_1_cacheLineVec_0_en_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid &
       fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready;
     if (fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid & fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready) begin
-      cacheMem_0_1_cacheLineVec_0_addr_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_bits[4];
+      cacheMem_0_1_cacheLineVec_0_addr_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_bits[5:4];
     end
     if (cacheMem_0_2_MPORT_en & cacheMem_0_2_MPORT_mask) begin
       cacheMem_0_2[cacheMem_0_2_MPORT_addr] <= cacheMem_0_2_MPORT_data; // @[src/main/scala/ifu/Icache.scala 261:52]
@@ -393,7 +301,7 @@ module IcachePipe(
     cacheMem_0_2_cacheLineVec_0_en_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid &
       fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready;
     if (fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid & fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready) begin
-      cacheMem_0_2_cacheLineVec_0_addr_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_bits[4];
+      cacheMem_0_2_cacheLineVec_0_addr_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_bits[5:4];
     end
     if (cacheMem_0_3_MPORT_en & cacheMem_0_3_MPORT_mask) begin
       cacheMem_0_3[cacheMem_0_3_MPORT_addr] <= cacheMem_0_3_MPORT_data; // @[src/main/scala/ifu/Icache.scala 261:52]
@@ -401,39 +309,7 @@ module IcachePipe(
     cacheMem_0_3_cacheLineVec_0_en_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid &
       fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready;
     if (fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid & fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready) begin
-      cacheMem_0_3_cacheLineVec_0_addr_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_bits[4];
-    end
-    if (cacheMem_1_0_MPORT_2_en & cacheMem_1_0_MPORT_2_mask) begin
-      cacheMem_1_0[cacheMem_1_0_MPORT_2_addr] <= cacheMem_1_0_MPORT_2_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-    end
-    cacheMem_1_0_cacheLineVec_1_en_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid &
-      fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready;
-    if (fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid & fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready) begin
-      cacheMem_1_0_cacheLineVec_1_addr_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_bits[4];
-    end
-    if (cacheMem_1_1_MPORT_2_en & cacheMem_1_1_MPORT_2_mask) begin
-      cacheMem_1_1[cacheMem_1_1_MPORT_2_addr] <= cacheMem_1_1_MPORT_2_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-    end
-    cacheMem_1_1_cacheLineVec_1_en_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid &
-      fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready;
-    if (fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid & fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready) begin
-      cacheMem_1_1_cacheLineVec_1_addr_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_bits[4];
-    end
-    if (cacheMem_1_2_MPORT_2_en & cacheMem_1_2_MPORT_2_mask) begin
-      cacheMem_1_2[cacheMem_1_2_MPORT_2_addr] <= cacheMem_1_2_MPORT_2_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-    end
-    cacheMem_1_2_cacheLineVec_1_en_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid &
-      fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready;
-    if (fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid & fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready) begin
-      cacheMem_1_2_cacheLineVec_1_addr_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_bits[4];
-    end
-    if (cacheMem_1_3_MPORT_2_en & cacheMem_1_3_MPORT_2_mask) begin
-      cacheMem_1_3[cacheMem_1_3_MPORT_2_addr] <= cacheMem_1_3_MPORT_2_data; // @[src/main/scala/ifu/Icache.scala 261:52]
-    end
-    cacheMem_1_3_cacheLineVec_1_en_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid &
-      fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready;
-    if (fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid & fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready) begin
-      cacheMem_1_3_cacheLineVec_1_addr_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_bits[4];
+      cacheMem_0_3_cacheLineVec_0_addr_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_bits[5:4];
     end
     if (tagMem_0_MPORT_1_en & tagMem_0_MPORT_1_mask) begin
       tagMem_0[tagMem_0_MPORT_1_addr] <= tagMem_0_MPORT_1_data; // @[src/main/scala/ifu/Icache.scala 262:60]
@@ -441,7 +317,7 @@ module IcachePipe(
     tagMem_0_tagVec_0_en_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid &
       fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready;
     if (fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid & fetchReq_io_fetchReqIO_fetchReq2CheckUnit_ready) begin
-      tagMem_0_tagVec_0_addr_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_bits[4];
+      tagMem_0_tagVec_0_addr_pipe_0 <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_bits[5:4];
     end
     if (fetchReq_io_fetchReqIO_fetchReq2CheckUnit_valid & checkUnit_io_checkUnitIO_fetchReq2CheckUnit_ready) begin // @[src/main/scala/ifu/Icache.scala 257:45]
       checkUnit_io_checkUnitIO_fetchReq2CheckUnit_bits_r <= fetchReq_io_fetchReqIO_fetchReq2CheckUnit_bits; // @[src/main/scala/ifu/Icache.scala 257:45]
@@ -494,76 +370,48 @@ initial begin
     `endif
 `ifdef RANDOMIZE_MEM_INIT
   _RAND_0 = {1{`RANDOM}};
-  for (initvar = 0; initvar < 2; initvar = initvar+1)
+  for (initvar = 0; initvar < 4; initvar = initvar+1)
     cacheMem_0_0[initvar] = _RAND_0[31:0];
   _RAND_3 = {1{`RANDOM}};
-  for (initvar = 0; initvar < 2; initvar = initvar+1)
+  for (initvar = 0; initvar < 4; initvar = initvar+1)
     cacheMem_0_1[initvar] = _RAND_3[31:0];
   _RAND_6 = {1{`RANDOM}};
-  for (initvar = 0; initvar < 2; initvar = initvar+1)
+  for (initvar = 0; initvar < 4; initvar = initvar+1)
     cacheMem_0_2[initvar] = _RAND_6[31:0];
   _RAND_9 = {1{`RANDOM}};
-  for (initvar = 0; initvar < 2; initvar = initvar+1)
+  for (initvar = 0; initvar < 4; initvar = initvar+1)
     cacheMem_0_3[initvar] = _RAND_9[31:0];
   _RAND_12 = {1{`RANDOM}};
-  for (initvar = 0; initvar < 2; initvar = initvar+1)
-    cacheMem_1_0[initvar] = _RAND_12[31:0];
-  _RAND_15 = {1{`RANDOM}};
-  for (initvar = 0; initvar < 2; initvar = initvar+1)
-    cacheMem_1_1[initvar] = _RAND_15[31:0];
-  _RAND_18 = {1{`RANDOM}};
-  for (initvar = 0; initvar < 2; initvar = initvar+1)
-    cacheMem_1_2[initvar] = _RAND_18[31:0];
-  _RAND_21 = {1{`RANDOM}};
-  for (initvar = 0; initvar < 2; initvar = initvar+1)
-    cacheMem_1_3[initvar] = _RAND_21[31:0];
-  _RAND_24 = {1{`RANDOM}};
-  for (initvar = 0; initvar < 2; initvar = initvar+1)
-    tagMem_0[initvar] = _RAND_24[26:0];
+  for (initvar = 0; initvar < 4; initvar = initvar+1)
+    tagMem_0[initvar] = _RAND_12[25:0];
 `endif // RANDOMIZE_MEM_INIT
 `ifdef RANDOMIZE_REG_INIT
   _RAND_1 = {1{`RANDOM}};
   cacheMem_0_0_cacheLineVec_0_en_pipe_0 = _RAND_1[0:0];
   _RAND_2 = {1{`RANDOM}};
-  cacheMem_0_0_cacheLineVec_0_addr_pipe_0 = _RAND_2[0:0];
+  cacheMem_0_0_cacheLineVec_0_addr_pipe_0 = _RAND_2[1:0];
   _RAND_4 = {1{`RANDOM}};
   cacheMem_0_1_cacheLineVec_0_en_pipe_0 = _RAND_4[0:0];
   _RAND_5 = {1{`RANDOM}};
-  cacheMem_0_1_cacheLineVec_0_addr_pipe_0 = _RAND_5[0:0];
+  cacheMem_0_1_cacheLineVec_0_addr_pipe_0 = _RAND_5[1:0];
   _RAND_7 = {1{`RANDOM}};
   cacheMem_0_2_cacheLineVec_0_en_pipe_0 = _RAND_7[0:0];
   _RAND_8 = {1{`RANDOM}};
-  cacheMem_0_2_cacheLineVec_0_addr_pipe_0 = _RAND_8[0:0];
+  cacheMem_0_2_cacheLineVec_0_addr_pipe_0 = _RAND_8[1:0];
   _RAND_10 = {1{`RANDOM}};
   cacheMem_0_3_cacheLineVec_0_en_pipe_0 = _RAND_10[0:0];
   _RAND_11 = {1{`RANDOM}};
-  cacheMem_0_3_cacheLineVec_0_addr_pipe_0 = _RAND_11[0:0];
+  cacheMem_0_3_cacheLineVec_0_addr_pipe_0 = _RAND_11[1:0];
   _RAND_13 = {1{`RANDOM}};
-  cacheMem_1_0_cacheLineVec_1_en_pipe_0 = _RAND_13[0:0];
+  tagMem_0_tagVec_0_en_pipe_0 = _RAND_13[0:0];
   _RAND_14 = {1{`RANDOM}};
-  cacheMem_1_0_cacheLineVec_1_addr_pipe_0 = _RAND_14[0:0];
+  tagMem_0_tagVec_0_addr_pipe_0 = _RAND_14[1:0];
+  _RAND_15 = {1{`RANDOM}};
+  checkUnit_io_checkUnitIO_fetchReq2CheckUnit_bits_r = _RAND_15[31:0];
   _RAND_16 = {1{`RANDOM}};
-  cacheMem_1_1_cacheLineVec_1_en_pipe_0 = _RAND_16[0:0];
+  preDecoder_io_preDecoderIO_checkUnit2PreDecoder_bits_r_pc = _RAND_16[31:0];
   _RAND_17 = {1{`RANDOM}};
-  cacheMem_1_1_cacheLineVec_1_addr_pipe_0 = _RAND_17[0:0];
-  _RAND_19 = {1{`RANDOM}};
-  cacheMem_1_2_cacheLineVec_1_en_pipe_0 = _RAND_19[0:0];
-  _RAND_20 = {1{`RANDOM}};
-  cacheMem_1_2_cacheLineVec_1_addr_pipe_0 = _RAND_20[0:0];
-  _RAND_22 = {1{`RANDOM}};
-  cacheMem_1_3_cacheLineVec_1_en_pipe_0 = _RAND_22[0:0];
-  _RAND_23 = {1{`RANDOM}};
-  cacheMem_1_3_cacheLineVec_1_addr_pipe_0 = _RAND_23[0:0];
-  _RAND_25 = {1{`RANDOM}};
-  tagMem_0_tagVec_0_en_pipe_0 = _RAND_25[0:0];
-  _RAND_26 = {1{`RANDOM}};
-  tagMem_0_tagVec_0_addr_pipe_0 = _RAND_26[0:0];
-  _RAND_27 = {1{`RANDOM}};
-  checkUnit_io_checkUnitIO_fetchReq2CheckUnit_bits_r = _RAND_27[31:0];
-  _RAND_28 = {1{`RANDOM}};
-  preDecoder_io_preDecoderIO_checkUnit2PreDecoder_bits_r_pc = _RAND_28[31:0];
-  _RAND_29 = {1{`RANDOM}};
-  preDecoder_io_preDecoderIO_checkUnit2PreDecoder_bits_r_inst = _RAND_29[31:0];
+  preDecoder_io_preDecoderIO_checkUnit2PreDecoder_bits_r_inst = _RAND_17[31:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
