@@ -8,6 +8,8 @@ module LSU(
   input  [31:0] io_exu2LSU_bits_aluData, // @[src/main/scala/lsu/LSU.scala 11:16]
   input  [31:0] io_exu2LSU_bits_csrWData, // @[src/main/scala/lsu/LSU.scala 11:16]
   input  [31:0] io_exu2LSU_bits_csrData, // @[src/main/scala/lsu/LSU.scala 11:16]
+  input  [31:0] io_exu2LSU_bits_immData, // @[src/main/scala/lsu/LSU.scala 11:16]
+  input  [31:0] io_exu2LSU_bits_rs1Data, // @[src/main/scala/lsu/LSU.scala 11:16]
   input  [31:0] io_exu2LSU_bits_inst, // @[src/main/scala/lsu/LSU.scala 11:16]
   input         io_exu2LSU_bits_regWR, // @[src/main/scala/lsu/LSU.scala 11:16]
   input         io_exu2LSU_bits_memWR, // @[src/main/scala/lsu/LSU.scala 11:16]
@@ -224,19 +226,17 @@ module LSU(
   reg [31:0] lsuGetDataCnt; // @[src/main/scala/lsu/LSU.scala 220:44]
   wire  _T_13 = state == 2'h2; // @[src/main/scala/lsu/LSU.scala 221:29]
   wire [31:0] _lsuGetDataCnt_T_1 = lsuGetDataCnt + 32'h1; // @[src/main/scala/lsu/LSU.scala 222:56]
-  reg  readyReg; // @[src/main/scala/lsu/LSU.scala 242:31]
-  wire  _readyReg_T_4 = io_exu2LSU_valid & io_exu2LSU_ready ? io_lsu2WBU_valid : 1'h1; // @[src/main/scala/lsu/LSU.scala 247:40]
-  wire  _GEN_26 = readyReg ? _readyReg_T_4 : readyReg; // @[src/main/scala/lsu/LSU.scala 244:26 242:31 247:34]
-  wire  _GEN_27 = ~readyReg ? io_lsu2WBU_valid : _GEN_26; // @[src/main/scala/lsu/LSU.scala 244:26 245:36]
-  wire  _io_lsu2WBU_valid_T_3 = handReg & ~io_exu2LSU_bits_memValid; // @[src/main/scala/lsu/LSU.scala 254:18]
-  wire [4:0] _io_rd_T_4 = io_exu2LSU_ready & ~io_lsu2WBU_valid ? 5'h0 : io_exu2LSU_bits_inst[11:7]; // @[src/main/scala/lsu/LSU.scala 269:45]
-  wire [4:0] _io_rd_T_5 = io_exu2LSU_bits_regWR ? _io_rd_T_4 : 5'h0; // @[src/main/scala/lsu/LSU.scala 269:23]
-  wire  _skip_T_6 = io_exu2LSU_bits_aluData >= 32'h10000000 & io_exu2LSU_bits_aluData <= 32'h10002fff; // @[src/main/scala/lsu/LSU.scala 274:55]
-  wire  _skip_T_7 = io_exu2LSU_bits_aluData >= 32'h2000000 & io_exu2LSU_bits_aluData <= 32'h200ffff | _skip_T_6; // @[src/main/scala/lsu/LSU.scala 273:87]
-  wire  _skip_T_10 = io_exu2LSU_bits_aluData >= 32'h10001000 & io_exu2LSU_bits_aluData <= 32'h10000007; // @[src/main/scala/lsu/LSU.scala 275:55]
-  wire  _skip_T_11 = _skip_T_7 | _skip_T_10; // @[src/main/scala/lsu/LSU.scala 274:87]
-  wire  _skip_T_14 = io_exu2LSU_bits_aluData >= 32'h21000000 & io_exu2LSU_bits_aluData <= 32'h211fffff; // @[src/main/scala/lsu/LSU.scala 276:55]
-  wire  _skip_T_15 = _skip_T_11 | _skip_T_14; // @[src/main/scala/lsu/LSU.scala 275:87]
+  reg  validReg; // @[src/main/scala/lsu/LSU.scala 242:31]
+  wire  _validReg_T = io_exu2LSU_valid & io_exu2LSU_ready; // @[src/main/scala/lsu/LSU.scala 244:56]
+  wire  _io_lsu2WBU_valid_T_3 = validReg & ~io_exu2LSU_bits_memValid; // @[src/main/scala/lsu/LSU.scala 253:19]
+  wire [4:0] _io_rd_T_4 = io_exu2LSU_ready & ~io_lsu2WBU_valid ? 5'h0 : io_exu2LSU_bits_inst[11:7]; // @[src/main/scala/lsu/LSU.scala 268:45]
+  wire [4:0] _io_rd_T_5 = io_exu2LSU_bits_regWR ? _io_rd_T_4 : 5'h0; // @[src/main/scala/lsu/LSU.scala 268:23]
+  wire  _skip_T_6 = io_exu2LSU_bits_aluData >= 32'h10000000 & io_exu2LSU_bits_aluData <= 32'h10002fff; // @[src/main/scala/lsu/LSU.scala 273:55]
+  wire  _skip_T_7 = io_exu2LSU_bits_aluData >= 32'h2000000 & io_exu2LSU_bits_aluData <= 32'h200ffff | _skip_T_6; // @[src/main/scala/lsu/LSU.scala 272:87]
+  wire  _skip_T_10 = io_exu2LSU_bits_aluData >= 32'h10001000 & io_exu2LSU_bits_aluData <= 32'h10000007; // @[src/main/scala/lsu/LSU.scala 274:55]
+  wire  _skip_T_11 = _skip_T_7 | _skip_T_10; // @[src/main/scala/lsu/LSU.scala 273:87]
+  wire  _skip_T_14 = io_exu2LSU_bits_aluData >= 32'h21000000 & io_exu2LSU_bits_aluData <= 32'h211fffff; // @[src/main/scala/lsu/LSU.scala 275:55]
+  wire  _skip_T_15 = _skip_T_11 | _skip_T_14; // @[src/main/scala/lsu/LSU.scala 274:87]
   AXIAccessFault axiAccessFault ( // @[src/main/scala/lsu/LSU.scala 91:44]
     .valid(axiAccessFault_valid),
     .ready(axiAccessFault_ready),
@@ -254,7 +254,7 @@ module LSU(
     .wOrR(mTrace_wOrR),
     .enable(mTrace_enable)
   );
-  assign io_exu2LSU_ready = readyReg; // @[src/main/scala/lsu/LSU.scala 252:33]
+  assign io_exu2LSU_ready = state == 2'h0 & nextState == 2'h0; // @[src/main/scala/lsu/LSU.scala 251:97]
   assign io_lsu2Mem_awvalid = awvalidReg; // @[src/main/scala/lsu/LSU.scala 49:33]
   assign io_lsu2Mem_awaddr = io_exu2LSU_bits_aluData; // @[src/main/scala/lsu/LSU.scala 50:33]
   assign io_lsu2Mem_awsize = {{1'd0}, io_exu2LSU_bits_memOP[1:0]}; // @[src/main/scala/lsu/LSU.scala 55:33]
@@ -267,22 +267,22 @@ module LSU(
   assign io_lsu2Mem_araddr = io_exu2LSU_bits_aluData; // @[src/main/scala/lsu/LSU.scala 100:33]
   assign io_lsu2Mem_arsize = {{1'd0}, io_exu2LSU_bits_memOP[1:0]}; // @[src/main/scala/lsu/LSU.scala 105:33]
   assign io_lsu2Mem_rready = rreadyReg; // @[src/main/scala/lsu/LSU.scala 110:33]
-  assign io_lsu2WBU_valid = state == 2'h3 | _io_lsu2WBU_valid_T_3; // @[src/main/scala/lsu/LSU.scala 253:61]
-  assign io_lsu2WBU_bits_pc = io_exu2LSU_bits_pc; // @[src/main/scala/lsu/LSU.scala 256:33]
+  assign io_lsu2WBU_valid = state == 2'h3 | _io_lsu2WBU_valid_T_3; // @[src/main/scala/lsu/LSU.scala 252:61]
+  assign io_lsu2WBU_bits_pc = io_exu2LSU_bits_pc; // @[src/main/scala/lsu/LSU.scala 255:33]
   assign io_lsu2WBU_bits_memData = sOrUWire ? _memRdDataWire_T_1 : rdataShiftWire; // @[src/main/scala/lsu/LSU.scala 164:38]
-  assign io_lsu2WBU_bits_aluData = io_exu2LSU_bits_aluData; // @[src/main/scala/lsu/LSU.scala 258:33]
-  assign io_lsu2WBU_bits_csrWData = io_exu2LSU_bits_csrWData; // @[src/main/scala/lsu/LSU.scala 259:33]
-  assign io_lsu2WBU_bits_csrData = io_exu2LSU_bits_csrData; // @[src/main/scala/lsu/LSU.scala 260:33]
-  assign io_lsu2WBU_bits_inst = io_exu2LSU_bits_inst; // @[src/main/scala/lsu/LSU.scala 262:33]
-  assign io_lsu2WBU_bits_regWR = io_exu2LSU_bits_regWR; // @[src/main/scala/lsu/LSU.scala 263:33]
-  assign io_lsu2WBU_bits_toReg = io_exu2LSU_bits_toReg; // @[src/main/scala/lsu/LSU.scala 264:33]
-  assign io_lsu2WBU_bits_ecall = io_exu2LSU_bits_ecall; // @[src/main/scala/lsu/LSU.scala 265:33]
-  assign io_lsu2WBU_bits_csrEn = io_exu2LSU_bits_csrEn; // @[src/main/scala/lsu/LSU.scala 266:33]
-  assign io_lsu2WBU_bits_csrWr = io_exu2LSU_bits_csrWr; // @[src/main/scala/lsu/LSU.scala 267:33]
-  assign io_lsu2WBU_bits_fencei = io_exu2LSU_bits_memOP == 3'h7; // @[src/main/scala/lsu/LSU.scala 268:47]
-  assign io_lsu2WBU_bits_skip = io_exu2LSU_bits_memValid & _skip_T_15; // @[src/main/scala/lsu/LSU.scala 272:52]
-  assign io_rd = _io_rd_T_5[3:0]; // @[src/main/scala/lsu/LSU.scala 269:17]
-  assign io_bypassValid = ~(io_exu2LSU_bits_toReg == 2'h1 & (_T_13 | nextState == 2'h2)); // @[src/main/scala/lsu/LSU.scala 270:52]
+  assign io_lsu2WBU_bits_aluData = io_exu2LSU_bits_aluData; // @[src/main/scala/lsu/LSU.scala 257:33]
+  assign io_lsu2WBU_bits_csrWData = io_exu2LSU_bits_csrWData; // @[src/main/scala/lsu/LSU.scala 258:33]
+  assign io_lsu2WBU_bits_csrData = io_exu2LSU_bits_csrData; // @[src/main/scala/lsu/LSU.scala 259:33]
+  assign io_lsu2WBU_bits_inst = io_exu2LSU_bits_inst; // @[src/main/scala/lsu/LSU.scala 261:33]
+  assign io_lsu2WBU_bits_regWR = io_exu2LSU_bits_regWR; // @[src/main/scala/lsu/LSU.scala 262:33]
+  assign io_lsu2WBU_bits_toReg = io_exu2LSU_bits_toReg; // @[src/main/scala/lsu/LSU.scala 263:33]
+  assign io_lsu2WBU_bits_ecall = io_exu2LSU_bits_ecall; // @[src/main/scala/lsu/LSU.scala 264:33]
+  assign io_lsu2WBU_bits_csrEn = io_exu2LSU_bits_csrEn; // @[src/main/scala/lsu/LSU.scala 265:33]
+  assign io_lsu2WBU_bits_csrWr = io_exu2LSU_bits_csrWr; // @[src/main/scala/lsu/LSU.scala 266:33]
+  assign io_lsu2WBU_bits_fencei = io_exu2LSU_bits_memOP == 3'h7; // @[src/main/scala/lsu/LSU.scala 267:47]
+  assign io_lsu2WBU_bits_skip = io_exu2LSU_bits_memValid & _skip_T_15; // @[src/main/scala/lsu/LSU.scala 271:52]
+  assign io_rd = _io_rd_T_5[3:0]; // @[src/main/scala/lsu/LSU.scala 268:17]
+  assign io_bypassValid = ~(io_exu2LSU_bits_toReg == 2'h1 & (_T_13 | nextState == 2'h2)); // @[src/main/scala/lsu/LSU.scala 269:52]
   assign axiAccessFault_valid = io_lsu2Mem_bvalid; // @[src/main/scala/lsu/LSU.scala 93:41]
   assign axiAccessFault_ready = 1'h1; // @[src/main/scala/lsu/LSU.scala 92:41]
   assign axiAccessFault_resp = io_lsu2Mem_bresp; // @[src/main/scala/lsu/LSU.scala 94:41]
@@ -374,7 +374,17 @@ module LSU(
     end else begin
       lsuGetDataCnt <= 32'h0; // @[src/main/scala/lsu/LSU.scala 224:39]
     end
-    readyReg <= reset | _GEN_27; // @[src/main/scala/lsu/LSU.scala 242:{31,31}]
+    if (reset) begin // @[src/main/scala/lsu/LSU.scala 242:31]
+      validReg <= 1'h0; // @[src/main/scala/lsu/LSU.scala 242:31]
+    end else if (~validReg) begin // @[src/main/scala/lsu/LSU.scala 243:26]
+      validReg <= io_exu2LSU_valid & io_exu2LSU_ready; // @[src/main/scala/lsu/LSU.scala 244:36]
+    end else if (validReg) begin // @[src/main/scala/lsu/LSU.scala 243:26]
+      if (io_lsu2WBU_valid) begin // @[src/main/scala/lsu/LSU.scala 246:40]
+        validReg <= _validReg_T;
+      end else begin
+        validReg <= 1'h1;
+      end
+    end
   end
 // Register and memory initialization
 `ifdef RANDOMIZE_GARBAGE_ASSIGN
@@ -431,7 +441,7 @@ initial begin
   _RAND_8 = {1{`RANDOM}};
   lsuGetDataCnt = _RAND_8[31:0];
   _RAND_9 = {1{`RANDOM}};
-  readyReg = _RAND_9[0:0];
+  validReg = _RAND_9[0:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial

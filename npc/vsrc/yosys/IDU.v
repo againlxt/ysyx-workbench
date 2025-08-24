@@ -50,7 +50,6 @@ module IDU(
   reg [31:0] _RAND_0;
   reg [31:0] _RAND_1;
   reg [31:0] _RAND_2;
-  reg [31:0] _RAND_3;
 `endif // RANDOMIZE_REG_INIT
   wire [31:0] contrGen_io_cmd; // @[src/main/scala/idu/IDU.scala 39:33]
   wire [6:0] contrGen_io_opcode; // @[src/main/scala/idu/IDU.scala 39:33]
@@ -93,30 +92,26 @@ module IDU(
   wire [1:0] _nextState_T_1 = io_isRAW & handReg ? 2'h1 : 2'h0; // @[src/main/scala/idu/IDU.scala 81:23]
   wire  _nextState_T_2 = ~io_isRAW; // @[src/main/scala/idu/IDU.scala 82:24]
   wire  _nextState_T_4 = io_idu2EXU_valid & io_idu2EXU_ready; // @[src/main/scala/idu/IDU.scala 83:41]
-  wire [4:0] _GEN_6 = {{1'd0}, io_iduBypass_rd_0}; // @[src/main/scala/idu/IDU.scala 92:25]
-  wire  _rs1DataWire_T_2 = _GEN_6 == rs1IndexWire & io_iduBypass_regWR_0 & io_iduBypass_Valid_0; // @[src/main/scala/idu/IDU.scala 92:59]
-  wire [4:0] _GEN_7 = {{1'd0}, io_iduBypass_rd_1}; // @[src/main/scala/idu/IDU.scala 93:25]
-  wire  _rs1DataWire_T_5 = _GEN_7 == rs1IndexWire & io_iduBypass_regWR_1 & io_iduBypass_Valid_1; // @[src/main/scala/idu/IDU.scala 93:59]
-  wire [4:0] _GEN_8 = {{1'd0}, io_iduBypass_rd_2}; // @[src/main/scala/idu/IDU.scala 94:25]
-  wire  _rs1DataWire_T_7 = _GEN_8 == rs1IndexWire & io_iduBypass_regWR_2; // @[src/main/scala/idu/IDU.scala 94:42]
+  wire [4:0] _GEN_3 = {{1'd0}, io_iduBypass_rd_0}; // @[src/main/scala/idu/IDU.scala 92:25]
+  wire  _rs1DataWire_T_2 = _GEN_3 == rs1IndexWire & io_iduBypass_regWR_0 & io_iduBypass_Valid_0; // @[src/main/scala/idu/IDU.scala 92:59]
+  wire [4:0] _GEN_4 = {{1'd0}, io_iduBypass_rd_1}; // @[src/main/scala/idu/IDU.scala 93:25]
+  wire  _rs1DataWire_T_5 = _GEN_4 == rs1IndexWire & io_iduBypass_regWR_1 & io_iduBypass_Valid_1; // @[src/main/scala/idu/IDU.scala 93:59]
+  wire [4:0] _GEN_5 = {{1'd0}, io_iduBypass_rd_2}; // @[src/main/scala/idu/IDU.scala 94:25]
+  wire  _rs1DataWire_T_7 = _GEN_5 == rs1IndexWire & io_iduBypass_regWR_2; // @[src/main/scala/idu/IDU.scala 94:42]
   wire [31:0] _rs1DataWire_T_9 = _rs1DataWire_T_7 ? io_iduBypass_data_2 : io_idu2BaseReg_rs1Data; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
   wire [31:0] _rs1DataWire_T_10 = _rs1DataWire_T_5 ? io_iduBypass_data_1 : _rs1DataWire_T_9; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
-  wire  _rs2DataWire_T_2 = _GEN_6 == rs2IndexWire & io_iduBypass_regWR_0 & io_iduBypass_Valid_0; // @[src/main/scala/idu/IDU.scala 97:59]
-  wire  _rs2DataWire_T_5 = _GEN_7 == rs2IndexWire & io_iduBypass_regWR_1 & io_iduBypass_Valid_1; // @[src/main/scala/idu/IDU.scala 98:59]
-  wire  _rs2DataWire_T_7 = _GEN_8 == rs2IndexWire & io_iduBypass_regWR_2; // @[src/main/scala/idu/IDU.scala 99:42]
+  wire  _rs2DataWire_T_2 = _GEN_3 == rs2IndexWire & io_iduBypass_regWR_0 & io_iduBypass_Valid_0; // @[src/main/scala/idu/IDU.scala 97:59]
+  wire  _rs2DataWire_T_5 = _GEN_4 == rs2IndexWire & io_iduBypass_regWR_1 & io_iduBypass_Valid_1; // @[src/main/scala/idu/IDU.scala 98:59]
+  wire  _rs2DataWire_T_7 = _GEN_5 == rs2IndexWire & io_iduBypass_regWR_2; // @[src/main/scala/idu/IDU.scala 99:42]
   wire [31:0] _rs2DataWire_T_9 = _rs2DataWire_T_7 ? io_iduBypass_data_2 : io_idu2BaseReg_rs2Data; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
   wire [31:0] _rs2DataWire_T_10 = _rs2DataWire_T_5 ? io_iduBypass_data_1 : _rs2DataWire_T_9; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
   reg  validReg; // @[src/main/scala/idu/IDU.scala 145:27]
-  reg  readyReg; // @[src/main/scala/idu/IDU.scala 146:31]
-  wire  _validReg_T_4 = _nextState_T_4 ? _handReg_T : 1'h1; // @[src/main/scala/idu/IDU.scala 151:32]
-  wire  _GEN_0 = validReg ? _validReg_T_4 : validReg; // @[src/main/scala/idu/IDU.scala 148:26 151:26 145:27]
-  wire  _GEN_1 = ~validReg ? _handReg_T : _GEN_0; // @[src/main/scala/idu/IDU.scala 148:26 149:32]
-  wire  _readyReg_T_4 = _handReg_T ? _nextState_T_4 : 1'h1; // @[src/main/scala/idu/IDU.scala 158:32]
-  wire  _GEN_2 = readyReg ? _readyReg_T_4 : readyReg; // @[src/main/scala/idu/IDU.scala 155:26 158:26 146:31]
-  wire  _GEN_3 = ~readyReg ? _nextState_T_4 : _GEN_2; // @[src/main/scala/idu/IDU.scala 155:26 156:32]
-  wire  _GEN_4 = ~io_flush & _GEN_1; // @[src/main/scala/idu/IDU.scala 147:21 163:18]
-  wire  _GEN_5 = ~io_flush ? _GEN_3 : 1'h1; // @[src/main/scala/idu/IDU.scala 147:21 164:26]
-  wire  _io_inst_ready_T_2 = state != 2'h1; // @[src/main/scala/idu/IDU.scala 166:66]
+  wire  _T_1 = ~validReg; // @[src/main/scala/idu/IDU.scala 147:26]
+  wire  _validReg_T_4 = _nextState_T_4 ? _handReg_T : 1'h1; // @[src/main/scala/idu/IDU.scala 150:32]
+  wire  _GEN_0 = validReg ? _validReg_T_4 : validReg; // @[src/main/scala/idu/IDU.scala 147:26 150:26 145:27]
+  wire  _GEN_1 = ~validReg ? _handReg_T : _GEN_0; // @[src/main/scala/idu/IDU.scala 147:26 148:32]
+  wire  _GEN_2 = ~io_flush & _GEN_1; // @[src/main/scala/idu/IDU.scala 146:21 155:18]
+  wire  _io_inst_ready_T_4 = state != 2'h1; // @[src/main/scala/idu/IDU.scala 157:89]
   ContrGen contrGen ( // @[src/main/scala/idu/IDU.scala 39:33]
     .io_cmd(contrGen_io_cmd),
     .io_opcode(contrGen_io_opcode),
@@ -148,8 +143,8 @@ module IDU(
     .io_immType(immGen_io_immType),
     .io_imm(immGen_io_imm)
   );
-  assign io_inst_ready = readyReg & _nextState_T_2 & state != 2'h1; // @[src/main/scala/idu/IDU.scala 166:57]
-  assign io_idu2EXU_valid = validReg & _nextState_T_2 & _io_inst_ready_T_2; // @[src/main/scala/idu/IDU.scala 167:49]
+  assign io_inst_ready = (io_idu2EXU_ready | _T_1) & _nextState_T_2 & state != 2'h1; // @[src/main/scala/idu/IDU.scala 157:80]
+  assign io_idu2EXU_valid = validReg & _nextState_T_2 & _io_inst_ready_T_4; // @[src/main/scala/idu/IDU.scala 158:49]
   assign io_idu2EXU_bits_pc = io_inst_bits_pc; // @[src/main/scala/idu/IDU.scala 139:33]
   assign io_idu2EXU_bits_rs1Data = _rs1DataWire_T_2 ? io_iduBypass_data_0 : _rs1DataWire_T_10; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
   assign io_idu2EXU_bits_rs2Data = _rs2DataWire_T_2 ? io_iduBypass_data_0 : _rs2DataWire_T_10; // @[src/main/scala/chisel3/util/Mux.scala 141:16]
@@ -207,9 +202,8 @@ module IDU(
     if (reset) begin // @[src/main/scala/idu/IDU.scala 145:27]
       validReg <= 1'h0; // @[src/main/scala/idu/IDU.scala 145:27]
     end else begin
-      validReg <= _GEN_4;
+      validReg <= _GEN_2;
     end
-    readyReg <= reset | _GEN_5; // @[src/main/scala/idu/IDU.scala 146:{31,31}]
   end
 // Register and memory initialization
 `ifdef RANDOMIZE_GARBAGE_ASSIGN
@@ -253,8 +247,6 @@ initial begin
   handReg = _RAND_1[0:0];
   _RAND_2 = {1{`RANDOM}};
   validReg = _RAND_2[0:0];
-  _RAND_3 = {1{`RANDOM}};
-  readyReg = _RAND_3[0:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial

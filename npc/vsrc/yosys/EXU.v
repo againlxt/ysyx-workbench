@@ -54,7 +54,6 @@ module EXU(
 );
 `ifdef RANDOMIZE_REG_INIT
   reg [31:0] _RAND_0;
-  reg [31:0] _RAND_1;
 `endif // RANDOMIZE_REG_INIT
   wire [3:0] alu_io_aluCtr; // @[src/main/scala/exu/EXU.scala 60:25]
   wire [31:0] alu_io_srcAData; // @[src/main/scala/exu/EXU.scala 60:25]
@@ -80,18 +79,13 @@ module EXU(
   wire [4:0] _io_rd_T_4 = io_idu2EXU_ready & ~io_exu2LSU_valid ? 5'h0 : io_idu2EXU_bits_inst[11:7]; // @[src/main/scala/exu/EXU.scala 120:45]
   wire [4:0] _io_rd_T_5 = io_idu2EXU_bits_regWR ? _io_rd_T_4 : 5'h0; // @[src/main/scala/exu/EXU.scala 120:23]
   reg  validReg; // @[src/main/scala/exu/EXU.scala 122:31]
-  reg  readyReg; // @[src/main/scala/exu/EXU.scala 123:31]
-  wire  _T = ~io_flush; // @[src/main/scala/exu/EXU.scala 124:14]
-  wire  _validReg_T = io_idu2EXU_valid & io_idu2EXU_ready; // @[src/main/scala/exu/EXU.scala 126:64]
-  wire  _validReg_T_1 = io_exu2LSU_valid & io_exu2LSU_ready; // @[src/main/scala/exu/EXU.scala 128:66]
-  wire  _validReg_T_4 = io_exu2LSU_valid & io_exu2LSU_ready ? _validReg_T : 1'h1; // @[src/main/scala/exu/EXU.scala 128:48]
-  wire  _GEN_0 = validReg ? _validReg_T_4 : validReg; // @[src/main/scala/exu/EXU.scala 122:31 125:34 128:42]
-  wire  _GEN_1 = ~validReg ? io_idu2EXU_valid & io_idu2EXU_ready : _GEN_0; // @[src/main/scala/exu/EXU.scala 125:34 126:44]
-  wire  _readyReg_T_4 = _validReg_T ? _validReg_T_1 : 1'h1; // @[src/main/scala/exu/EXU.scala 135:48]
-  wire  _GEN_2 = readyReg ? _readyReg_T_4 : readyReg; // @[src/main/scala/exu/EXU.scala 123:31 132:34 135:42]
-  wire  _GEN_3 = ~readyReg ? _validReg_T_1 : _GEN_2; // @[src/main/scala/exu/EXU.scala 132:34 133:44]
-  wire  _GEN_4 = ~io_flush & _GEN_1; // @[src/main/scala/exu/EXU.scala 124:26 140:26]
-  wire  _GEN_5 = ~io_flush ? _GEN_3 : 1'h1; // @[src/main/scala/exu/EXU.scala 124:26 141:26]
+  wire  _T = ~io_flush; // @[src/main/scala/exu/EXU.scala 123:14]
+  wire  _T_1 = ~validReg; // @[src/main/scala/exu/EXU.scala 124:34]
+  wire  _validReg_T = io_idu2EXU_valid & io_idu2EXU_ready; // @[src/main/scala/exu/EXU.scala 125:64]
+  wire  _validReg_T_4 = io_exu2LSU_valid & io_exu2LSU_ready ? _validReg_T : 1'h1; // @[src/main/scala/exu/EXU.scala 127:48]
+  wire  _GEN_0 = validReg ? _validReg_T_4 : validReg; // @[src/main/scala/exu/EXU.scala 122:31 124:34 127:42]
+  wire  _GEN_1 = ~validReg ? io_idu2EXU_valid & io_idu2EXU_ready : _GEN_0; // @[src/main/scala/exu/EXU.scala 124:34 125:44]
+  wire  _GEN_2 = ~io_flush & _GEN_1; // @[src/main/scala/exu/EXU.scala 123:26 132:26]
   ALU alu ( // @[src/main/scala/exu/EXU.scala 60:25]
     .io_aluCtr(alu_io_aluCtr),
     .io_srcAData(alu_io_srcAData),
@@ -106,8 +100,8 @@ module EXU(
     .io_csrALUOP(csrALU_io_csrALUOP),
     .io_oData(csrALU_io_oData)
   );
-  assign io_idu2EXU_ready = readyReg & _T; // @[src/main/scala/exu/EXU.scala 143:45]
-  assign io_exu2LSU_valid = validReg & _T; // @[src/main/scala/exu/EXU.scala 144:37]
+  assign io_idu2EXU_ready = io_exu2LSU_ready | _T_1; // @[src/main/scala/exu/EXU.scala 134:54]
+  assign io_exu2LSU_valid = validReg & _T; // @[src/main/scala/exu/EXU.scala 135:37]
   assign io_exu2LSU_bits_pc = io_idu2EXU_bits_pc; // @[src/main/scala/exu/EXU.scala 94:49]
   assign io_exu2LSU_bits_memData = io_idu2EXU_bits_rs2Data; // @[src/main/scala/exu/EXU.scala 95:41]
   assign io_exu2LSU_bits_aluData = alu_io_aluOut; // @[src/main/scala/exu/EXU.scala 96:41]
@@ -141,9 +135,8 @@ module EXU(
     if (reset) begin // @[src/main/scala/exu/EXU.scala 122:31]
       validReg <= 1'h0; // @[src/main/scala/exu/EXU.scala 122:31]
     end else begin
-      validReg <= _GEN_4;
+      validReg <= _GEN_2;
     end
-    readyReg <= reset | _GEN_5; // @[src/main/scala/exu/EXU.scala 123:{31,31}]
   end
 // Register and memory initialization
 `ifdef RANDOMIZE_GARBAGE_ASSIGN
@@ -183,8 +176,6 @@ initial begin
 `ifdef RANDOMIZE_REG_INIT
   _RAND_0 = {1{`RANDOM}};
   validReg = _RAND_0[0:0];
-  _RAND_1 = {1{`RANDOM}};
-  readyReg = _RAND_1[0:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
