@@ -51,7 +51,14 @@ module CheckUnit(
   reg [31:0] _RAND_16;
   reg [31:0] _RAND_17;
   reg [31:0] _RAND_18;
+  reg [31:0] _RAND_19;
 `endif // RANDOMIZE_REG_INIT
+  wire  ATC_valid; // @[src/main/scala/ifu/Icache.scala 494:57]
+  wire [31:0] ATC_counterType; // @[src/main/scala/ifu/Icache.scala 494:57]
+  wire [31:0] ATC_data; // @[src/main/scala/ifu/Icache.scala 494:57]
+  wire  MPC_valid; // @[src/main/scala/ifu/Icache.scala 498:57]
+  wire [31:0] MPC_counterType; // @[src/main/scala/ifu/Icache.scala 498:57]
+  wire [31:0] MPC_data; // @[src/main/scala/ifu/Icache.scala 498:57]
   wire  feq2CheckHandWire = io_checkUnitIO_fetchReq2CheckUnit_valid & io_checkUnitIO_fetchReq2CheckUnit_ready; // @[src/main/scala/ifu/Icache.scala 318:75]
   reg  feq2CheckHandReg; // @[src/main/scala/ifu/Icache.scala 319:42]
   wire [1:0] memIndexWire = io_checkUnitIO_fetchReq2CheckUnit_bits[5:4]; // @[src/main/scala/ifu/Icache.scala 321:81]
@@ -78,9 +85,9 @@ module CheckUnit(
   wire  _findEndWire_T_1 = io_checkUnitIO_checkUnit2Mem_rvalid & io_checkUnitIO_checkUnit2Mem_rready &
     io_checkUnitIO_checkUnit2Mem_rlast; // @[src/main/scala/ifu/Icache.scala 337:109]
   wire [2:0] _findEndWire_T_4 = 3'h4 - 3'h1; // @[src/main/scala/ifu/Icache.scala 338:79]
-  wire [7:0] _GEN_75 = {{5'd0}, _findEndWire_T_4}; // @[src/main/scala/ifu/Icache.scala 338:56]
-  wire  _findEndWire_T_5 = busrtCnt == _GEN_75; // @[src/main/scala/ifu/Icache.scala 338:56]
-  wire  findEndWire = _findEndWire_T_1 & busrtCnt == _GEN_75; // @[src/main/scala/ifu/Icache.scala 338:44]
+  wire [7:0] _GEN_77 = {{5'd0}, _findEndWire_T_4}; // @[src/main/scala/ifu/Icache.scala 338:56]
+  wire  _findEndWire_T_5 = busrtCnt == _GEN_77; // @[src/main/scala/ifu/Icache.scala 338:56]
+  wire  findEndWire = _findEndWire_T_1 & busrtCnt == _GEN_77; // @[src/main/scala/ifu/Icache.scala 338:44]
   reg [2:0] state; // @[src/main/scala/ifu/Icache.scala 344:34]
   wire  _nextState_T_1 = ~hitVec_0 & feq2CheckHandReg; // @[src/main/scala/ifu/Icache.scala 346:43]
   wire [1:0] _nextState_T_2 = ~hitVec_0 & feq2CheckHandReg ? 2'h2 : 2'h1; // @[src/main/scala/ifu/Icache.scala 346:31]
@@ -97,8 +104,8 @@ module CheckUnit(
   reg  rreadyReg; // @[src/main/scala/ifu/Icache.scala 378:42]
   wire [31:0] _io_checkUnitIO_checkUnit2Mem_araddr_T_1 = {io_checkUnitIO_fetchReq2CheckUnit_bits[31:4],4'h0}; // @[src/main/scala/ifu/Icache.scala 404:25]
   wire [9:0] _io_checkUnitIO_checkUnit2Mem_araddr_T_4 = {busrtCnt, 2'h0}; // @[src/main/scala/ifu/Icache.scala 404:91]
-  wire [31:0] _GEN_76 = {{22'd0}, _io_checkUnitIO_checkUnit2Mem_araddr_T_4}; // @[src/main/scala/ifu/Icache.scala 404:79]
-  wire [31:0] _io_checkUnitIO_checkUnit2Mem_araddr_T_6 = _io_checkUnitIO_checkUnit2Mem_araddr_T_1 + _GEN_76; // @[src/main/scala/ifu/Icache.scala 404:79]
+  wire [31:0] _GEN_78 = {{22'd0}, _io_checkUnitIO_checkUnit2Mem_araddr_T_4}; // @[src/main/scala/ifu/Icache.scala 404:79]
+  wire [31:0] _io_checkUnitIO_checkUnit2Mem_araddr_T_6 = _io_checkUnitIO_checkUnit2Mem_araddr_T_1 + _GEN_78; // @[src/main/scala/ifu/Icache.scala 404:79]
   wire  _GEN_8 = 2'h0 == busrtCnt[1:0] | axiHitVecReg_0; // @[src/main/scala/ifu/Icache.scala 334:42 422:{57,57}]
   wire  _GEN_9 = 2'h1 == busrtCnt[1:0] | axiHitVecReg_1; // @[src/main/scala/ifu/Icache.scala 334:42 422:{57,57}]
   wire  _GEN_10 = 2'h2 == busrtCnt[1:0] | axiHitVecReg_2; // @[src/main/scala/ifu/Icache.scala 334:42 422:{57,57}]
@@ -107,45 +114,62 @@ module CheckUnit(
   wire [2:0] _arlenReg_T_4 = isSdram ? _findEndWire_T_4 : 3'h0; // @[src/main/scala/ifu/Icache.scala 447:82]
   wire  _T_12 = io_checkUnitIO_checkUnit2Mem_arvalid & io_checkUnitIO_checkUnit2Mem_arready; // @[src/main/scala/ifu/Icache.scala 451:76]
   wire  _GEN_51 = io_checkUnitIO_checkUnit2Mem_arvalid & io_checkUnitIO_checkUnit2Mem_arready ? 1'h0 : arvalidReg; // @[src/main/scala/ifu/Icache.scala 451:116 372:42 452:52]
-  wire  _GEN_52 = _findEndWire_T & busrtCnt < _GEN_75 | arvalidReg; // @[src/main/scala/ifu/Icache.scala 457:160 372:42 458:52]
+  wire  _GEN_52 = _findEndWire_T & busrtCnt < _GEN_77 | arvalidReg; // @[src/main/scala/ifu/Icache.scala 457:160 372:42 458:52]
   wire  _GEN_53 = _T_12 ? 1'h0 : _GEN_52; // @[src/main/scala/ifu/Icache.scala 455:116 456:52]
   reg  validReg; // @[src/main/scala/ifu/Icache.scala 469:31]
   wire  _T_22 = ~validReg; // @[src/main/scala/ifu/Icache.scala 473:34]
   wire  _validReg_T_4 = io_checkUnitIO_checkUnit2PreDecoder_valid & io_checkUnitIO_checkUnit2PreDecoder_ready ?
     feq2CheckHandWire : 1'h1; // @[src/main/scala/ifu/Icache.scala 476:48]
-  wire  _io_checkUnitIO_checkUnit2PreDecoder_valid_T = state == 3'h1; // @[src/main/scala/ifu/Icache.scala 483:28]
-  wire  _GEN_64 = 2'h1 == offsetWire ? axiHitVecReg_1 : axiHitVecReg_0; // @[src/main/scala/ifu/Icache.scala 483:{63,63}]
-  wire  _GEN_65 = 2'h2 == offsetWire ? axiHitVecReg_2 : _GEN_64; // @[src/main/scala/ifu/Icache.scala 483:{63,63}]
-  wire  _GEN_66 = 2'h3 == offsetWire ? axiHitVecReg_3 : _GEN_65; // @[src/main/scala/ifu/Icache.scala 483:{63,63}]
-  wire  _io_checkUnitIO_checkUnit2PreDecoder_valid_T_4 = hitVec_0 & state == 3'h1 | state != 3'h1 & _GEN_66; // @[src/main/scala/ifu/Icache.scala 483:41]
-  wire  _io_checkUnitIO_checkUnit2PreDecoder_valid_T_5 = validReg & _io_checkUnitIO_checkUnit2PreDecoder_valid_T_4; // @[src/main/scala/ifu/Icache.scala 482:77]
-  wire  _io_checkUnitIO_checkUnit2PreDecoder_valid_T_6 = ~io_checkUnitIO_flush; // @[src/main/scala/ifu/Icache.scala 484:10]
-  wire [31:0] _GEN_68 = 2'h1 == offsetWire ? io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_1 :
-    io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_0; // @[src/main/scala/ifu/Icache.scala 486:{12,12}]
-  wire [31:0] _GEN_69 = 2'h2 == offsetWire ? io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_2 : _GEN_68; // @[src/main/scala/ifu/Icache.scala 486:{12,12}]
-  wire [31:0] _GEN_70 = 2'h3 == offsetWire ? io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_3 : _GEN_69; // @[src/main/scala/ifu/Icache.scala 486:{12,12}]
-  wire [31:0] _GEN_72 = 2'h1 == offsetWire ? axiDataVecReg_1 : axiDataVecReg_0; // @[src/main/scala/ifu/Icache.scala 486:{12,12}]
-  wire [31:0] _GEN_73 = 2'h2 == offsetWire ? axiDataVecReg_2 : _GEN_72; // @[src/main/scala/ifu/Icache.scala 486:{12,12}]
-  wire [31:0] _GEN_74 = 2'h3 == offsetWire ? axiDataVecReg_3 : _GEN_73; // @[src/main/scala/ifu/Icache.scala 486:{12,12}]
+  reg [31:0] missPenaltyCounter; // @[src/main/scala/ifu/Icache.scala 484:50]
+  wire [31:0] _missPenaltyCounter_T_1 = missPenaltyCounter + 32'h1; // @[src/main/scala/ifu/Icache.scala 490:58]
+  wire  _ATC_io_valid_T = state == 3'h1; // @[src/main/scala/ifu/Icache.scala 495:51]
+  wire  _GEN_66 = 2'h1 == offsetWire ? axiHitVecReg_1 : axiHitVecReg_0; // @[src/main/scala/ifu/Icache.scala 505:{63,63}]
+  wire  _GEN_67 = 2'h2 == offsetWire ? axiHitVecReg_2 : _GEN_66; // @[src/main/scala/ifu/Icache.scala 505:{63,63}]
+  wire  _GEN_68 = 2'h3 == offsetWire ? axiHitVecReg_3 : _GEN_67; // @[src/main/scala/ifu/Icache.scala 505:{63,63}]
+  wire  _io_checkUnitIO_checkUnit2PreDecoder_valid_T_4 = hitVec_0 & _ATC_io_valid_T | state != 3'h1 & _GEN_68; // @[src/main/scala/ifu/Icache.scala 505:41]
+  wire  _io_checkUnitIO_checkUnit2PreDecoder_valid_T_5 = validReg & _io_checkUnitIO_checkUnit2PreDecoder_valid_T_4; // @[src/main/scala/ifu/Icache.scala 504:77]
+  wire  _io_checkUnitIO_checkUnit2PreDecoder_valid_T_6 = ~io_checkUnitIO_flush; // @[src/main/scala/ifu/Icache.scala 506:10]
+  wire [31:0] _GEN_70 = 2'h1 == offsetWire ? io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_1 :
+    io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_0; // @[src/main/scala/ifu/Icache.scala 508:{12,12}]
+  wire [31:0] _GEN_71 = 2'h2 == offsetWire ? io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_2 : _GEN_70; // @[src/main/scala/ifu/Icache.scala 508:{12,12}]
+  wire [31:0] _GEN_72 = 2'h3 == offsetWire ? io_checkUnitIO_checkUnit2Sram_cacheLineVec_0_3 : _GEN_71; // @[src/main/scala/ifu/Icache.scala 508:{12,12}]
+  wire [31:0] _GEN_74 = 2'h1 == offsetWire ? axiDataVecReg_1 : axiDataVecReg_0; // @[src/main/scala/ifu/Icache.scala 508:{12,12}]
+  wire [31:0] _GEN_75 = 2'h2 == offsetWire ? axiDataVecReg_2 : _GEN_74; // @[src/main/scala/ifu/Icache.scala 508:{12,12}]
+  wire [31:0] _GEN_76 = 2'h3 == offsetWire ? axiDataVecReg_3 : _GEN_75; // @[src/main/scala/ifu/Icache.scala 508:{12,12}]
+  PerformanceCounter ATC ( // @[src/main/scala/ifu/Icache.scala 494:57]
+    .valid(ATC_valid),
+    .counterType(ATC_counterType),
+    .data(ATC_data)
+  );
+  PerformanceCounter MPC ( // @[src/main/scala/ifu/Icache.scala 498:57]
+    .valid(MPC_valid),
+    .counterType(MPC_counterType),
+    .data(MPC_data)
+  );
   assign io_checkUnitIO_fetchReq2CheckUnit_ready = (io_checkUnitIO_checkUnit2PreDecoder_ready | _T_22) & (nextState == 3'h1
-     & _io_checkUnitIO_checkUnit2PreDecoder_valid_T); // @[src/main/scala/ifu/Icache.scala 489:66]
+     & _ATC_io_valid_T); // @[src/main/scala/ifu/Icache.scala 511:66]
   assign io_checkUnitIO_checkUnit2PreDecoder_valid = _io_checkUnitIO_checkUnit2PreDecoder_valid_T_5 &
-    _io_checkUnitIO_checkUnit2PreDecoder_valid_T_6; // @[src/main/scala/ifu/Icache.scala 483:92]
-  assign io_checkUnitIO_checkUnit2PreDecoder_bits_pc = io_checkUnitIO_fetchReq2CheckUnit_bits; // @[src/main/scala/ifu/Icache.scala 487:65]
-  assign io_checkUnitIO_checkUnit2PreDecoder_bits_inst = _io_checkUnitIO_checkUnit2PreDecoder_valid_T ? _GEN_70 :
-    _GEN_74; // @[src/main/scala/ifu/Icache.scala 486:12]
+    _io_checkUnitIO_checkUnit2PreDecoder_valid_T_6; // @[src/main/scala/ifu/Icache.scala 505:92]
+  assign io_checkUnitIO_checkUnit2PreDecoder_bits_pc = io_checkUnitIO_fetchReq2CheckUnit_bits; // @[src/main/scala/ifu/Icache.scala 509:65]
+  assign io_checkUnitIO_checkUnit2PreDecoder_bits_inst = _ATC_io_valid_T ? _GEN_72 : _GEN_76; // @[src/main/scala/ifu/Icache.scala 508:12]
   assign io_checkUnitIO_checkUnit2Mem_arvalid = arvalidReg; // @[src/main/scala/ifu/Icache.scala 402:49]
   assign io_checkUnitIO_checkUnit2Mem_araddr = isSdram ? _io_checkUnitIO_checkUnit2Mem_araddr_T_1 :
     _io_checkUnitIO_checkUnit2Mem_araddr_T_6; // @[src/main/scala/ifu/Icache.scala 404:12]
   assign io_checkUnitIO_checkUnit2Mem_arlen = arlenReg; // @[src/main/scala/ifu/Icache.scala 406:57]
   assign io_checkUnitIO_checkUnit2Mem_rready = rreadyReg; // @[src/main/scala/ifu/Icache.scala 410:49]
-  assign io_checkUnitIO_checkUnit2Sram_cacheBuf_0 = axiDataVecReg_0; // @[src/main/scala/ifu/Icache.scala 490:65]
-  assign io_checkUnitIO_checkUnit2Sram_cacheBuf_1 = axiDataVecReg_1; // @[src/main/scala/ifu/Icache.scala 490:65]
-  assign io_checkUnitIO_checkUnit2Sram_cacheBuf_2 = axiDataVecReg_2; // @[src/main/scala/ifu/Icache.scala 490:65]
-  assign io_checkUnitIO_checkUnit2Sram_cacheBuf_3 = axiDataVecReg_3; // @[src/main/scala/ifu/Icache.scala 490:65]
+  assign io_checkUnitIO_checkUnit2Sram_cacheBuf_0 = axiDataVecReg_0; // @[src/main/scala/ifu/Icache.scala 512:65]
+  assign io_checkUnitIO_checkUnit2Sram_cacheBuf_1 = axiDataVecReg_1; // @[src/main/scala/ifu/Icache.scala 512:65]
+  assign io_checkUnitIO_checkUnit2Sram_cacheBuf_2 = axiDataVecReg_2; // @[src/main/scala/ifu/Icache.scala 512:65]
+  assign io_checkUnitIO_checkUnit2Sram_cacheBuf_3 = axiDataVecReg_3; // @[src/main/scala/ifu/Icache.scala 512:65]
   assign io_checkUnitIO_checkUnit2Sram_tagBuf = io_checkUnitIO_fetchReq2CheckUnit_bits[31:6]; // @[src/main/scala/ifu/Icache.scala 322:49]
   assign io_checkUnitIO_checkUnit2Sram_replaceIndex = io_checkUnitIO_fetchReq2CheckUnit_bits[5:4]; // @[src/main/scala/ifu/Icache.scala 323:49]
-  assign io_checkUnitIO_checkUnit2Sram_wen = state == 3'h4; // @[src/main/scala/ifu/Icache.scala 494:83]
+  assign io_checkUnitIO_checkUnit2Sram_wen = state == 3'h4; // @[src/main/scala/ifu/Icache.scala 516:83]
+  assign ATC_valid = state == 3'h1 & hitVec_0 & feq2CheckHandReg; // @[src/main/scala/ifu/Icache.scala 495:75]
+  assign ATC_counterType = 32'h9; // @[src/main/scala/ifu/Icache.scala 496:41]
+  assign ATC_data = 32'h1; // @[src/main/scala/ifu/Icache.scala 497:41]
+  assign MPC_valid = state == 3'h2 & findEndWire; // @[src/main/scala/ifu/Icache.scala 499:63]
+  assign MPC_counterType = 32'ha; // @[src/main/scala/ifu/Icache.scala 500:41]
+  assign MPC_data = missPenaltyCounter; // @[src/main/scala/ifu/Icache.scala 501:41]
   always @(posedge clock) begin
     feq2CheckHandReg <= io_checkUnitIO_fetchReq2CheckUnit_valid & io_checkUnitIO_fetchReq2CheckUnit_ready; // @[src/main/scala/ifu/Icache.scala 318:75]
     if (reset) begin // @[src/main/scala/ifu/Icache.scala 326:42]
@@ -312,6 +336,13 @@ module CheckUnit(
     end else if (validReg) begin // @[src/main/scala/ifu/Icache.scala 473:34]
       validReg <= _validReg_T_4; // @[src/main/scala/ifu/Icache.scala 476:42]
     end
+    if (reset) begin // @[src/main/scala/ifu/Icache.scala 484:50]
+      missPenaltyCounter <= 32'h0; // @[src/main/scala/ifu/Icache.scala 484:50]
+    end else if (3'h1 == nextState) begin // @[src/main/scala/ifu/Icache.scala 485:35]
+      missPenaltyCounter <= 32'h0; // @[src/main/scala/ifu/Icache.scala 487:52]
+    end else if (3'h2 == nextState) begin // @[src/main/scala/ifu/Icache.scala 485:35]
+      missPenaltyCounter <= _missPenaltyCounter_T_1; // @[src/main/scala/ifu/Icache.scala 490:36]
+    end
   end
 // Register and memory initialization
 `ifdef RANDOMIZE_GARBAGE_ASSIGN
@@ -387,6 +418,8 @@ initial begin
   rreadyReg = _RAND_17[0:0];
   _RAND_18 = {1{`RANDOM}};
   validReg = _RAND_18[0:0];
+  _RAND_19 = {1{`RANDOM}};
+  missPenaltyCounter = _RAND_19[31:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
